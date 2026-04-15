@@ -1,8 +1,7 @@
 /* ── BGS app.js — Shared JS ─────────────────────────────────────── */
 
-// ── POINT THIS TO YOUR RAILWAY URL ──────────────────────────────────
-// Replace with your actual Railway backend URL (no trailing slash)
-const API_BASE = 'https://YOUR-APP.up.railway.app';
+// Frontend and backend are on the same Railway domain
+const API_BASE = '';
 
 // ── DISTRICTS ───────────────────────────────────────────────────────
 const DISTRICTS = [
