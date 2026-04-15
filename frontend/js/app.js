@@ -1,7 +1,6 @@
 /* ── BGS app.js — Shared JS ─────────────────────────────────────── */
 
-// Frontend and backend are on the same Railway domain
-const API_BASE = '';
+const API_BASE = 'https://backend-ghetto-busoga-production.up.railway.app';
 
 // ── DISTRICTS ───────────────────────────────────────────────────────
 const DISTRICTS = [
