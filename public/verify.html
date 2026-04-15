@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BGS — Beneficiary Verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#009c41;--green-dark:#007a33;--green-light:#b3e6c8;
+  --green-pale:#eaf7f0;--green-mid:#b3e6c8;
+  --text:#1a2e22;--muted:#7a9e8a;--border:#dde8e2;--bg:#f0f4f2;
+  --font:'Varela Round',sans-serif;--font2:'Nunito',sans-serif;
+  --radius:18px;--radius-sm:11px;
+}
+html{min-height:100%}
+body{font-family:var(--font2);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 0 40px}
+
+.header{width:100%;background:#1a2e22;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.header-brand{display:flex;align-items:center;gap:10px}
+.header-dots{display:flex;gap:3px}
+.header-dots span{width:7px;height:7px;border-radius:50%;display:block}
+.header-name{font-family:var(--font2);font-weight:900;font-size:.9rem;color:#fff;letter-spacing:-.02em}
+.header-name em{font-style:normal;color:var(--green-light)}
+.header-right{font-family:var(--font2);font-size:.65rem;font-weight:700;color:rgba(255,255,255,.35);text-align:right}
+.header-right strong{display:block;color:rgba(255,255,255,.65);font-size:.7rem;margin-bottom:1px}
+
+.main{width:100%;max-width:420px;padding:0 16px}
+
+.card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.09)}
+
+.verified-banner{background:var(--green);padding:14px 20px;display:flex;align-items:center;gap:12px}
+.verified-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.verified-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.v-title{font-family:var(--font);font-size:1rem;color:#fff;margin-bottom:2px}
+.v-sub{font-family:var(--font2);font-size:.65rem;font-weight:600;color:rgba(255,255,255,.7)}
+
+.photo-section{background:#1a2e22;padding:24px;display:flex;align-items:center;gap:18px}
+.beneficiary-photo{width:88px;height:88px;border-radius:13px;background:#2a4433;border:2.5px solid rgba(179,230,200,.25);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:2rem;color:rgba(179,230,200,.6);overflow:hidden;flex-shrink:0}
+.beneficiary-photo img{width:100%;height:100%;object-fit:cover;object-position:top}
+.beneficiary-name{font-family:var(--font);font-size:1.3rem;color:#fff;letter-spacing:-.02em;margin-bottom:3px;line-height:1.15}
+.beneficiary-id{font-family:var(--font);font-size:.88rem;color:var(--green-light);letter-spacing:.04em;margin-bottom:8px}
+.beneficiary-meta{display:flex;flex-direction:column;gap:3px}
+.beneficiary-meta span{font-family:var(--font2);font-size:.68rem;font-weight:600;color:rgba(255,255,255,.5)}
+.beneficiary-meta span strong{color:rgba(255,255,255,.82);font-weight:800}
+
+.amount-block{margin:0 20px 20px;background:var(--green-pale);border:1.5px solid var(--green-mid);border-radius:var(--radius-sm);padding:16px 18px;display:flex;align-items:center;justify-content:space-between}
+.amount-num{font-family:var(--font);font-size:1.6rem;color:var(--green);letter-spacing:-.02em}
+.amount-lbl{font-family:var(--font2);font-size:.6rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.amount-date{text-align:right}
+.date-val{font-family:var(--font);font-size:.95rem;color:var(--text)}
+.date-lbl{font-family:var(--font2);font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+
+.details{padding:20px}
+.detail-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-key{font-family:var(--font2);font-size:.68rem;font-weight:700;color:var(--muted)}
+.detail-val{font-family:var(--font2);font-size:.78rem;font-weight:800;color:var(--text);text-align:right}
+
+.card-footer{background:var(--bg);border-top:1.5px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.card-footer-text{font-family:var(--font2);font-size:.65rem;font-weight:700;color:var(--muted)}
+.card-footer-text strong{color:var(--text)}
+.verified-stamp{display:flex;align-items:center;gap:5px;background:var(--green-pale);border:1px solid var(--green-mid);border-radius:100px;padding:3px 10px;font-family:var(--font2);font-size:.6rem;font-weight:900;color:var(--green-dark);text-transform:uppercase;letter-spacing:.07em}
+.verified-stamp svg{width:10px;height:10px;stroke:var(--green-dark);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+.state-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:48px 24px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.09)}
+.state-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.state-title{font-family:var(--font);font-size:1.2rem;color:var(--text);margin-bottom:6px}
+.state-sub{font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);line-height:1.6;max-width:260px;margin:0 auto}
+
+.bottom-note{margin-top:20px;text-align:center;font-family:var(--font2);font-size:.65rem;font-weight:600;color:var(--muted);line-height:1.7}
+
+.pulse{animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+@media(max-width:480px){
+  .header{padding:14px 16px}
+  .main{padding:0 12px}
+  .photo-section{padding:18px}
+  .beneficiary-photo{width:72px;height:72px;font-size:1.6rem}
+  .beneficiary-name{font-size:1.1rem}
+  .amount-num{font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <div class="header-dots">
+      <span style="background:#009c41"></span>
+      <span style="background:#b3e6c8"></span>
+      <span style="background:#eaf7f0"></span>
+    </div>
+    <div class="header-name">BGS <em>Busoga</em></div>
+  </div>
+  <div class="header-right">
+    <strong>Beneficiary Verification</strong>
+    Busoga Ghetto Structure Programme
+  </div>
+</div>
+
+<div class="main" id="main">
+  <div class="state-card">
+    <div class="state-icon" style="background:var(--green-pale);border:1.5px solid var(--green-mid)">
+      <svg viewBox="0 0 16 16" style="width:22px;height:22px;stroke:var(--green-dark);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round" class="pulse">
+        <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+      </svg>
+    </div>
+    <div class="state-title">Loading record...</div>
+    <div class="state-sub">Verifying beneficiary, please wait.</div>
+  </div>
+</div>
+
+<script>
+// ── POINT THIS TO YOUR RAILWAY URL ───────────────────────────────────
+const API_BASE = 'https://YOUR-APP.up.railway.app';
+
+const memberId = new URLSearchParams(window.location.search).get('id');
+
+function initials(n) { return (n||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase(); }
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-UG',{day:'numeric',month:'long',year:'numeric'}); }
+  catch { return d; }
+}
+function fmt(n) { return Number(n||0).toLocaleString('en-UG'); }
+
+if (!memberId) {
+  document.getElementById('main').innerHTML = `
+    <div class="state-card">
+      <div class="state-icon" style="background:#fff5f5;border:1.5px solid #fdd">
+        <svg viewBox="0 0 16 16" style="width:22px;height:22px;stroke:#e05252;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round">
+          <circle cx="8" cy="8" r="6"/><path d="M8 5v3"/><circle cx="8" cy="11" r=".5" fill="#e05252"/>
+        </svg>
+      </div>
+      <div class="state-title">Invalid QR Code</div>
+      <div class="state-sub">This QR code is missing a beneficiary ID. Please scan the correct code.</div>
+    </div>`;
+} else {
+  fetch(API_BASE + '/api/verify/' + memberId)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      render(data.member);
+    })
+    .catch(() => {
+      document.getElementById('main').innerHTML = `
+        <div class="state-card">
+          <div class="state-icon" style="background:#fff5f5;border:1.5px solid #fdd">
+            <svg viewBox="0 0 16 16" style="width:22px;height:22px;stroke:#e05252;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round">
+              <circle cx="8" cy="8" r="6"/><path d="M8 5v3"/><circle cx="8" cy="11" r=".5" fill="#e05252"/>
+            </svg>
+          </div>
+          <div class="state-title">Beneficiary Not Found</div>
+          <div class="state-sub">No record found for ID <strong>${memberId}</strong>. This QR code may be invalid or the record may have been removed.</div>
+        </div>
+        <div class="bottom-note">Busoga Ghetto Structure Programme &nbsp;·&nbsp; State House Uganda</div>`;
+    });
+}
+
+function render(m) {
+  document.title = m.name + ' — BGS Verification';
+  document.getElementById('main').innerHTML = `
+    <div class="card">
+      <div class="verified-banner">
+        <div class="verified-icon">
+          <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
+        </div>
+        <div>
+          <div class="v-title">SACCO Funds Verified</div>
+          <div class="v-sub">This person received disbursement from the Busoga Ghetto Structure Programme</div>
+        </div>
+      </div>
+      <div class="photo-section">
+        <div class="beneficiary-photo">
+          ${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : initials(m.name)}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="beneficiary-name">${m.name}</div>
+          <div class="beneficiary-id">${m.id}</div>
+          <div class="beneficiary-meta">
+            <span><strong>${m.district_name}</strong></span>
+            <span><strong>${m.depot}</strong></span>
+            ${m.village ? `<span>${m.village}</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="amount-block">
+        <div>
+          <div class="amount-num">UGX ${fmt(m.amount)}</div>
+          <div class="amount-lbl">Amount Received</div>
+        </div>
+        <div class="amount-date">
+          <div class="date-val">${fmtDate(m.disbursement_date)}</div>
+          <div class="date-lbl">Disbursement Date</div>
+        </div>
+      </div>
+      <div class="details">
+        ${[
+          ['District',    m.district_name],
+          ['Depot',       m.depot],
+          ['Village',     m.village || '—'],
+          ['Gender',      m.gender  || '—'],
+          ['Programme',   'Busoga Ghetto SACCO Fund'],
+          ['Coordinator', 'Haji Faruk Kirunda'],
+        ].map(([k,v]) => `
+          <div class="detail-row">
+            <span class="detail-key">${k}</span>
+            <span class="detail-val">${v}</span>
+          </div>`).join('')}
+      </div>
+      <div class="card-footer">
+        <div class="card-footer-text">
+          <strong>State House Uganda</strong><br>
+          Presidential Special Assistant
+        </div>
+        <div class="verified-stamp">
+          <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
+          Verified
+        </div>
+      </div>
+    </div>
+    <div class="bottom-note">
+      This record is maintained by the Busoga Ghetto Structure Programme<br>
+      under the direction of Haji Faruk Kirunda, Presidential Special Assistant.<br>
+      <strong style="color:var(--text)">ID: ${m.id}</strong>
+    </div>`;
+}
+</script>
+</body>
+</html>

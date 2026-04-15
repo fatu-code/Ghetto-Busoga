@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dashboard — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Dashboard</div>
+          <div class="topbar-sub">Busoga Ghetto Structure — Disbursement Overview</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="members.html?action=add" class="btn btn-green">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
+          <span class="mob-hide">Register Beneficiary</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="statsGrid" class="metrics-grid"></div>
+      <div class="grid-2" style="margin-bottom:16px">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Disbursement by district</span></div>
+          <div id="distBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">Top depots by beneficiaries</span>
+          </div>
+          <div id="depotList"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Recently registered beneficiaries</span>
+          <a href="members.html" class="card-action">View all →</a>
+        </div>
+        <div id="recentMembers"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('dashboard');
+
+async function load() {
+  try {
+    const data = await apiFetch('/api/stats');
+    renderStats(data);
+  } catch(e) {
+    showToast('Failed to load dashboard data', 'error');
+  }
+}
+
+function renderStats(data) {
+  const t = data.totals;
+
+  // Stat cards
+  document.getElementById('statsGrid').innerHTML = [
+    { icon:'<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>', cls:'green', val: fmt(t.total_members),   label:'Total Beneficiaries' },
+    { icon:'<svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>',           cls:'amber', val:`UGX ${(t.total_disbursed/1000000).toFixed(1)}M`, label:'Total Disbursed' },
+    { icon:'<svg viewBox="0 0 16 16"><path d="M1 6l7-5 7 5v8H1z"/><rect x="5" y="9" width="6" height="6"/></svg>',           cls:'green', val: fmt(t.total_depots),    label:'Active Depots' },
+    { icon:'<svg viewBox="0 0 16 16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/></svg>',                                          cls:'blue',  val: fmt(t.districts_covered),label:'Districts Covered' },
+  ].map(s => `
+    <div class="metric-card">
+      <div class="mc-top"><div class="mc-icon ${s.cls}">${s.icon}</div></div>
+      <div class="mc-value">${s.val}</div>
+      <div class="mc-label">${s.label}</div>
+    </div>`).join('');
+
+  // District bars
+  const maxAmount = Math.max(...data.byDistrict.map(d => d.total_amount || 0), 1);
+  document.getElementById('distBars').innerHTML = data.byDistrict.length
+    ? data.byDistrict.map(d => `
+        <div style="margin-bottom:11px">
+          <div style="display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:4px">
+            <span style="font-weight:800">${d.district_name}</span>
+            <span style="color:var(--muted)">${fmt(d.member_count)} beneficiaries · UGX ${(d.total_amount/1000000).toFixed(1)}M</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.total_amount/maxAmount*100)}%"></div></div>
+        </div>`).join('')
+    : `<div class="empty-state" style="padding:20px"><div class="empty-title">No data yet</div></div>`;
+
+  // Depot list
+  document.getElementById('depotList').innerHTML = data.byDepot.length
+    ? data.byDepot.map((d, i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)${i===data.byDepot.length-1?';border-bottom:none':''}">
+          <div style="width:22px;height:22px;border-radius:6px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:.65rem;font-weight:800;color:var(--green-dark);flex-shrink:0">${i+1}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.78rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.depot}</div>
+            <div style="font-size:.62rem;color:var(--muted)">${d.district_name}</div>
+          </div>
+          <div style="font-family:var(--font);font-size:.88rem;color:var(--text);flex-shrink:0">${fmt(d.member_count)}</div>
+        </div>`).join('')
+    : `<div class="empty-state" style="padding:20px"><div class="empty-title">No depots yet</div></div>`;
+
+  // Recent members
+  document.getElementById('recentMembers').innerHTML = data.recent.length
+    ? data.recent.map(m => `
+        <div class="member-row" onclick="location.href='member.html?id=${m.id}'">
+          <div class="m-avatar">
+            ${m.photo_url
+              ? `<img src="${m.photo_url}" alt="${m.name}">`
+              : initials(m.name)}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.84rem;font-weight:800">${m.name}</div>
+            <div style="font-size:.65rem;color:var(--muted)">${m.id} · ${m.district_name} · ${m.depot}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-family:var(--font);font-size:.85rem;color:var(--green);font-weight:700">UGX ${fmt(m.amount)}</div>
+            <div style="font-size:.62rem;color:var(--muted)">${formatDate(m.disbursement_date || m.created_at)}</div>
+          </div>
+        </div>`).join('')
+    : `<div class="empty-state" style="padding:24px">
+        <div class="empty-icon"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div>
+        <div class="empty-title">No beneficiaries yet</div>
+        <div class="empty-sub">Start registering beneficiaries to see them here.</div>
+      </div>`;
+}
+
+load();
+</script>
+</body>
+</html>

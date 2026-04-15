@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BGS — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#009c41;--green-dark:#007a33;--green-light:#b3e6c8;
+  --green-pale:#eaf7f0;--green-mid:rgba(0,156,65,.15);
+  --green-shadow:rgba(0,156,65,.3);
+  --deeper:#0d1f14;--dark:#1a2e22;
+  --bg:#f0f4f2;--white:#fff;--border:#dde8e2;
+  --text:#1a2e22;--muted:#7a9e8a;
+  --red:#e05252;--red-pale:#fff5f5;
+  --font:'Varela Round',sans-serif;--font2:'Nunito',sans-serif;
+  --radius:18px;--radius-sm:11px;
+}
+html,body{height:100%}
+body{font-family:var(--font2);background:var(--deeper);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,156,65,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,156,65,.05) 0%,transparent 50%);pointer-events:none}
+
+.login-wrap{width:100%;max-width:420px;position:relative;z-index:1}
+
+.login-brand{text-align:center;margin-bottom:28px}
+.brand-circle{width:64px;height:64px;background:var(--green);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 8px 28px var(--green-shadow)}
+.brand-circle svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.brand-title{font-family:var(--font);font-size:1.8rem;color:#fff;letter-spacing:-.02em;margin-bottom:4px}
+.brand-sub{font-family:var(--font2);font-size:.72rem;font-weight:600;color:rgba(255,255,255,.35)}
+
+.login-card{background:var(--white);border-radius:var(--radius);padding:28px 28px 24px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.card-title{font-family:var(--font);font-size:1.1rem;color:var(--text);margin-bottom:4px}
+.card-sub{font-family:var(--font2);font-size:.72rem;font-weight:600;color:var(--muted);margin-bottom:22px}
+
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-family:var(--font2);font-size:.62rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.form-input{width:100%;height:44px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font2);font-size:.88rem;font-weight:600;color:var(--text);padding:0 14px;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--green);background:var(--white);box-shadow:0 0 0 3px var(--green-mid)}
+
+.submit-btn{width:100%;height:46px;background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font2);font-size:.88rem;font-weight:800;cursor:pointer;transition:all .15s;margin-top:4px;box-shadow:0 4px 14px var(--green-shadow);display:flex;align-items:center;justify-content:center;gap:8px}
+.submit-btn:hover{background:var(--green-dark);transform:translateY(-1px)}
+.submit-btn:disabled{opacity:.6;cursor:default;transform:none}
+.submit-btn svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+.error-box{background:var(--red-pale);border:1.5px solid rgba(224,82,82,.25);border-radius:var(--radius-sm);padding:10px 13px;font-family:var(--font2);font-size:.78rem;font-weight:700;color:var(--red);margin-bottom:14px;display:none;align-items:center;gap:8px}
+.error-box.show{display:flex}
+.error-box svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+
+.login-footer{text-align:center;margin-top:18px;font-family:var(--font2);font-size:.65rem;font-weight:600;color:rgba(255,255,255,.2)}
+
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-brand">
+    <div class="brand-circle">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M11 2l1.5 1.5"/></svg>
+    </div>
+    <div class="brand-title">BGS</div>
+    <div class="brand-sub">Busoga Ghetto Structure — Disbursement System</div>
+  </div>
+
+  <div class="login-card">
+    <div class="card-title">Welcome back</div>
+    <div class="card-sub">Sign in to the Beneficiary Management System</div>
+
+    <div class="error-box" id="errorBox">
+      <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v3"/><circle cx="8" cy="11" r=".5" fill="currentColor"/></svg>
+      <span id="errorMsg">Invalid username or password</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" type="text" id="username" placeholder="Enter your username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="doLogin()">
+      <svg viewBox="0 0 16 16"><path d="M6 8h7M10 5l3 3-3 3"/><path d="M4 4H2a1 1 0 00-1 1v6a1 1 0 001 1h2"/></svg>
+      Sign In
+    </button>
+  </div>
+
+  <div class="login-footer">BGS Disbursement Verification System &nbsp;·&nbsp; State House Uganda</div>
+</div>
+
+<script>
+// Redirect if already logged in
+const stored = localStorage.getItem('bgs_token');
+if (stored) window.location.href = 'dashboard.html';
+
+const usernameEl = document.getElementById('username');
+const passwordEl = document.getElementById('password');
+const submitBtn  = document.getElementById('submitBtn');
+const errorBox   = document.getElementById('errorBox');
+const errorMsg   = document.getElementById('errorMsg');
+
+[usernameEl, passwordEl].forEach(el =>
+  el.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); })
+);
+
+function showError(msg) { errorMsg.textContent = msg; errorBox.classList.add('show'); }
+function hideError()    { errorBox.classList.remove('show'); }
+
+async function doLogin() {
+  const username = usernameEl.value.trim();
+  const password = passwordEl.value;
+  if (!username || !password) { showError('Please enter your username and password.'); return; }
+  hideError();
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<div class="spinner"></div> Signing in...';
+  try {
+    const res  = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Invalid credentials');
+    localStorage.setItem('bgs_user',  JSON.stringify(data.user));
+    localStorage.setItem('bgs_token', data.token);
+    window.location.href = 'dashboard.html';
+  } catch(err) {
+    showError(err.message || 'Invalid username or password.');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M6 8h7M10 5l3 3-3 3"/><path d="M4 4H2a1 1 0 00-1 1v6a1 1 0 001 1h2"/></svg>Sign In';
+  }
+}
+</script>
+</body>
+</html>

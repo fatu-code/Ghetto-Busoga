@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Beneficiary Profile — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.qr-card{
+  background:#1a2e22;
+  border-radius:var(--radius);
+  padding:24px;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+.qr-wrap{
+  background:#fff;
+  border-radius:12px;
+  padding:14px;
+  display:inline-block;
+}
+.qr-wrap img{width:200px;height:200px;display:block}
+.qr-label{font-family:var(--font2);font-size:.72rem;font-weight:700;color:rgba(255,255,255,.45);line-height:1.6;max-width:240px}
+.qr-id{font-family:var(--font);font-size:1.1rem;color:#fff;letter-spacing:.05em}
+.qr-url{font-family:var(--font2);font-size:.62rem;font-weight:700;color:rgba(179,230,200,.5);word-break:break-all;max-width:240px}
+.print-btn{width:100%;height:38px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);color:rgba(255,255,255,.7);font-family:var(--font2);font-size:.75rem;font-weight:800;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.print-btn:hover{background:rgba(255,255,255,.14);color:#fff}
+.print-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <a href="members.html" style="font-family:var(--font2);font-size:.7rem;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:4px;margin-bottom:1px">
+            <svg viewBox="0 0 16 16" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10 4l-4 4 4 4"/></svg>
+            Beneficiaries
+          </a>
+          <div class="topbar-title" id="profileNameBar">Loading...</div>
+        </div>
+      </div>
+      <div class="topbar-right" id="topbarActions"></div>
+    </div>
+
+    <div class="content" id="profileContent">
+      <div class="empty-state"><div class="empty-title">Loading...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal-card" style="max-width:600px">
+    <div class="modal-head">
+      <div class="modal-title">Edit Beneficiary</div>
+      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+        <div id="editPhotoPreview" style="width:60px;height:60px;border-radius:12px;background:#1a2e22;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:1.2rem;color:rgba(179,230,200,.6);flex-shrink:0;overflow:hidden;cursor:pointer" onclick="document.getElementById('editPhotoInput').click()"></div>
+        <div>
+          <div style="font-family:var(--font2);font-size:.78rem;font-weight:800;color:var(--text);margin-bottom:2px">Update Photo</div>
+          <div style="font-family:var(--font2);font-size:.68rem;color:var(--muted);margin-bottom:6px">Click to change photo</div>
+          <input type="file" id="editPhotoInput" accept="image/*" style="display:none" onchange="previewEditPhoto(this)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="eName"></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="ePhone"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">District *</label><select class="form-select" id="eDistrict"><option value="">Select</option></select></div>
+        <div class="form-group"><label class="form-label">Depot *</label><input class="form-input" id="eDepot"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Village</label><input class="form-input" id="eVillage"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="eGender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Amount (UGX) *</label><input class="form-input" id="eAmount" type="number"></div>
+        <div class="form-group"><label class="form-label">Disbursement Date</label><input class="form-input" id="eDate" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="eStatus"><option>Active</option><option>Inactive</option><option>Suspended</option></select></div>
+        <div class="form-group"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="eNotes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-red btn-sm" onclick="confirmDelete()">Delete</button>
+      <button class="btn" onclick="closeModal('editModal')">Cancel</button>
+      <button class="btn btn-green" id="eSaveBtn" onclick="saveEdit()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('members');
+
+const memberId = new URLSearchParams(window.location.search).get('id');
+if (!memberId) location.href = 'members.html';
+
+let member = null;
+
+// Populate edit district
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('eDistrict').appendChild(o);
+});
+
+async function load() {
+  try {
+    const data = await apiFetch(`/api/members/${memberId}`);
+    member = data.member;
+    document.getElementById('profileNameBar').textContent = member.name;
+    document.getElementById('topbarActions').innerHTML = `
+      <button class="btn" onclick="openEditModal()">
+        <svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg>
+        <span class="mob-hide">Edit</span>
+      </button>
+      <button class="btn btn-green" onclick="printQR()">
+        <svg viewBox="0 0 16 16"><path d="M4 5V3a1 1 0 011-1h6a1 1 0 011 1v2"/><rect x="2" y="5" width="12" height="8" rx="1.5"/><path d="M6 13v-2h4v2"/></svg>
+        <span class="mob-hide">Print QR</span>
+      </button>`;
+    renderProfile();
+  } catch(e) {
+    document.getElementById('profileContent').innerHTML =
+      `<div class="empty-state"><div class="empty-title">Beneficiary not found</div></div>`;
+  }
+}
+
+function renderProfile() {
+  const m = member;
+  document.getElementById('profileContent').innerHTML = `
+
+    <!-- HERO -->
+    <div class="member-hero">
+      <div class="member-hero-top">
+        <div class="member-photo">
+          ${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : initials(m.name)}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+            ${statusPill(m.status)}
+            ${m.gender ? `<span class="pill pill-gray">${m.gender}</span>` : ''}
+          </div>
+          <div class="member-name">${m.name}</div>
+          <div class="member-id-tag">${m.id}</div>
+          <div class="member-meta-row">
+            <div class="member-meta-item"><strong>District:</strong> ${m.district_name}</div>
+            <div class="member-meta-item"><strong>Depot:</strong> ${m.depot}</div>
+            ${m.village ? `<div class="member-meta-item"><strong>Village:</strong> ${m.village}</div>` : ''}
+            ${m.phone   ? `<div class="member-meta-item"><strong>Phone:</strong> ${m.phone}</div>`   : ''}
+          </div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val">UGX ${(m.amount/1000000).toFixed(1)}M</div>
+          <div class="hero-stat-lbl">Amount Received</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">${formatDate(m.disbursement_date)}</div>
+          <div class="hero-stat-lbl">Disbursement Date</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">${formatDate(m.created_at)}</div>
+          <div class="hero-stat-lbl">Date Registered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('profile',this)">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+        Profile
+      </button>
+      <button class="tab" onclick="showTab('qr',this)">
+        <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="11" y="11" width="1" height="1"/><rect x="13" y="11" width="2" height="1"/><rect x="11" y="13" width="4" height="2"/></svg>
+        QR Code & Verification
+      </button>
+    </div>
+
+    <!-- TAB: PROFILE -->
+    <div class="tab-content active" id="tab-profile">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Personal Information</span><button class="card-action" onclick="openEditModal()">Edit</button></div>
+          ${infoRows([
+            ['Full Name',    m.name],
+            ['Member ID',    m.id],
+            ['Phone',        m.phone || '—'],
+            ['Gender',       m.gender || '—'],
+            ['Village',      m.village || '—'],
+            ['Status',       statusPill(m.status)],
+          ])}
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Disbursement Details</span></div>
+          ${infoRows([
+            ['District',          m.district_name],
+            ['Depot',             m.depot],
+            ['Amount Received',   `<strong style="color:var(--green)">UGX ${fmt(m.amount)}</strong>`],
+            ['Disbursement Date', formatDate(m.disbursement_date)],
+            ['Registered On',     formatDate(m.created_at)],
+          ])}
+          ${m.notes ? `<div style="margin-top:12px;padding:11px 13px;background:var(--bg);border-radius:var(--radius-sm);font-family:var(--font2);font-size:.75rem;font-weight:600;color:var(--text);line-height:1.6">${m.notes}</div>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: QR -->
+    <div class="tab-content" id="tab-qr">
+      <div class="grid-2">
+        <div class="qr-card">
+          <div>
+            <div style="font-family:var(--font2);font-size:.62rem;font-weight:800;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Verification QR Code</div>
+            <div class="qr-id">${m.id}</div>
+          </div>
+          ${m.qr_data_url
+            ? `<div class="qr-wrap"><img src="${m.qr_data_url}" alt="QR Code for ${m.id}"></div>`
+            : `<div style="width:200px;height:200px;background:rgba(255,255,255,.05);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--font2);font-size:.72rem;color:rgba(255,255,255,.35)">QR not available</div>`}
+          <div class="qr-label">Scan this code to verify that <strong style="color:rgba(255,255,255,.7)">${m.name}</strong> received SACCO funds from the Busoga Ghetto Structure Programme.</div>
+          <button class="print-btn" onclick="printQR()">
+            <svg viewBox="0 0 16 16"><path d="M4 5V3a1 1 0 011-1h6a1 1 0 011 1v2"/><rect x="2" y="5" width="12" height="8" rx="1.5"/><path d="M6 13v-2h4v2"/></svg>
+            Print QR Card
+          </button>
+        </div>
+        <div class="col-stack">
+          <div class="card">
+            <div class="card-head"><span class="card-title">How to use this QR code</span></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              ${[
+                ['1', 'Show this QR code to anyone who questions the disbursement'],
+                ['2', 'They scan it with any phone camera'],
+                ['3', 'It opens a public verification page showing this beneficiary\'s record'],
+                ['4', 'The page shows: photo, name, depot, amount received, date'],
+                ['5', 'No login needed — proof for anyone, anywhere'],
+              ].map(([n, t]) => `
+                <div style="display:flex;align-items:flex-start;gap:10px">
+                  <div style="width:22px;height:22px;border-radius:50%;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:.72rem;font-weight:700;color:var(--green-dark);flex-shrink:0">${n}</div>
+                  <div style="font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--text);line-height:1.5;padding-top:2px">${t}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title">Direct verification link</span></div>
+            <div style="font-family:var(--font2);font-size:.72rem;font-weight:600;color:var(--muted);margin-bottom:8px;line-height:1.6">Share this link directly — it opens the public verification page:</div>
+            <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;font-family:monospace;font-size:.72rem;color:var(--green);word-break:break-all;margin-bottom:10px" id="verifyLink"></div>
+            <button class="btn btn-sm" onclick="copyLink()">
+              <svg viewBox="0 0 16 16"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v7a1 1 0 001 1h2"/></svg>
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  // Set verify link
+  const link = `${window.location.origin}/verify.html?id=${m.id}`;
+  const linkEl = document.getElementById('verifyLink');
+  if (linkEl) linkEl.textContent = link;
+}
+
+function infoRows(rows) {
+  return `<div>${rows.map(([k,v]) => `
+    <div class="info-row">
+      <span class="info-key">${k}</span>
+      <span class="info-val">${v || '—'}</span>
+    </div>`).join('')}</div>`;
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id)?.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function copyLink() {
+  const link = `${window.location.origin}/verify.html?id=${memberId}`;
+  navigator.clipboard.writeText(link).then(() => showToast('Link copied!'));
+}
+
+function printQR() {
+  const m    = member;
+  const link = `${window.location.origin}/verify.html?id=${m.id}`;
+  const html = `<!DOCTYPE html><html><head><title>QR — ${m.id}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .card{width:280px;border:2px solid #dde8e2;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+    .card-header{background:#1a2e22;padding:16px;text-align:center}
+    .card-header .title{font-family:'Varela Round',sans-serif;font-size:.75rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+    .card-header .sub{font-family:'Varela Round',sans-serif;font-size:1rem;color:#fff}
+    .card-body{padding:20px;text-align:center}
+    .photo{width:80px;height:80px;border-radius:12px;object-fit:cover;margin:0 auto 12px;display:block}
+    .photo-placeholder{width:80px;height:80px;border-radius:12px;background:#eaf7f0;display:flex;align-items:center;justify-content:center;font-family:'Varela Round',sans-serif;font-size:1.8rem;color:#009c41;margin:0 auto 12px}
+    .name{font-family:'Varela Round',sans-serif;font-size:1.1rem;color:#1a2e22;margin-bottom:3px}
+    .id{font-family:'Varela Round',sans-serif;font-size:.85rem;color:#009c41;margin-bottom:12px}
+    .qr-box{background:#fff;border:1.5px solid #dde8e2;border-radius:10px;padding:10px;display:inline-block;margin-bottom:12px}
+    .qr-box img{width:160px;height:160px;display:block}
+    .detail{font-size:.7rem;font-weight:700;color:#7a9e8a;margin-bottom:3px}
+    .detail strong{color:#1a2e22}
+    .amount{font-family:'Varela Round',sans-serif;font-size:1.3rem;color:#009c41;margin:10px 0 4px}
+    .amount-lbl{font-size:.62rem;font-weight:800;color:#7a9e8a;text-transform:uppercase;letter-spacing:.08em}
+    .verified{background:#eaf7f0;border:1.5px solid #b3e6c8;border-radius:100px;padding:5px 14px;font-size:.65rem;font-weight:900;color:#007a33;text-transform:uppercase;letter-spacing:.08em;display:inline-block;margin-bottom:12px}
+    .footer{background:#f0f4f2;padding:10px;text-align:center;font-size:.6rem;font-weight:700;color:#7a9e8a}
+    @media print{body{background:#fff}.card{box-shadow:none}}
+  </style></head><body>
+  <div class="card">
+    <div class="card-header">
+      <div class="title">Busoga Ghetto Structure</div>
+      <div class="sub">SACCO Beneficiary Card</div>
+    </div>
+    <div class="card-body">
+      ${m.photo_url
+        ? `<img class="photo" src="${m.photo_url}" alt="${m.name}">`
+        : `<div class="photo-placeholder">${initials(m.name)}</div>`}
+      <div class="name">${m.name}</div>
+      <div class="id">${m.id}</div>
+      <div class="verified">✓ Verified Beneficiary</div>
+      <div class="qr-box"><img src="${m.qr_data_url}" alt="QR"></div>
+      <div class="detail"><strong>${m.district_name}</strong></div>
+      <div class="detail"><strong>${m.depot}</strong></div>
+      <div class="amount">UGX ${fmt(m.amount)}</div>
+      <div class="amount-lbl">Amount Received</div>
+    </div>
+    <div class="footer">
+      Coordinator: Haji Faruk Kirunda &nbsp;·&nbsp; State House Uganda
+    </div>
+  </div>
+  <script>window.onload=()=>window.print()<\/script>
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// Edit modal
+function openEditModal() {
+  const m = member;
+  document.getElementById('eName').value    = m.name;
+  document.getElementById('ePhone').value   = m.phone || '';
+  document.getElementById('eVillage').value = m.village || '';
+  document.getElementById('eNotes').value   = m.notes || '';
+  document.getElementById('eGender').value  = m.gender || '';
+  document.getElementById('eStatus').value  = m.status;
+  document.getElementById('eDistrict').value= m.district;
+  document.getElementById('eDepot').value   = m.depot;
+  document.getElementById('eAmount').value  = m.amount;
+  document.getElementById('eDate').value    = m.disbursement_date ? m.disbursement_date.split('T')[0] : '';
+  // Photo preview
+  const prev = document.getElementById('editPhotoPreview');
+  prev.innerHTML = m.photo_url
+    ? `<img src="${m.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:11px">`
+    : initials(m.name);
+  openModal('editModal');
+}
+
+function previewEditPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('editPhotoPreview').innerHTML =
+      `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:11px">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveEdit() {
+  const btn = document.getElementById('eSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Saving...';
+
+  const fd = new FormData();
+  const distObj = DISTRICTS.find(d => d.code === document.getElementById('eDistrict').value);
+  fd.append('name',              document.getElementById('eName').value.trim());
+  fd.append('phone',             document.getElementById('ePhone').value.trim());
+  fd.append('district',          document.getElementById('eDistrict').value);
+  fd.append('district_name',     distObj?.name || document.getElementById('eDistrict').value);
+  fd.append('depot',             document.getElementById('eDepot').value.trim());
+  fd.append('village',           document.getElementById('eVillage').value.trim());
+  fd.append('gender',            document.getElementById('eGender').value);
+  fd.append('amount',            document.getElementById('eAmount').value);
+  fd.append('disbursement_date', document.getElementById('eDate').value);
+  fd.append('status',            document.getElementById('eStatus').value);
+  fd.append('notes',             document.getElementById('eNotes').value.trim());
+  const photo = document.getElementById('editPhotoInput').files[0];
+  if (photo) fd.append('photo', photo);
+
+  try {
+    const data = await apiFetch(`/api/members/${memberId}`, { method:'PUT', body: fd });
+    member = data.member;
+    closeModal('editModal');
+    document.getElementById('profileNameBar').textContent = member.name;
+    renderProfile();
+    showToast('Beneficiary updated!');
+  } catch(e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Save Changes';
+  }
+}
+
+async function confirmDelete() {
+  if (!confirm(`Delete ${member.name}? This cannot be undone.`)) return;
+  try {
+    await apiFetch(`/api/members/${memberId}`, { method:'DELETE' });
+    showToast(`${member.name} deleted`);
+    setTimeout(() => location.href = 'members.html', 800);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+load();
+</script>
+</body>
+</html>

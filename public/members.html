@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Beneficiaries — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.member-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .15s}
+.member-card:hover{border-color:var(--green-mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.09)}
+.member-card-photo{height:140px;background:#1a2e22;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:2.8rem;color:rgba(179,230,200,.5);overflow:hidden;position:relative}
+.member-card-photo img{width:100%;height:100%;object-fit:cover;object-position:top}
+.member-card-body{padding:12px 14px}
+.member-card-name{font-family:var(--font2);font-size:.85rem;font-weight:800;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.member-card-id{font-family:var(--font);font-size:.75rem;color:var(--green);margin-bottom:6px}
+.member-card-meta{font-family:var(--font2);font-size:.65rem;font-weight:600;color:var(--muted);margin-bottom:8px}
+.member-card-amount{font-family:var(--font);font-size:1rem;color:var(--text);font-weight:700}
+.member-card-amount span{font-size:.62rem;font-weight:700;color:var(--muted);margin-left:3px}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Beneficiaries</div>
+          <div class="topbar-sub" id="countLabel">Loading...</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-green" onclick="openModal('addModal')">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
+          <span class="mob-hide">Register Beneficiary</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
+          <input class="search-input" id="searchInput" type="text" placeholder="Search by name, ID or phone..." oninput="debounceLoad()">
+        </div>
+        <select class="filter-select" id="filterDistrict" onchange="loadMembers()">
+          <option value="">All districts</option>
+        </select>
+        <select class="filter-select" id="filterView" onchange="renderMembers()" style="color:var(--green);border-color:var(--green-mid);background:var(--green-pale);font-weight:800">
+          <option value="cards">Card view</option>
+          <option value="table">Table view</option>
+        </select>
+      </div>
+
+      <div id="membersContainer">
+        <div class="card"><div class="empty-state"><div class="empty-title">Loading...</div></div></div>
+      </div>
+
+      <!-- PAGINATION -->
+      <div id="pagination" style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;display:none">
+        <button class="btn" id="prevBtn" onclick="changePage(-1)">
+          <svg viewBox="0 0 16 16"><path d="M10 4l-4 4 4 4"/></svg>
+          Previous
+        </button>
+        <span id="pageInfo" style="font-family:var(--font2);font-size:.78rem;font-weight:700;color:var(--muted)"></span>
+        <button class="btn" id="nextBtn" onclick="changePage(1)">
+          Next
+          <svg viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ADD MEMBER MODAL -->
+<div class="modal-bg" id="addModal">
+  <div class="modal-card" style="max-width:640px">
+    <div class="modal-head">
+      <div class="modal-title">Register New Beneficiary</div>
+      <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Photo upload -->
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
+        <div id="photoPreview" style="width:72px;height:72px;border-radius:13px;background:#1a2e22;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:1.4rem;color:rgba(179,230,200,.6);flex-shrink:0;overflow:hidden;cursor:pointer;border:2px dashed rgba(179,230,200,.3)" onclick="document.getElementById('photoInput').click()">?</div>
+        <div>
+          <div style="font-family:var(--font2);font-size:.82rem;font-weight:800;color:var(--text);margin-bottom:3px">Beneficiary Photo *</div>
+          <div style="font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:8px">Required — this is the proof. A real face with a real record.</div>
+          <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+          <button class="btn btn-sm" onclick="document.getElementById('photoInput').click()">
+            <svg viewBox="0 0 16 16"><path d="M8 2v8M5 5l3-3 3 3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>
+            Upload Photo
+          </button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="mName" placeholder="Full name" oninput="updatePreviewInitials()"></div>
+        <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" id="mPhone" placeholder="+256..."></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">District *</label>
+          <select class="form-select" id="mDistrict" onchange="updateDepotOptions()">
+            <option value="">Select district</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Depot *</label>
+          <input class="form-input" id="mDepot" placeholder="Enter depot name">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Village / Area</label><input class="form-input" id="mVillage" placeholder="Village or area"></div>
+        <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="mGender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Amount Received (UGX) *</label><input class="form-input" id="mAmount" type="number" placeholder="e.g. 500000"></div>
+        <div class="form-group"><label class="form-label">Disbursement Date *</label><input class="form-input" id="mDate" type="date"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="mNotes" rows="2" placeholder="Any additional notes..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('addModal')">Cancel</button>
+      <button class="btn btn-green" id="saveBtn" onclick="saveMember()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
+        Register & Generate QR
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('members');
+
+let allMembers = [], currentPage = 1, totalPages = 1, totalCount = 0;
+const LIMIT = 48;
+
+// Populate district filters
+DISTRICTS.forEach(d => {
+  ['filterDistrict','mDistrict'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const o  = document.createElement('option');
+    o.value  = d.code; o.textContent = d.name;
+    el.appendChild(o);
+  });
+});
+
+// Open add modal from URL
+if (new URLSearchParams(window.location.search).get('action') === 'add') {
+  setTimeout(() => openModal('addModal'), 200);
+}
+
+// Debounce search
+let _dbt;
+function debounceLoad() { clearTimeout(_dbt); _dbt = setTimeout(loadMembers, 320); }
+
+async function loadMembers(page = 1) {
+  currentPage = page;
+  const q        = document.getElementById('searchInput').value;
+  const district = document.getElementById('filterDistrict').value;
+  const params   = new URLSearchParams({ page, limit: LIMIT });
+  if (q)        params.append('q', q);
+  if (district) params.append('district', district);
+
+  try {
+    const data = await apiFetch('/api/members?' + params);
+    allMembers = data.members;
+    totalCount = data.total;
+    totalPages = Math.ceil(data.total / LIMIT);
+    renderMembers();
+  } catch(e) {
+    showToast('Failed to load beneficiaries', 'error');
+  }
+}
+
+function renderMembers() {
+  const view      = document.getElementById('filterView').value;
+  const container = document.getElementById('membersContainer');
+
+  document.getElementById('countLabel').textContent =
+    fmt(totalCount) + ' beneficiar' + (totalCount !== 1 ? 'ies' : 'y');
+
+  if (!allMembers.length) {
+    container.innerHTML = `<div class="card"><div class="empty-state">
+      <div class="empty-icon"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div>
+      <div class="empty-title">No beneficiaries found</div>
+      <div class="empty-sub">Try adjusting your search or register a new beneficiary.</div>
+      <button class="btn btn-green" style="margin-top:14px" onclick="openModal('addModal')">+ Register Beneficiary</button>
+    </div></div>`;
+    document.getElementById('pagination').style.display = 'none';
+    return;
+  }
+
+  if (view === 'table') {
+    container.innerHTML = `<div class="card"><div class="table-wrap"><table>
+      <thead><tr>
+        <th>Photo</th><th>Name</th><th>ID</th><th>District</th><th>Depot</th><th>Amount</th><th>Date</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        ${allMembers.map(m => `
+          <tr class="clickable" onclick="location.href='member.html?id=${m.id}'">
+            <td>
+              <div class="m-avatar" style="width:32px;height:32px;border-radius:8px;font-size:.7rem">
+                ${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : initials(m.name)}
+              </div>
+            </td>
+            <td style="font-weight:800">${m.name}</td>
+            <td style="font-family:var(--font);color:var(--green)">${m.id}</td>
+            <td>${m.district_name}</td>
+            <td style="color:var(--muted)">${m.depot}</td>
+            <td style="font-family:var(--font);font-weight:800">UGX ${fmt(m.amount)}</td>
+            <td style="color:var(--muted)">${formatDate(m.disbursement_date)}</td>
+            <td>${statusPill(m.status)}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div></div>`;
+  } else {
+    container.innerHTML = `<div class="members-grid">${allMembers.map(m => `
+      <div class="member-card" onclick="location.href='member.html?id=${m.id}'">
+        <div class="member-card-photo">
+          ${m.photo_url
+            ? `<img src="${m.photo_url}" alt="${m.name}">`
+            : initials(m.name)}
+        </div>
+        <div class="member-card-body">
+          <div class="member-card-name">${m.name}</div>
+          <div class="member-card-id">${m.id}</div>
+          <div class="member-card-meta">${m.district_name} · ${m.depot}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="member-card-amount">UGX ${fmt(m.amount)}<span>received</span></div>
+            ${statusPill(m.status)}
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  // Pagination
+  const pag = document.getElementById('pagination');
+  pag.style.display = totalPages > 1 ? 'flex' : 'none';
+  document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById('prevBtn').disabled = currentPage <= 1;
+  document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+}
+
+function changePage(delta) {
+  const next = currentPage + delta;
+  if (next < 1 || next > totalPages) return;
+  loadMembers(next);
+}
+
+// Photo preview
+function previewPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const el = document.getElementById('photoPreview');
+    el.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:11px">`;
+    el.style.border = '2px solid var(--green)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function updatePreviewInitials() {
+  const name = document.getElementById('mName').value.trim();
+  const photo = document.getElementById('photoInput').files[0];
+  if (!photo && name) {
+    document.getElementById('photoPreview').textContent = initials(name);
+  }
+}
+
+function updateDepotOptions() { /* depot is free-text input */ }
+
+async function saveMember() {
+  const name     = document.getElementById('mName').value.trim();
+  const district = document.getElementById('mDistrict').value;
+  const depot    = document.getElementById('mDepot').value.trim();
+  const amount   = document.getElementById('mAmount').value;
+  const date     = document.getElementById('mDate').value;
+  const photo    = document.getElementById('photoInput').files[0];
+
+  if (!name || !district || !depot || !amount || !date) {
+    showToast('Please fill all required fields', 'error'); return;
+  }
+  if (!photo) {
+    showToast('Please upload a photo — it is required for proof', 'error'); return;
+  }
+
+  const distObj  = DISTRICTS.find(d => d.code === district);
+  const btn      = document.getElementById('saveBtn');
+  btn.disabled   = true;
+  btn.innerHTML  = '<div class="spinner"></div> Registering...';
+
+  try {
+    const fd = new FormData();
+    fd.append('name',              name);
+    fd.append('phone',             document.getElementById('mPhone').value.trim());
+    fd.append('district',          district);
+    fd.append('district_name',     distObj?.name || district);
+    fd.append('depot',             depot);
+    fd.append('village',           document.getElementById('mVillage').value.trim());
+    fd.append('gender',            document.getElementById('mGender').value);
+    fd.append('amount',            amount);
+    fd.append('disbursement_date', date);
+    fd.append('notes',             document.getElementById('mNotes').value.trim());
+    fd.append('photo',             photo);
+
+    const data = await apiFetch('/api/members', { method:'POST', body: fd });
+
+    closeModal('addModal');
+    showToast(`${name} registered as ${data.member.id}`);
+    // Reset form
+    ['mName','mPhone','mVillage','mAmount','mNotes'].forEach(i => document.getElementById(i).value = '');
+    ['mDistrict','mGender'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('mDate').value = '';
+    document.getElementById('photoInput').value = '';
+    document.getElementById('photoPreview').innerHTML = '?';
+    document.getElementById('photoPreview').style.border = '2px dashed rgba(179,230,200,.3)';
+    loadMembers();
+  } catch(e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Register & Generate QR';
+  }
+}
+
+loadMembers();
+</script>
+</body>
+</html>
