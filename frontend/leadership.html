@@ -6,24 +6,113 @@
     <title>Leadership — BGS</title>
     <link rel="stylesheet" href="css/style.css" />
     <style>
-      .leadership-list{display:grid;gap:12px}
-      .leadership-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;transition:all .18s}
-      .leadership-item:hover{background:var(--green-pale);border-color:var(--green-mid)}
-      .leadership-item.active{border-color:var(--green);box-shadow:0 10px 26px rgba(0,156,65,.12)}
-      .leadership-title{font-family:var(--font2);font-size:.92rem;font-weight:900;color:var(--text);margin-bottom:4px}
-      .leadership-sub{font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted)}
-      .leader-pill{font-family:var(--font2);font-size:.7rem;font-weight:800;color:var(--green-dark);background:var(--green-pale);border:1px solid var(--green-mid);border-radius:999px;padding:4px 10px;white-space:nowrap}
-      .leadership-detail{display:grid;gap:14px}
-      .role-row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-      .role-row:last-child{border-bottom:none}
-      .role-label{font-family:var(--font2);font-size:.78rem;font-weight:700;color:var(--muted)}
-      .role-name{font-family:var(--font2);font-size:.9rem;font-weight:900;color:var(--text);text-align:right}
-      .structure-step{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg)}
-      .structure-step::before{content:'➤';font-size:.95rem;color:var(--green)}
-      .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0}
-      .summary-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px}
-      .summary-card .mc-value{font-size:1.35rem}
-      .summary-card .mc-label{font-size:.7rem}
+      .leadership-list {
+        display: grid;
+        gap: 12px;
+      }
+      .leadership-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--white);
+        cursor: pointer;
+        transition: all 0.18s;
+      }
+      .leadership-item:hover {
+        background: var(--green-pale);
+        border-color: var(--green-mid);
+      }
+      .leadership-item.active {
+        border-color: var(--green);
+        box-shadow: 0 10px 26px rgba(0, 156, 65, 0.12);
+      }
+      .leadership-title {
+        font-family: var(--font2);
+        font-size: 0.92rem;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 4px;
+      }
+      .leadership-sub {
+        font-family: var(--font2);
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      .leader-pill {
+        font-family: var(--font2);
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--green-dark);
+        background: var(--green-pale);
+        border: 1px solid var(--green-mid);
+        border-radius: 999px;
+        padding: 4px 10px;
+        white-space: nowrap;
+      }
+      .leadership-detail {
+        display: grid;
+        gap: 14px;
+      }
+      .role-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .role-row:last-child {
+        border-bottom: none;
+      }
+      .role-label {
+        font-family: var(--font2);
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      .role-name {
+        font-family: var(--font2);
+        font-size: 0.9rem;
+        font-weight: 900;
+        color: var(--text);
+        text-align: right;
+      }
+      .structure-step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--bg);
+      }
+      .structure-step::before {
+        content: "➤";
+        font-size: 0.95rem;
+        color: var(--green);
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin: 18px 0;
+      }
+      .summary-card {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+      }
+      .summary-card .mc-value {
+        font-size: 1.35rem;
+      }
+      .summary-card .mc-label {
+        font-size: 0.7rem;
+      }
     </style>
   </head>
   <body>
@@ -31,24 +120,30 @@
       <div class="sidebar" id="sidebar"></div>
       <div class="main-area">
         <div class="topbar">
-          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+          <div
+            style="display: flex; align-items: center; gap: 10px; min-width: 0"
+          >
             <button class="mob-sidebar-btn" onclick="toggleSidebar()">
-              <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+              <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" /></svg>
             </button>
             <div>
               <div class="topbar-title">Leadership</div>
-              <div class="topbar-sub">Depot leadership structure and elected teams across Busoga.</div>
+              <div class="topbar-sub">
+                Depot leadership structure and elected teams across Busoga.
+              </div>
             </div>
           </div>
         </div>
 
         <div class="content">
-          <div class="card" style="margin-bottom:16px">
+          <div class="card" style="margin-bottom: 16px">
             <div class="card-head">
               <span class="card-title">Ghetto leadership design</span>
             </div>
             <div class="info-banner">
-              This page profiles depot leaders and shows how village-level leadership builds parish, subcounty, district, and ghetto-wide representation.
+              This page profiles depot leaders and shows how village-level
+              leadership builds parish, subcounty, district, and ghetto-wide
+              representation.
             </div>
           </div>
 
@@ -71,7 +166,7 @@
             </div>
           </div>
 
-          <div class="grid-2" style="gap:18px">
+          <div class="grid-2" style="gap: 18px">
             <div>
               <div class="card">
                 <div class="card-head">
@@ -79,18 +174,33 @@
                 </div>
                 <div class="filter-bar">
                   <div class="search-wrap">
-                    <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
-                    <input id="searchInput" class="search-input" type="text" placeholder="Search depot, district, village..." oninput="onSearchChange()" />
+                    <svg viewBox="0 0 16 16">
+                      <circle cx="7" cy="7" r="4" />
+                      <path d="M10 10l3 3" />
+                    </svg>
+                    <input
+                      id="searchInput"
+                      class="search-input"
+                      type="text"
+                      placeholder="Search depot, district, village..."
+                      oninput="onSearchChange()"
+                    />
                   </div>
-                  <select id="filterDistrict" class="filter-select" onchange="onDistrictChange()">
+                  <select
+                    id="filterDistrict"
+                    class="filter-select"
+                    onchange="onDistrictChange()"
+                  >
                     <option value="">All districts</option>
                   </select>
-                  <button class="btn btn-green" onclick="resetFilters()">Reset</button>
+                  <button class="btn btn-green" onclick="resetFilters()">
+                    Reset
+                  </button>
                 </div>
                 <div id="leadershipList" class="leadership-list"></div>
               </div>
 
-              <div class="card" style="margin-top:16px">
+              <div class="card" style="margin-top: 16px">
                 <div class="card-head">
                   <span class="card-title">District depot targets</span>
                 </div>
@@ -101,15 +211,26 @@
             <div>
               <div class="card leadership-detail" id="leadershipDetail"></div>
 
-              <div class="card" style="margin-top:16px">
+              <div class="card" style="margin-top: 16px">
                 <div class="card-head">
                   <span class="card-title">Leadership structure</span>
                 </div>
-                <div class="structure-step">Village leaders nominate depot team members from their village.</div>
-                <div class="structure-step">Depot teams elect parish representatives.</div>
-                <div class="structure-step">Parish leaders choose subcounty delegates.</div>
-                <div class="structure-step">Subcounty delegates appoint district champions.</div>
-                <div class="structure-step">District teams form the Ghetto Giant leadership body.</div>
+                <div class="structure-step">
+                  Village leaders nominate depot team members from their
+                  village.
+                </div>
+                <div class="structure-step">
+                  Depot teams elect parish representatives.
+                </div>
+                <div class="structure-step">
+                  Parish leaders choose subcounty delegates.
+                </div>
+                <div class="structure-step">
+                  Subcounty delegates appoint district champions.
+                </div>
+                <div class="structure-step">
+                  District teams form the Ghetto Giant leadership body.
+                </div>
               </div>
             </div>
           </div>
@@ -117,30 +238,36 @@
       </div>
     </div>
 
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div
+      class="sidebar-overlay"
+      id="sidebar-overlay"
+      onclick="toggleSidebar()"
+    ></div>
     <div class="toast" id="toast"></div>
     <div class="modal-bg" id="depotModal"><div class="modal-card"></div></div>
 
     <script src="js/app.js"></script>
     <script>
       Auth.require();
-      buildSidebar('leadership');
+      buildSidebar("leadership");
 
       let activeDepot = DEPOT_LEADERSHIP[0]?.id;
-      let query = '';
-      let selectedDistrict = '';
+      let query = "";
+      let selectedDistrict = "";
 
       function getVisibleDepots() {
         return DEPOT_LEADERSHIP.filter((dep) => {
-          const text = `${dep.depot} ${dep.district} ${dep.village}`.toLowerCase();
-          if (selectedDistrict && dep.district !== selectedDistrict) return false;
+          const text =
+            `${dep.depot} ${dep.district} ${dep.village}`.toLowerCase();
+          if (selectedDistrict && dep.district !== selectedDistrict)
+            return false;
           if (query && !text.includes(query.toLowerCase())) return false;
           return true;
         });
       }
 
       function renderLeadershipList() {
-        const list = document.getElementById('leadershipList');
+        const list = document.getElementById("leadershipList");
         const visible = getVisibleDepots();
         if (!visible.length) {
           list.innerHTML = `<div class="empty-state"><div class="empty-title">No depots match</div><div class="empty-sub">Try another search or clear the filters.</div></div>`;
@@ -148,23 +275,28 @@
         }
 
         list.innerHTML = visible
-          .map((dep) => `
-            <div class="leadership-item${dep.id === activeDepot ? ' active' : ''}" onclick="selectDepot('${dep.id}')">
+          .map(
+            (dep) => `
+            <div class="leadership-item${dep.id === activeDepot ? " active" : ""}" onclick="selectDepot('${dep.id}')">
               <div>
                 <div class="leadership-title">${dep.depot}</div>
                 <div class="leadership-sub">${dep.district} · ${dep.village}</div>
               </div>
               <div class="leader-pill">5 leaders</div>
             </div>
-          `)
-          .join('');
+          `,
+          )
+          .join("");
       }
 
       function renderLeadershipDetail() {
-        const detail = document.getElementById('leadershipDetail');
-        const depot = DEPOT_LEADERSHIP.find((dep) => dep.id === activeDepot) || DEPOT_LEADERSHIP[0];
+        const detail = document.getElementById("leadershipDetail");
+        const depot =
+          DEPOT_LEADERSHIP.find((dep) => dep.id === activeDepot) ||
+          DEPOT_LEADERSHIP[0];
         if (!depot) {
-          detail.innerHTML = '<div class="empty-state"><div class="empty-title">No depot selected</div></div>';
+          detail.innerHTML =
+            '<div class="empty-state"><div class="empty-title">No depot selected</div></div>';
           return;
         }
 
@@ -186,12 +318,12 @@
                 </div>
               `,
             )
-            .join('')}
+            .join("")}
         `;
       }
 
       function renderDistrictTargets() {
-        const target = document.getElementById('districtTargets');
+        const target = document.getElementById("districtTargets");
         target.innerHTML = DISTRICTS.map(
           (d) => `
             <div class="info-row">
@@ -199,7 +331,7 @@
               <div class="info-val">${d.max} depots</div>
             </div>
           `,
-        ).join('');
+        ).join("");
       }
 
       function selectDepot(id) {
@@ -209,27 +341,27 @@
       }
 
       function onSearchChange() {
-        query = document.getElementById('searchInput').value.trim();
+        query = document.getElementById("searchInput").value.trim();
         renderLeadershipList();
       }
 
       function onDistrictChange() {
-        selectedDistrict = document.getElementById('filterDistrict').value;
+        selectedDistrict = document.getElementById("filterDistrict").value;
         renderLeadershipList();
       }
 
       function resetFilters() {
-        query = '';
-        selectedDistrict = '';
-        document.getElementById('searchInput').value = '';
-        document.getElementById('filterDistrict').value = '';
+        query = "";
+        selectedDistrict = "";
+        document.getElementById("searchInput").value = "";
+        document.getElementById("filterDistrict").value = "";
         renderLeadershipList();
       }
 
       function loadLeadershipPage() {
-        const districtSelect = document.getElementById('filterDistrict');
+        const districtSelect = document.getElementById("filterDistrict");
         DISTRICTS.forEach((d) => {
-          const opt = document.createElement('option');
+          const opt = document.createElement("option");
           opt.value = d.name;
           opt.textContent = d.name;
           districtSelect.appendChild(opt);
