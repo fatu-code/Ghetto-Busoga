@@ -1,33 +1,49 @@
 /* ── BGS app.js — Shared JS ─────────────────────────────────────── */
 
-const API_BASE = 'https://backend-ghetto-busoga-production.up.railway.app';
+const API_BASE = "https://backend-ghetto-busoga-production.up.railway.app";
 
 // ── DISTRICTS ───────────────────────────────────────────────────────
 const DISTRICTS = [
-  { code:'JJA', name:'Jinja City',     max:20 },
-  { code:'JJD', name:'Jinja District', max:10 },
-  { code:'KML', name:'Kamuli',         max:10 },
-  { code:'KLR', name:'Kaliro',         max:10 },
-  { code:'BYD', name:'Buyende',        max:10 },
-  { code:'IGA', name:'Iganga',         max:10 },
-  { code:'LUK', name:'Luuka',          max:10 },
-  { code:'NMT', name:'Namutumba',      max:10 },
-  { code:'BGR', name:'Bugiri',         max:10 },
-  { code:'MYG', name:'Mayuge',         max:10 },
-  { code:'BSA', name:'Busia',          max:10 },
-  { code:'NMY', name:'Namayingo',      max:10 },
-  { code:'BGW', name:'Bugweri',        max:10 },
+  { code: "JJA", name: "Jinja City", max: 20 },
+  { code: "JJD", name: "Jinja District", max: 10 },
+  { code: "IGA", name: "Iganga", max: 15 },
+  { code: "KLR", name: "Kaliro", max: 10 },
+  { code: "LUK", name: "Luuka", max: 10 },
+  { code: "MYG", name: "Mayuge", max: 10 },
+  { code: "NMY", name: "Namayingo", max: 10 },
+  { code: "BGR", name: "Bugiri", max: 10 },
+  { code: "BGW", name: "Bugweri", max: 10 },
+  { code: "NMT", name: "Namutumba", max: 10 },
+  { code: "KML", name: "Kamuli", max: 10 },
+  { code: "BYD", name: "Buyende", max: 10 },
 ];
 
 // ── AUTH ─────────────────────────────────────────────────────────────
 const Auth = {
-  get()        { try { return JSON.parse(localStorage.getItem('bgs_user')); } catch { return null; } },
-  token()      { return localStorage.getItem('bgs_token'); },
-  set(user, t) { localStorage.setItem('bgs_user', JSON.stringify(user)); localStorage.setItem('bgs_token', t); },
-  clear()      { localStorage.removeItem('bgs_user'); localStorage.removeItem('bgs_token'); },
-  require()    {
+  get() {
+    try {
+      return JSON.parse(localStorage.getItem("bgs_user"));
+    } catch {
+      return null;
+    }
+  },
+  token() {
+    return localStorage.getItem("bgs_token");
+  },
+  set(user, t) {
+    localStorage.setItem("bgs_user", JSON.stringify(user));
+    localStorage.setItem("bgs_token", t);
+  },
+  clear() {
+    localStorage.removeItem("bgs_user");
+    localStorage.removeItem("bgs_token");
+  },
+  require() {
     const u = this.get();
-    if (!u || !this.token()) { window.location.href = 'index.html'; return null; }
+    if (!u || !this.token()) {
+      window.location.href = "index.html";
+      return null;
+    }
     return u;
   },
 };
@@ -35,19 +51,23 @@ const Auth = {
 // ── API FETCH ────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };
-  const token   = Auth.token();
-  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const token = Auth.token();
+  if (token) headers["Authorization"] = "Bearer " + token;
 
   if (options.body && !(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
+    headers["Content-Type"] = "application/json";
     options.body = JSON.stringify(options.body);
   }
 
-  const res  = await fetch(API_BASE + path, { ...options, headers });
+  const res = await fetch(API_BASE + path, { ...options, headers });
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    if (res.status === 401) { Auth.clear(); window.location.href = 'index.html'; return; }
+    if (res.status === 401) {
+      Auth.clear();
+      window.location.href = "index.html";
+      return;
+    }
     throw new Error(data.error || `Request failed (${res.status})`);
   }
   return data;
@@ -55,14 +75,28 @@ async function apiFetch(path, options = {}) {
 
 // ── SIDEBAR BUILDER ──────────────────────────────────────────────────
 const NAV_ITEMS = [
-  { id:'dashboard', label:'Dashboard',    href:'dashboard.html',
-    icon:'<svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>' },
-  { id:'members',   label:'Beneficiaries', href:'members.html',
-    icon:'<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>' },
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    href: "dashboard.html",
+    icon: '<svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>',
+  },
+  {
+    id: "leadership",
+    label: "Leadership",
+    href: "leadership.html",
+    icon: '<svg viewBox="0 0 16 16"><path d="M8 1.5l2.6 4.8 5.3.8-3.8 3.7.9 5.3L8 13.5 2 16.1l.9-5.3L0 7.1l5.3-.8L8 1.5z"/></svg>',
+  },
+  {
+    id: "members",
+    label: "Beneficiaries",
+    href: "members.html",
+    icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>',
+  },
 ];
 
 function buildSidebar(active) {
-  const el   = document.getElementById('sidebar');
+  const el = document.getElementById("sidebar");
   if (!el) return;
   const user = Auth.get();
 
@@ -76,19 +110,21 @@ function buildSidebar(active) {
       <div class="logo-name">BGS <em>Busoga</em></div>
     </div>
     <div class="sb-user">
-      <div class="sb-avatar">${initials(user?.name || 'HK')}</div>
+      <div class="sb-avatar">${initials(user?.name || "HK")}</div>
       <div style="flex:1;min-width:0">
-        <div class="sb-user-name">${user?.name || 'Haji Faruk Kirunda'}</div>
-        <div class="sb-user-role">${user?.role === 'admin' ? 'National Coordinator' : 'Staff'}</div>
+        <div class="sb-user-name">${user?.name || "Haji Faruk Kirunda"}</div>
+        <div class="sb-user-role">${user?.role === "admin" ? "National Coordinator" : "Staff"}</div>
       </div>
       <div class="sb-online"></div>
     </div>
     <div class="sb-nav">
-      ${NAV_ITEMS.map(item => `
-        <a href="${item.href}" class="nav-item${active === item.id ? ' active' : ''}">
+      ${NAV_ITEMS.map(
+        (item) => `
+        <a href="${item.href}" class="nav-item${active === item.id ? " active" : ""}">
           <div class="nav-icon">${item.icon}</div>
           <span class="nav-label">${item.label}</span>
-        </a>`).join('')}
+        </a>`,
+      ).join("")}
     </div>
     <div class="sb-bottom">
       <div class="sb-bottom-text">A programme by<br><strong>State House Uganda</strong></div>
@@ -99,51 +135,294 @@ function buildSidebar(active) {
     </div>`;
 }
 
-function logout() { Auth.clear(); window.location.href = 'index.html'; }
+function logout() {
+  Auth.clear();
+  window.location.href = "index.html";
+}
 
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebar-overlay')?.classList.toggle('show');
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebar-overlay")?.classList.toggle("show");
 }
 
 // ── HELPERS ──────────────────────────────────────────────────────────
 function initials(name) {
-  return (name || '?').split(' ').map(w => w[0] || '').join('').slice(0,2).toUpperCase();
+  return (name || "?")
+    .split(" ")
+    .map((w) => w[0] || "")
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 function formatDate(d) {
-  if (!d) return '—';
-  try { return new Date(d).toLocaleDateString('en-UG', { day:'numeric', month:'short', year:'numeric' }); }
-  catch { return d; }
+  if (!d) return "—";
+  try {
+    return new Date(d).toLocaleDateString("en-UG", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return d;
+  }
 }
 function formatDateShort(d) {
-  if (!d) return '—';
-  try { return new Date(d).toLocaleDateString('en-UG', { day:'numeric', month:'short' }); }
-  catch { return d; }
+  if (!d) return "—";
+  try {
+    return new Date(d).toLocaleDateString("en-UG", {
+      day: "numeric",
+      month: "short",
+    });
+  } catch {
+    return d;
+  }
 }
-function fmt(n)         { return Number(n || 0).toLocaleString('en-UG'); }
-function statusPill(s)  {
-  const m = { Active:'pill-green', Inactive:'pill-gray', Suspended:'pill-red' };
-  return `<span class="pill ${m[s] || 'pill-gray'}">${s}</span>`;
+function fmt(n) {
+  return Number(n || 0).toLocaleString("en-UG");
+}
+function statusPill(s) {
+  const m = {
+    Active: "pill-green",
+    Inactive: "pill-gray",
+    Suspended: "pill-red",
+  };
+  return `<span class="pill ${m[s] || "pill-gray"}">${s}</span>`;
+}
+const DEPOT_LEADERSHIP = [
+  {
+    id: "wakitaka",
+    depot: "Wakitaka Depot",
+    district: "Jinja City",
+    village: "Wakitaka",
+    leaders: [
+      { role: "Chairperson", name: "Aisha Nakato" },
+      { role: "Vice Chairperson", name: "Samuel Kintu" },
+      { role: "Treasurer", name: "Mary Nansubuga" },
+      { role: "Secretary", name: "Peter Ssembatya" },
+      { role: "Publicity", name: "Susan Namazzi" },
+    ],
+  },
+  {
+    id: "bugembe",
+    depot: "Bugembe Depot",
+    district: "Jinja District",
+    village: "Bugembe",
+    leaders: [
+      { role: "Chairperson", name: "Emmanuel Musoke" },
+      { role: "Vice Chairperson", name: "Jane Akena" },
+      { role: "Treasurer", name: "Michael Kato" },
+      { role: "Secretary", name: "Florence Namukasa" },
+      { role: "Publicity", name: "Denis Kasaija" },
+    ],
+  },
+  {
+    id: "iringa",
+    depot: "Iringa Depot",
+    district: "Iganga",
+    village: "Iringa",
+    leaders: [
+      { role: "Chairperson", name: "Hassan Ssemanda" },
+      { role: "Vice Chairperson", name: "Rehema Nampijja" },
+      { role: "Treasurer", name: "Ali Kiiza" },
+      { role: "Secretary", name: "Grace Sebuliba" },
+      { role: "Publicity", name: "Judith Namayi" },
+    ],
+  },
+  {
+    id: "kaliro-town",
+    depot: "Kaliro Town Depot",
+    district: "Kaliro",
+    village: "Kaliro",
+    leaders: [
+      { role: "Chairperson", name: "Patrick Okello" },
+      { role: "Vice Chairperson", name: "Esther Kyomukama" },
+      { role: "Treasurer", name: "Brian Ssempala" },
+      { role: "Secretary", name: "Joyce Kyazze" },
+      { role: "Publicity", name: "Wilson Mugabi" },
+    ],
+  },
+  {
+    id: "luuka-central",
+    depot: "Luuka Central Depot",
+    district: "Luuka",
+    village: "Luuka",
+    leaders: [
+      { role: "Chairperson", name: "Mercy Babirye" },
+      { role: "Vice Chairperson", name: "Fredrick Muwanguzi" },
+      { role: "Treasurer", name: "Ruth Nanyonga" },
+      { role: "Secretary", name: "Brian Turyamubiri" },
+      { role: "Publicity", name: "Amina Kaggwa" },
+    ],
+  },
+  {
+    id: "mayuge-plains",
+    depot: "Mayuge Plains Depot",
+    district: "Mayuge",
+    village: "Mayuge",
+    leaders: [
+      { role: "Chairperson", name: "John Kato" },
+      { role: "Vice Chairperson", name: "Sarah Musoke" },
+      { role: "Treasurer", name: "Davina Nabulya" },
+      { role: "Secretary", name: "Isaac Kato" },
+      { role: "Publicity", name: "Patricia Nansubuga" },
+    ],
+  },
+  {
+    id: "namayingo-hub",
+    depot: "Namayingo Hub Depot",
+    district: "Namayingo",
+    village: "Namayingo",
+    leaders: [
+      { role: "Chairperson", name: "Christine Nabulondo" },
+      { role: "Vice Chairperson", name: "Steven Muwanga" },
+      { role: "Treasurer", name: "Lydia Nantongo" },
+      { role: "Secretary", name: "Robert Ssembatya" },
+      { role: "Publicity", name: "Falvia Nankya" },
+    ],
+  },
+  {
+    id: "bugiri-bridge",
+    depot: "Bugiri Bridge Depot",
+    district: "Bugiri",
+    village: "Bugiri",
+    leaders: [
+      { role: "Chairperson", name: "Eunice Asiimwe" },
+      { role: "Vice Chairperson", name: "Moses Wamala" },
+      { role: "Treasurer", name: "Anna Nakabiri" },
+      { role: "Secretary", name: "David Mubiru" },
+      { role: "Publicity", name: "Sheila Namyalo" },
+    ],
+  },
+  {
+    id: "bugweri-hub",
+    depot: "Bugweri Hub Depot",
+    district: "Bugweri",
+    village: "Bugweri",
+    leaders: [
+      { role: "Chairperson", name: "Charles Musoke" },
+      { role: "Vice Chairperson", name: "Agnes Nakato" },
+      { role: "Treasurer", name: "Nicholas Ssebunya" },
+      { role: "Secretary", name: "Esther Namisango" },
+      { role: "Publicity", name: "Lilian Namusisi" },
+    ],
+  },
+  {
+    id: "namutumba-junction",
+    depot: "Namutumba Junction Depot",
+    district: "Namutumba",
+    village: "Namutumba",
+    leaders: [
+      { role: "Chairperson", name: "Josephine Mbabazi" },
+      { role: "Vice Chairperson", name: "Tom Ssewanyana" },
+      { role: "Treasurer", name: "Martha Katungi" },
+      { role: "Secretary", name: "Mark Kato" },
+      { role: "Publicity", name: "Grace Nambassa" },
+    ],
+  },
+  {
+    id: "kamuli-market",
+    depot: "Kamuli Market Depot",
+    district: "Kamuli",
+    village: "Kamuli",
+    leaders: [
+      { role: "Chairperson", name: "Bernard Ssekitoleko" },
+      { role: "Vice Chairperson", name: "Dorothy Nanyonga" },
+      { role: "Treasurer", name: "Simon Kyeyune" },
+      { role: "Secretary", name: "Emily Nakato" },
+      { role: "Publicity", name: "Florence Kaggwa" },
+    ],
+  },
+  {
+    id: "buyende-hill",
+    depot: "Buyende Hill Depot",
+    district: "Buyende",
+    village: "Buyende",
+    leaders: [
+      { role: "Chairperson", name: "Fred Mutebi" },
+      { role: "Vice Chairperson", name: "Sarah Nankabirwa" },
+      { role: "Treasurer", name: "Patrick Nakirya" },
+      { role: "Secretary", name: "Alice Namirembe" },
+      { role: "Publicity", name: "Michael Akena" },
+    ],
+  },
+];
+
+function findDepotLeadership(depotId) {
+  return DEPOT_LEADERSHIP.find((d) => d.id === depotId);
 }
 
+function openDepotModal(depotId) {
+  const depot = findDepotLeadership(depotId);
+  if (!depot) {
+    showToast("Depot leadership profile not found", "error");
+    return;
+  }
+
+  const content = `
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">${depot.depot}</div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--muted);margin-top:4px">${depot.district} • ${depot.village}</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('depotModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-banner" style="margin-bottom:18px">
+        These five roles are the depot leadership core team. They are selected from village-level representatives and form the base for parish, subcounty, and district leadership.
+      </div>
+      ${depot.leaders
+        .map(
+          (l) => `
+        <div class="info-row">
+          <div class="info-key">${l.role}</div>
+          <div class="info-val">${l.name}</div>
+        </div>
+      `,
+        )
+        .join("")}
+      <div class="info-row" style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <div class="info-key">Structure note</div>
+        <div class="info-val" style="font-size:.78rem;color:var(--muted);max-width:320px;line-height:1.5">
+          Village leaders feed the depot team. The depot team selects parish representatives, who then choose subcounty delegates, and district leadership is built from depot and parish champions.
+        </div>
+      </div>
+    </div>
+  `;
+
+  const modal = document.getElementById("depotModal");
+  if (!modal) return;
+  modal.querySelector(".modal-card").innerHTML = content;
+  openModal("depotModal");
+}
 // ── TOAST ────────────────────────────────────────────────────────────
 let _tt;
-function showToast(msg, type = 'success') {
-  let el = document.getElementById('toast');
-  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; document.body.appendChild(el); }
+function showToast(msg, type = "success") {
+  let el = document.getElementById("toast");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "toast";
+    el.className = "toast";
+    document.body.appendChild(el);
+  }
   el.className = `toast ${type}`;
   el.textContent = msg;
-  el.classList.add('show');
+  el.classList.add("show");
   clearTimeout(_tt);
-  _tt = setTimeout(() => el.classList.remove('show'), 3200);
+  _tt = setTimeout(() => el.classList.remove("show"), 3200);
 }
 
 // ── MODAL ────────────────────────────────────────────────────────────
-function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
-function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+function openModal(id) {
+  document.getElementById(id)?.classList.add("open");
+}
+function closeModal(id) {
+  document.getElementById(id)?.classList.remove("open");
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.modal-bg').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".modal-bg").forEach((m) => {
+    m.addEventListener("click", (e) => {
+      if (e.target === m) m.classList.remove("open");
+    });
   });
 });

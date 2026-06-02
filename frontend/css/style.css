@@ -2,6 +2,8 @@
    Disbursement Verification System — Shared Stylesheet
 ────────────────────────────────────────────────────────────────── */
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap');
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
@@ -60,6 +62,11 @@ img{display:block;object-fit:cover}
 .nav-section{font-family:var(--font2);font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:8px 8px 4px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;border:1.5px solid transparent;text-decoration:none;background:none;width:100%;text-align:left}
 .nav-item:hover{background:var(--green-pale);border-color:var(--green-mid)}
+.sidebar-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 14px;margin:12px 16px 0}
+.sidebar-panel .panel-title{font-family:var(--font2);font-size:.82rem;font-weight:900;color:var(--text);margin-bottom:8px}
+.sidebar-panel .panel-note{font-family:var(--font2);font-size:.72rem;font-weight:600;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.sidebar-panel button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);font-family:var(--font2);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .15s}
+.sidebar-panel button:hover{background:var(--green-pale);border-color:var(--green-mid)}
 .nav-item.active{background:var(--green-pale);border-color:var(--green-mid)}
 .nav-icon{width:30px;height:30px;border-radius:8px;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .nav-item.active .nav-icon,.nav-item:hover .nav-icon{background:var(--green);border-color:var(--green-dark)}
