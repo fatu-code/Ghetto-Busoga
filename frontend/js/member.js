@@ -285,7 +285,7 @@ function exportCard() {
 
     /* Loan agreement pages, premium spacious layout matching the page-1 card */
     .agr{page-break-before:always;color:#26392f}
-    .agr .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;position:relative;display:flex;flex-direction:column}
+    .agr .page{width:210mm;min-height:289mm;margin:0 auto;background:#fff;position:relative;display:flex;flex-direction:column}
     .agr .page + .page{page-break-before:always}
     .agr .ahead{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);color:#fff;padding:13mm 18mm 12mm;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden}
     .agr .ahead::after{content:"";position:absolute;right:-50px;top:-80px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.05)}
@@ -306,15 +306,15 @@ function exportCard() {
     .agr .sub .n{color:#0a7a3a;font-weight:900;flex-shrink:0;min-width:30px}
     .agr .sub .tx{flex:1}
     .agr .pl{margin-top:9px;padding-left:44px}
-    .agr .sig-card{border:1.5px solid #e7efea;border-radius:16px;padding:20px 22px;margin-top:16px}
+    .agr .sig-card{border:1.5px solid #e7efea;border-radius:16px;padding:15px 20px;margin-top:12px}
     .agr .sig-card.w{background:#fafdfb}
-    .agr .sig-role{display:flex;align-items:center;font-family:'Varela Round',sans-serif;font-size:13.5px;color:#142a1d;margin-bottom:20px}
+    .agr .sig-role{display:flex;align-items:center;font-family:'Varela Round',sans-serif;font-size:13.5px;color:#142a1d;margin-bottom:14px}
     .agr .sig-role .tag{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:26px;font-size:12px;font-weight:900;text-transform:uppercase;color:#0a7a3a;background:#eaf7f0;border:1.5px solid #b3e6c8;border-radius:9px;padding:0 9px;margin-right:13px}
     .agr .sig-grid{display:flex;gap:30px}
     .agr .sig-grid .seg{flex:1}
     .agr .sig-grid .ln{border-bottom:1.5px solid #cdd9d2;height:34px;display:flex;align-items:flex-end;justify-content:center;font-weight:800;color:#142a1d;font-size:12px;padding-bottom:5px}
     .agr .sig-grid .cap{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;color:#7a8e83;margin-top:8px;text-align:center}
-    .agr .wsec{font-family:'Varela Round',sans-serif;font-size:11.5px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.18em;margin:26px 0 4px}
+    .agr .wsec{font-family:'Varela Round',sans-serif;font-size:11.5px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.18em;margin:20px 0 2px}
     .agr .afoot{margin-top:auto;padding:10mm 18mm 12mm;border-top:1.5px solid #eef2f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9aa8a0;font-weight:700}
     .agr .afoot .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:13px;letter-spacing:.02em}
 
