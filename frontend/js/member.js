@@ -55,6 +55,7 @@ function renderProfile() {
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
             ${statusPill(m.status)}
             ${disbursementPill(m)}
+            ${m.depot_role ? `<span class="pill" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe">${m.depot_role}</span>` : ''}
             ${m.gender ? `<span class="pill pill-gray">${m.gender}</span>` : ''}
           </div>
           <div class="member-name">${m.name}</div>
@@ -756,6 +757,7 @@ function openEditModal() {
   document.getElementById('eNotes').value   = m.notes || '';
   document.getElementById('eGender').value  = m.gender || '';
   document.getElementById('eStatus').value  = m.status;
+  document.getElementById('eRole').value    = m.depot_role || '';
   document.getElementById('eDistrict').value= m.district;
   updateEditDepots(m.depot || '');
   // Cascading location selects, pre-filled with the stored values
@@ -803,6 +805,7 @@ async function saveEdit() {
   fd.append('amount',            document.getElementById('eAmount').value.replace(/,/g, ''));
   fd.append('disbursement_date', document.getElementById('eDate').value);
   fd.append('status',            document.getElementById('eStatus').value);
+  fd.append('depot_role',        document.getElementById('eRole').value);
   fd.append('notes',             document.getElementById('eNotes').value.trim());
   const photo = document.getElementById('editPhotoInput').files[0];
   if (photo) fd.append('photo', photo);

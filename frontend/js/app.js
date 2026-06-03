@@ -22,6 +22,9 @@ const DISTRICTS = [
   { code: "BYD", name: "Buyende", max: 10 },
 ];
 
+// Depot leadership positions. A leader is a member who holds one of these roles.
+const DEPOT_ROLES = ["Chairperson", "Vice Chairperson", "Treasurer", "Secretary", "Publicity"];
+
 // ── AUTH ─────────────────────────────────────────────────────────────
 const Auth = {
   get() {
@@ -96,12 +99,6 @@ const NAV_ITEMS = [
     label: "Depots",
     href: "depots.html",
     icon: '<svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg>',
-  },
-  {
-    id: "leadership",
-    label: "Leadership",
-    href: "leadership.html",
-    icon: '<svg viewBox="0 0 16 16"><path d="M8 1.5l2.6 4.8 5.3.8-3.8 3.7.9 5.3L8 13.5 2 16.1l.9-5.3L0 7.1l5.3-.8L8 1.5z"/></svg>',
   },
 ];
 
