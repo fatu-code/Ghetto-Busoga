@@ -210,7 +210,7 @@ function exportCard() {
   const qr     = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=0&qzone=1&data=${encodeURIComponent(link)}`;
   const emblem = `${window.location.origin}/images/coat-of-arms.png`;
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const na     = 'Not captured';
+  const na     = '-';
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Beneficiary Profile ${m.id}</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
   <style>
