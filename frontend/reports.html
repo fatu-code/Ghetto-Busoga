@@ -17,9 +17,10 @@
 .rep-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
 .rep-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-bottom:1.5px solid var(--border)}
 .rep-title{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.92rem}
-.rmoney{font-family:var(--font);font-weight:800;text-align:right;white-space:nowrap}
-table th.num,table td.num{text-align:right}
-tfoot td{font-weight:900;border-top:2px solid var(--border);background:var(--bg)}
+.money{font-family:var(--font);font-weight:800;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table th.num,table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.rep-card th{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+tfoot td{font-weight:900;border-top:2px solid var(--green-mid);background:var(--green-pale);color:#142a1d}
 /* Print letterhead (screen-hidden) */
 .print-head{display:none}
 @media print{
@@ -132,9 +133,9 @@ function moneyRow(label, a) {
     <td style="font-weight:800">${label}</td>
     <td class="num">${fmt(a.count)}</td>
     <td class="num">${fmt(a.disbursedCount)}</td>
-    <td class="num rmoney">UGX ${fmt(a.disbursed)}</td>
-    <td class="num rmoney" style="color:var(--green)">UGX ${fmt(a.repaid)}</td>
-    <td class="num rmoney" style="color:${a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(a.outstanding)}</td>
+    <td class="money">${fmt(a.disbursed)}</td>
+    <td class="money" style="color:var(--green)">${fmt(a.repaid)}</td>
+    <td class="money" style="color:${a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">${fmt(a.outstanding)}</td>
     <td class="num" style="color:${a.overdue ? '#c0392b' : 'var(--muted)'}">${fmt(a.overdue)}</td>
   </tr>`;
 }
@@ -165,8 +166,8 @@ function render() {
     `${fmt(fund.count)} profiled · ${fmt(fund.disbursedCount)} disbursed`;
 
   const head = `<tr>
-    <th>${''}</th><th class="num">Members</th><th class="num">Disbursed</th>
-    <th class="num">Amount (UGX)</th><th class="num">Repaid</th><th class="num">Outstanding</th><th class="num">Overdue</th>
+    <th>District</th><th class="num">Members</th><th class="num">Disbursed</th>
+    <th class="num">Amount (UGX)</th><th class="num">Repaid (UGX)</th><th class="num">Outstanding (UGX)</th><th class="num">Overdue</th>
   </tr>`;
 
   document.getElementById('reportBody').innerHTML = `
@@ -195,15 +196,15 @@ function render() {
     <div class="rep-card">
       <div class="rep-head"><span class="rep-title">By Depot${dsel ? ' — ' + ((DISTRICTS.find(x => x.code === dsel) || {}).name || '') : ''}</span></div>
       <div class="table-wrap"><table>
-        <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid</th><th class="num">Outstanding</th></tr></thead>
+        <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid (UGX)</th><th class="num">Outstanding (UGX)</th></tr></thead>
         <tbody>${depotRows.map(r => `<tr>
             <td style="font-weight:800">${r.depot}</td>
             <td style="color:var(--muted)">${r.dn}</td>
             <td class="num">${fmt(r.a.count)}</td>
             <td class="num">${fmt(r.a.disbursedCount)}</td>
-            <td class="num rmoney">UGX ${fmt(r.a.disbursed)}</td>
-            <td class="num rmoney" style="color:var(--green)">UGX ${fmt(r.a.repaid)}</td>
-            <td class="num rmoney" style="color:${r.a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(r.a.outstanding)}</td>
+            <td class="money">${fmt(r.a.disbursed)}</td>
+            <td class="money" style="color:var(--green)">${fmt(r.a.repaid)}</td>
+            <td class="money" style="color:${r.a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">${fmt(r.a.outstanding)}</td>
           </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
       </table></div>
     </div>`;
