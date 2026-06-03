@@ -146,8 +146,8 @@
         <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="mGender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Amount Received (UGX) *</label><input class="form-input" id="mAmount" type="number" placeholder="e.g. 500000"></div>
-        <div class="form-group"><label class="form-label">Disbursement Date *</label><input class="form-input" id="mDate" type="date"></div>
+        <div class="form-group"><label class="form-label">Amount Received (UGX)</label><input class="form-input" id="mAmount" type="number" placeholder="Leave blank if not yet disbursed"></div>
+        <div class="form-group"><label class="form-label">Disbursement Date</label><input class="form-input" id="mDate" type="date"></div>
       </div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="mNotes" rows="2" placeholder="Any additional notes..."></textarea></div>
     </div>
@@ -189,6 +189,27 @@ if (new URLSearchParams(window.location.search).get('action') === 'add') {
   setTimeout(() => openModal('addModal'), 200);
 }
 
+// Arriving from the Depots page: pre-filter the list and pre-fill the add form
+const _qs = new URLSearchParams(window.location.search);
+const districtParam = _qs.get('district') || '';
+const depotFilter   = _qs.get('depot') || '';
+if (districtParam) document.getElementById('filterDistrict').value = districtParam;
+function prefillDepot() {
+  if (!depotFilter) return;
+  document.getElementById('mDistrict').value = districtParam;
+  updateSubCountyOptions();
+  document.getElementById('mDepot').value = depotFilter;
+}
+prefillDepot();
+if (depotFilter) {
+  const banner = document.createElement('div');
+  banner.className = 'card';
+  banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:13px 16px';
+  banner.innerHTML = `<div><div style="font-weight:800;color:var(--text)">Depot roster: <span style="color:var(--green)">${depotFilter}</span></div><div style="font-weight:600;color:var(--muted);font-size:.76rem;margin-top:2px">Members profiled under this depot. New registrations are added here.</div></div><a href="members.html" class="btn btn-sm">View all</a>`;
+  const c = document.getElementById('membersContainer');
+  c.parentNode.insertBefore(banner, c);
+}
+
 // Debounce search
 let _dbt;
 function debounceLoad() { clearTimeout(_dbt); _dbt = setTimeout(loadMembers, 320); }
@@ -203,9 +224,9 @@ async function loadMembers(page = 1) {
 
   try {
     const data = await apiFetch('/api/members?' + params);
-    allMembers = data.members;
-    totalCount = data.total;
-    totalPages = Math.ceil(data.total / LIMIT);
+    allMembers = depotFilter ? data.members.filter(x => x.depot === depotFilter) : data.members;
+    totalCount = depotFilter ? allMembers.length : data.total;
+    totalPages = 1;
     renderMembers();
   } catch(e) {
     showToast('Failed to load beneficiaries', 'error');
@@ -217,7 +238,7 @@ function renderMembers() {
   const container = document.getElementById('membersContainer');
 
   document.getElementById('countLabel').textContent =
-    fmt(totalCount) + ' beneficiar' + (totalCount !== 1 ? 'ies' : 'y');
+    fmt(totalCount) + ' beneficiar' + (totalCount !== 1 ? 'ies' : 'y') + (depotFilter ? ' in ' + depotFilter : '');
 
   if (!allMembers.length) {
     container.innerHTML = `<div class="card"><div class="empty-state">
@@ -247,8 +268,8 @@ function renderMembers() {
             <td style="font-family:var(--font);color:var(--green)">${m.id}</td>
             <td>${m.district_name}</td>
             <td style="color:var(--muted)">${m.depot}</td>
-            <td style="font-family:var(--font);font-weight:800">UGX ${fmt(m.amount)}</td>
-            <td style="color:var(--muted)">${formatDate(m.disbursement_date)}</td>
+            <td style="font-family:var(--font);font-weight:800">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : disbursementPill(m)}</td>
+            <td style="color:var(--muted)">${m.disbursement_date ? formatDate(m.disbursement_date) : '-'}</td>
             <td>${statusPill(m.status)}</td>
           </tr>`).join('')}
       </tbody>
@@ -266,7 +287,9 @@ function renderMembers() {
           <div class="member-card-id">${m.id}</div>
           <div class="member-card-meta">${m.district_name} · ${m.depot}</div>
           <div style="display:flex;align-items:center;justify-content:space-between">
-            <div class="member-card-amount">UGX ${fmt(m.amount)}<span>received</span></div>
+            ${isDisbursed(m)
+              ? `<div class="member-card-amount">UGX ${fmt(m.amount)}<span>received</span></div>`
+              : `<div class="member-card-amount" style="color:#b06a00">Pending<span>not disbursed</span></div>`}
             ${statusPill(m.status)}
           </div>
         </div>
@@ -342,8 +365,8 @@ async function saveMember() {
   const date     = document.getElementById('mDate').value;
   const photo    = document.getElementById('photoInput').files[0];
 
-  if (!name || !nin || !district || !depot || !amount || !date) {
-    showToast('Please fill all required fields', 'error'); return;
+  if (!name || !nin || !district || !depot) {
+    showToast('Name, NIN, district and depot are required', 'error'); return;
   }
   if (!/^[A-Z0-9]{10,14}$/.test(nin)) {
     showToast('NIN should be 10–14 letters/numbers (e.g. CM91...)', 'error'); return;
@@ -379,6 +402,7 @@ async function saveMember() {
     ['mName','mNin','mPhone','mVillage','mAmount','mNotes'].forEach(i => document.getElementById(i).value = '');
     ['mDistrict','mGender'].forEach(i => document.getElementById(i).value = '');
     updateSubCountyOptions();
+    prefillDepot();
     document.getElementById('mDate').value = '';
     document.getElementById('photoInput').value = '';
     document.getElementById('photoPreview').innerHTML = '?';

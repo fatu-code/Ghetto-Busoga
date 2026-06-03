@@ -92,6 +92,12 @@ const NAV_ITEMS = [
     icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>',
   },
   {
+    id: "depots",
+    label: "Depots",
+    href: "depots.html",
+    icon: '<svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg>',
+  },
+  {
     id: "leadership",
     label: "Leadership",
     href: "leadership.html",
@@ -217,6 +223,15 @@ function statusPill(s) {
     Suspended: "pill-red",
   };
   return `<span class="pill ${m[s] || "pill-gray"}">${s}</span>`;
+}
+// Disbursement state: a profiled member who has not yet received funds is "Pending".
+function isDisbursed(m) {
+  return Number(m && m.amount ? m.amount : 0) > 0;
+}
+function disbursementPill(m) {
+  return isDisbursed(m)
+    ? `<span class="pill pill-green">Disbursed</span>`
+    : `<span class="pill pill-amber">Pending</span>`;
 }
 const DEPOT_LEADERSHIP = [
   {

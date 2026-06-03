@@ -582,6 +582,11 @@ img {
   color: var(--muted);
   border-color: var(--border);
 }
+.pill-amber {
+  background: #fff5e6;
+  color: #b06a00;
+  border-color: #ffd699;
+}
 
 /* ── BUTTONS ──────────────────────────────────────────────────── */
 .btn {

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Depots — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.depot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(244px,1fr));gap:12px}
+.depot-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .15s}
+.depot-card:hover{border-color:var(--green-mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.depot-top{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.depot-ic{width:40px;height:40px;border-radius:11px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.depot-ic svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.depot-name{font-family:var(--font2);font-size:.95rem;font-weight:800;color:var(--text);line-height:1.15}
+.depot-dist{font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted);margin-top:2px}
+.depot-stats{display:flex;gap:8px;margin-bottom:12px}
+.ds{flex:1;background:var(--bg);border-radius:10px;padding:9px 6px;text-align:center}
+.dsv{font-family:var(--font);font-size:1.15rem;color:var(--text);line-height:1}
+.dsl{font-family:var(--font2);font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px}
+.ds.green .dsv{color:var(--green)}
+.ds.amber .dsv{color:#b06a00}
+.depot-total{font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted);border-top:1px solid var(--border);padding-top:10px}
+.depot-total b{font-family:var(--font);color:var(--green);font-size:.92rem}
+.dist-sec{margin-bottom:22px}
+.dist-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid var(--border)}
+.dist-head .dn{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.95rem}
+.dist-meta{font-family:var(--font2);font-size:.7rem;font-weight:700;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Depots</div>
+          <div class="topbar-sub" id="countLabel">Loading...</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="members.html" class="btn">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+          <span class="mob-hide">All Beneficiaries</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="filter-bar">
+        <div style="flex:1;font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);min-width:200px">
+          Each depot is a roster of profiled members. Open a depot to view or add its members. Members do not need to have received money.
+        </div>
+        <select class="filter-select" id="filterDistrict" onchange="renderDepots()">
+          <option value="">All districts</option>
+        </select>
+      </div>
+
+      <div id="depotsContainer">
+        <div class="card"><div class="empty-state"><div class="empty-title">Loading depots…</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script src="js/depots.js"></script>
+<script>
+Auth.require();
+buildSidebar('depots');
+
+// Populate district filter
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('filterDistrict').appendChild(o);
+});
+
+let allMembers = [], agg = {};
+
+async function loadDepots() {
+  try {
+    const data = await apiFetch('/api/members?limit=100000');
+    allMembers = data.members || [];
+    agg = {};
+    allMembers.forEach(m => {
+      const k = m.district + '||' + m.depot;
+      const o = agg[k] || (agg[k] = { count: 0, disbursed: 0, total: 0 });
+      o.count++;
+      if (Number(m.amount) > 0) { o.disbursed++; o.total += Number(m.amount); }
+    });
+    renderDepots();
+  } catch (e) {
+    showToast('Failed to load depots', 'error');
+  }
+}
+
+// All depot names for a district: the canonical list plus any already in the data
+function depotsForDistrict(code) {
+  const canonical = (typeof DEPOTS !== 'undefined' && DEPOTS[code]) || [];
+  const fromData  = allMembers.filter(m => m.district === code).map(m => m.depot);
+  return [...new Set([...canonical, ...fromData])].filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function renderDepots() {
+  const filter   = document.getElementById('filterDistrict').value;
+  const dists    = DISTRICTS.filter(d => !filter || d.code === filter);
+  let totDepots  = 0;
+  let totMembers = filter ? 0 : allMembers.length;
+
+  const html = dists.map(d => {
+    const depots = depotsForDistrict(d.code);
+    if (!depots.length) return '';
+    totDepots += depots.length;
+    const distMembers = allMembers.filter(m => m.district === d.code).length;
+    if (filter) totMembers += distMembers;
+
+    const cards = depots.map(dep => {
+      const o = agg[d.code + '||' + dep] || { count: 0, disbursed: 0, total: 0 };
+      return `
+        <div class="depot-card" onclick="location.href='members.html?district=${d.code}&depot=${encodeURIComponent(dep)}'">
+          <div class="depot-top">
+            <div class="depot-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
+            <div><div class="depot-name">${dep}</div><div class="depot-dist">${d.name}</div></div>
+          </div>
+          <div class="depot-stats">
+            <div class="ds"><div class="dsv">${o.count}</div><div class="dsl">Members</div></div>
+            <div class="ds green"><div class="dsv">${o.disbursed}</div><div class="dsl">Disbursed</div></div>
+            <div class="ds amber"><div class="dsv">${o.count - o.disbursed}</div><div class="dsl">Pending</div></div>
+          </div>
+          <div class="depot-total">Total disbursed: <b>UGX ${fmt(o.total)}</b></div>
+        </div>`;
+    }).join('');
+
+    return `<div class="dist-sec">
+      <div class="dist-head"><span class="dn">${d.name}</span><span class="dist-meta">${depots.length} depots &middot; ${distMembers} members</span></div>
+      <div class="depot-grid">${cards}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('depotsContainer').innerHTML = html ||
+    `<div class="card"><div class="empty-state"><div class="empty-title">No depots found</div></div></div>`;
+
+  document.getElementById('countLabel').textContent =
+    `${totDepots} depots &middot; ${fmt(totMembers)} members profiled`.replace('&middot;', '·');
+}
+
+loadDepots();
+</script>
+</body>
+</html>

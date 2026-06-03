@@ -49,6 +49,7 @@ function renderProfile() {
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
             ${statusPill(m.status)}
+            ${disbursementPill(m)}
             ${m.gender ? `<span class="pill pill-gray">${m.gender}</span>` : ''}
           </div>
           <div class="member-name">${m.name}</div>
@@ -63,7 +64,7 @@ function renderProfile() {
       </div>
       <div class="hero-stats">
         <div class="hero-stat">
-          <div class="hero-stat-val">UGX ${fmt(m.amount)}</div>
+          <div class="hero-stat-val">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : 'Pending'}</div>
           <div class="hero-stat-lbl">Amount Received</div>
         </div>
         <div class="hero-stat">
@@ -109,7 +110,7 @@ function renderProfile() {
             ['Sub-County',        m.sub_county || '-'],
             ['Parish',            m.parish || '-'],
             ['Depot',             m.depot],
-            ['Amount Received',   `<strong style="color:var(--green)">UGX ${fmt(m.amount)}</strong>`],
+            ['Amount Received',   isDisbursed(m) ? `<strong style="color:var(--green)">UGX ${fmt(m.amount)}</strong>` : '<strong style="color:#b06a00">Pending (not yet disbursed)</strong>'],
             ['Disbursement Date', formatDate(m.disbursement_date)],
             ['Registered On',     formatDate(m.created_at)],
           ])}
@@ -373,8 +374,8 @@ function exportCard() {
       </div>
 
       <div class="amtbox">
-        <div class="l">Amount Received<span>Disbursed on ${formatDate(m.disbursement_date)}</span></div>
-        <div class="val">UGX ${fmt(m.amount)}</div>
+        <div class="l">Amount Received<span>${isDisbursed(m) ? 'Disbursed on ' + formatDate(m.disbursement_date) : 'Not yet disbursed'}</span></div>
+        <div class="val">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : 'Pending'}</div>
       </div>
 
       <div class="note">
