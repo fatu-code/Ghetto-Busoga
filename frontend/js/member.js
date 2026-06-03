@@ -372,7 +372,7 @@ function exportCard() {
     *{box-sizing:border-box;margin:0;padding:0}
     @page{size:A4;margin:0}
     body{font-family:'Nunito',sans-serif;color:#1c3326;background:#e9efeb;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .sheet{width:210mm;min-height:297mm;margin:0 auto;background:#fff;display:flex;flex-direction:column}
+    .sheet{width:210mm;min-height:286mm;margin:0 auto;background:#fff;display:flex;flex-direction:column}
 
     .hd{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);color:#fff;padding:14mm 16mm 12mm;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden}
     .hd::after{content:"";position:absolute;right:-60px;top:-90px;width:340px;height:340px;border-radius:50%;background:rgba(255,255,255,.05)}
