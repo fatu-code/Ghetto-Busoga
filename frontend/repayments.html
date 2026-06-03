@@ -21,6 +21,10 @@
 .lp.over{background:#fdecec;color:#c0392b;border:1px solid #f5b7b1}
 .lp.clr{background:#eaf7f0;color:#007a33;border:1px solid #b3e6c8}
 .r-money{font-family:var(--font);font-weight:800}
+.dsec{margin-bottom:20px}
+.dbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid var(--border)}
+.dbar .dn{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.95rem}
+.dbar .dmeta{font-family:var(--font2);font-size:.7rem;font-weight:700;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -135,24 +139,38 @@ function render() {
       <div class="sum-card"><div class="sum-l">Overdue</div><div class="sum-v amber">${fmt(overdue)}</div></div>
     </div>`;
 
-  const body = rows.length
-    ? `<div class="card"><div class="table-wrap"><table>
-        <thead><tr>
-          <th>Beneficiary</th><th>Depot</th><th>Total Due</th><th>Repaid</th><th>Outstanding</th><th>Due</th><th>Status</th>
-        </tr></thead>
-        <tbody>
-          ${rows.map(L => `
-            <tr class="clickable" onclick="location.href='member.html?id=${L.m.id}'">
-              <td><div style="font-weight:800">${L.m.name}</div><div style="font-family:var(--font);color:var(--green);font-size:.72rem">${L.m.id}</div></td>
-              <td style="color:var(--muted)">${L.m.depot} · ${L.m.district_name}</td>
-              <td class="r-money">UGX ${fmt(L.totalDue)}</td>
-              <td class="r-money" style="color:var(--green)">UGX ${fmt(L.repaid)}</td>
-              <td class="r-money" style="color:${L.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(L.outstanding)}</td>
-              <td style="color:var(--muted)">${L.due ? formatDate(L.due) : '-'}</td>
-              <td><span class="lp ${L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep'}">${L.status}</span></td>
-            </tr>`).join('')}
-        </tbody>
-      </table></div></div>`
+  const rowHtml = L => `
+    <tr class="clickable" onclick="location.href='member.html?id=${L.m.id}'">
+      <td><div style="font-weight:800">${L.m.name}</div><div style="font-family:var(--font);color:var(--green);font-size:.72rem">${L.m.id}</div></td>
+      <td style="color:var(--muted)">${L.m.depot}</td>
+      <td class="r-money">UGX ${fmt(L.totalDue)}</td>
+      <td class="r-money" style="color:var(--green)">UGX ${fmt(L.repaid)}</td>
+      <td class="r-money" style="color:${L.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(L.outstanding)}</td>
+      <td style="color:var(--muted)">${L.due ? formatDate(L.due) : '-'}</td>
+      <td><span class="lp ${L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep'}">${L.status}</span></td>
+    </tr>`;
+
+  // Categorised by district: one section per district that has loans.
+  const sections = DISTRICTS.map(d => {
+    const dr = rows.filter(L => L.m.district === d.code);
+    if (!dr.length) return '';
+    const due = dr.reduce((s, L) => s + L.totalDue, 0);
+    const out = dr.reduce((s, L) => s + L.outstanding, 0);
+    const od  = dr.filter(L => L.status === 'Overdue').length;
+    return `
+      <div class="dsec">
+        <div class="dbar">
+          <span class="dn">${d.name}</span>
+          <span class="dmeta">${dr.length} loan${dr.length === 1 ? '' : 's'} &middot; Due UGX ${fmt(due)} &middot; Outstanding UGX ${fmt(out)}${od ? ` &middot; <b style="color:#c0392b">${od} overdue</b>` : ''}</span>
+        </div>
+        <div class="card" style="padding:0"><div class="table-wrap"><table>
+          <thead><tr><th>Beneficiary</th><th>Depot</th><th>Total Due</th><th>Repaid</th><th>Outstanding</th><th>Due</th><th>Status</th></tr></thead>
+          <tbody>${dr.map(rowHtml).join('')}</tbody>
+        </table></div></div>
+      </div>`;
+  }).join('');
+
+  const body = rows.length ? sections
     : `<div class="card"><div class="empty-state">
         <div class="empty-title">No disbursed loans${dist || stat || q ? ' match this filter' : ' yet'}</div>
         <div class="empty-sub">Repayments appear here once beneficiaries have been disbursed.</div>
