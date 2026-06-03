@@ -17,14 +17,9 @@
 .depot-ic svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .depot-name{font-family:var(--font2);font-size:.95rem;font-weight:800;color:var(--text);line-height:1.15}
 .depot-dist{font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted);margin-top:2px}
-.depot-stats{display:flex;gap:8px;margin-bottom:12px}
-.ds{flex:1;background:var(--bg);border-radius:10px;padding:9px 6px;text-align:center}
-.dsv{font-family:var(--font);font-size:1.15rem;color:var(--text);line-height:1}
-.dsl{font-family:var(--font2);font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px}
-.ds.green .dsv{color:var(--green)}
-.ds.amber .dsv{color:#b06a00}
-.depot-total{font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted);border-top:1px solid var(--border);padding-top:10px}
-.depot-total b{font-family:var(--font);color:var(--green);font-size:.92rem}
+.depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
+.depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
+.depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
 .dist-sec{margin-bottom:22px}
 .dist-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid var(--border)}
 .dist-head .dn{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.95rem}
@@ -135,12 +130,10 @@ function renderDepots() {
             <div class="depot-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
             <div><div class="depot-name">${dep}</div><div class="depot-dist">${d.name}</div></div>
           </div>
-          <div class="depot-stats">
-            <div class="ds"><div class="dsv">${o.count}</div><div class="dsl">Members</div></div>
-            <div class="ds green"><div class="dsv">${o.disbursed}</div><div class="dsl">Disbursed</div></div>
-            <div class="ds amber"><div class="dsv">${o.count - o.disbursed}</div><div class="dsl">Pending</div></div>
+          <div class="depot-count">
+            <span class="num">${o.count}</span>
+            <span class="lbl">member${o.count === 1 ? '' : 's'} profiled</span>
           </div>
-          <div class="depot-total">Total disbursed: <b>UGX ${fmt(o.total)}</b></div>
         </div>`;
     }).join('');
 
