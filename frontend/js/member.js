@@ -550,17 +550,6 @@ function exportCard() {
         <div class="sig"><div class="line"></div><div class="nm2">${issued}</div><div class="lbl">Date</div></div>
       </div>
     </div>
-
-    <div class="ft">
-      <div>
-        <div>Verify online at:</div>
-        <div class="vurl">${link}</div>
-      </div>
-      <div class="r">
-        <div>Issued: ${issued}</div>
-        <div>Coordinator: Al-Hajj Faruk Kirunda</div>
-      </div>
-    </div>
   </div>
 
   <div class="agr">
