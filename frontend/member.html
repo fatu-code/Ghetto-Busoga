@@ -101,7 +101,7 @@
         <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="eGender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Amount (UGX) *</label><input class="form-input" id="eAmount" type="number"></div>
+        <div class="form-group"><label class="form-label">Amount (UGX) *</label><input class="form-input" id="eAmount" type="text" inputmode="numeric" oninput="fmtMoney(this)"></div>
         <div class="form-group"><label class="form-label">Disbursement Date</label><input class="form-input" id="eDate" type="date"></div>
       </div>
       <div class="form-row">
@@ -131,7 +131,7 @@
     <div class="modal-body">
       <div style="font-family:var(--font2);font-size:.78rem;color:var(--muted);line-height:1.55;margin-bottom:14px">Record the money received by this profiled depot member. It will show on their profile and card, and mark them as Disbursed.</div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Amount Received (UGX) *</label><input class="form-input" id="dAmount" type="number" placeholder="e.g. 300000"></div>
+        <div class="form-group"><label class="form-label">Amount Received (UGX) *</label><input class="form-input" id="dAmount" type="text" inputmode="numeric" oninput="fmtMoney(this)" placeholder="e.g. 300,000"></div>
         <div class="form-group"><label class="form-label">Disbursement Date *</label><input class="form-input" id="dDate" type="date"></div>
       </div>
     </div>

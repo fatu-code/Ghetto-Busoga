@@ -194,11 +194,17 @@ function copyLink() {
   navigator.clipboard.writeText(link).then(() => showToast('Link copied!'));
 }
 
+// Live thousands separators in money inputs (so 400000 shows as 400,000)
+function fmtMoney(el) {
+  const digits = el.value.replace(/[^\d]/g, '');
+  el.value = digits ? Number(digits).toLocaleString('en-US') : '';
+}
+
 // ── RECORD DISBURSEMENT ────────────────────────────────────────────
 // Money is only ever entered here, on an already-profiled depot member.
 function openDisburse() {
   const m = member;
-  document.getElementById('dAmount').value = Number(m.amount) > 0 ? m.amount : '';
+  document.getElementById('dAmount').value = Number(m.amount) > 0 ? Number(m.amount).toLocaleString('en-US') : '';
   document.getElementById('dDate').value = m.disbursement_date
     ? m.disbursement_date.split('T')[0]
     : new Date().toISOString().split('T')[0];
@@ -206,7 +212,7 @@ function openDisburse() {
 }
 
 async function saveDisbursement() {
-  const amount = document.getElementById('dAmount').value;
+  const amount = document.getElementById('dAmount').value.replace(/,/g, '');
   const date   = document.getElementById('dDate').value;
   if (!amount || Number(amount) <= 0) {
     showToast('Enter the amount received', 'error');
@@ -757,7 +763,7 @@ function openEditModal() {
   fillLocSelect(document.getElementById('eSubCounty'), subs, m.sub_county || '');
   const parishes = (LOCATIONS[m.district] && LOCATIONS[m.district][m.sub_county]) || [];
   fillLocSelect(document.getElementById('eParish'), parishes, m.parish || '');
-  document.getElementById('eAmount').value  = m.amount;
+  document.getElementById('eAmount').value  = Number(m.amount) ? Number(m.amount).toLocaleString('en-US') : '';
   document.getElementById('eDate').value    = m.disbursement_date ? m.disbursement_date.split('T')[0] : '';
   // Photo preview
   const prev = document.getElementById('editPhotoPreview');
@@ -794,7 +800,7 @@ async function saveEdit() {
   fd.append('depot',             document.getElementById('eDepot').value.trim());
   fd.append('village',           document.getElementById('eVillage').value.trim());
   fd.append('gender',            document.getElementById('eGender').value);
-  fd.append('amount',            document.getElementById('eAmount').value);
+  fd.append('amount',            document.getElementById('eAmount').value.replace(/,/g, ''));
   fd.append('disbursement_date', document.getElementById('eDate').value);
   fd.append('status',            document.getElementById('eStatus').value);
   fd.append('notes',             document.getElementById('eNotes').value.trim());
