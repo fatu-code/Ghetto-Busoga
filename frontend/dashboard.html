@@ -154,6 +154,28 @@
                   <div class="metric-sub" id="mtDisbursedSub">&nbsp;</div>
                 </div>
               </div>
+
+              <div class="metric-tile">
+                <div class="metric-icon green">
+                  <svg viewBox="0 0 16 16"><path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5"/></svg>
+                </div>
+                <div class="metric-body">
+                  <div class="metric-value" id="mtRepaid">—</div>
+                  <div class="metric-label">Repaid (UGX)</div>
+                  <div class="metric-sub" id="mtRepaidSub">&nbsp;</div>
+                </div>
+              </div>
+
+              <div class="metric-tile">
+                <div class="metric-icon blue">
+                  <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg>
+                </div>
+                <div class="metric-body">
+                  <div class="metric-value" id="mtOutstanding">—</div>
+                  <div class="metric-label">Outstanding (UGX)</div>
+                  <div class="metric-sub" id="mtOutstandingSub">&nbsp;</div>
+                </div>
+              </div>
             </div>
 
             <!-- MAIN GRID -->
@@ -295,6 +317,16 @@
           document.getElementById('mtDistrictsSub').textContent     = 'of 12 covered';
           document.getElementById('mtDisbursed').textContent        = compact(disbursed);
           document.getElementById('mtDisbursedSub').textContent     = `to ${fmt(total)} beneficiar${total === 1 ? 'y' : 'ies'}`;
+
+          const repaid      = Number(t.total_repaid || 0);
+          const totalDue    = Math.round(disbursed * 1.06);
+          const outstanding = Math.max(0, totalDue - repaid);
+          const overdue     = Number(t.overdue_count || 0);
+          const repaidPct   = totalDue ? Math.round((repaid / totalDue) * 100) : 0;
+          document.getElementById('mtRepaid').textContent           = compact(repaid);
+          document.getElementById('mtRepaidSub').textContent        = disbursed ? `${repaidPct}% of UGX ${compact(totalDue)} due` : ' ';
+          document.getElementById('mtOutstanding').textContent      = compact(outstanding);
+          document.getElementById('mtOutstandingSub').textContent   = overdue ? `${overdue} overdue` : 'on track';
 
           // District bars (by beneficiary count)
           const dl  = document.getElementById('districtList');

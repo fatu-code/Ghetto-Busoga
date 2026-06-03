@@ -13,10 +13,16 @@ DISTRICTS.forEach(d => {
   document.getElementById('eDistrict').appendChild(o);
 });
 
+let repayments = [], totalRepaid = 0;
+
 async function load() {
   try {
     const data = await apiFetch(`/api/members/${memberId}`);
     member = data.member;
+    try {
+      const rp = await apiFetch(`/api/members/${memberId}/repayments`);
+      repayments = rp.repayments || []; totalRepaid = rp.total_repaid || 0;
+    } catch { repayments = []; totalRepaid = 0; }
     document.getElementById('profileNameBar').textContent = member.name;
     const disb = isDisbursed(member);
     document.getElementById('topbarActions').innerHTML = `
@@ -123,6 +129,7 @@ function renderProfile() {
           ${m.notes ? `<div style="margin-top:12px;padding:11px 13px;background:var(--bg);border-radius:var(--radius-sm);font-family:var(--font2);font-size:.75rem;font-weight:600;color:var(--text);line-height:1.6">${m.notes}</div>` : ''}
         </div>
       </div>
+      ${isDisbursed(m) ? loanCard() : ''}
     </div>
 
     <div class="tab-content" id="tab-qr">
@@ -236,6 +243,91 @@ async function saveDisbursement() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Save Disbursement';
+  }
+}
+
+// ── LOAN & REPAYMENT ───────────────────────────────────────────────
+// Loan = principal + 6%, repayable within 12 months of disbursement.
+function dueDate(d) {
+  if (!d) return null;
+  const x = new Date(d);
+  if (isNaN(x)) return null;
+  x.setMonth(x.getMonth() + 12);
+  return x;
+}
+function loanSummary() {
+  const principal   = Number(member.amount) || 0;
+  const interest    = Math.round(principal * 0.06);
+  const totalDue    = principal + interest;
+  const repaid      = totalRepaid;
+  const outstanding = Math.max(0, totalDue - repaid);
+  const due         = dueDate(member.disbursement_date);
+  const cleared     = totalDue > 0 && outstanding <= 0;
+  const overdue     = !cleared && due && new Date() > due;
+  const pct         = totalDue ? Math.min(100, Math.round((repaid / totalDue) * 100)) : 0;
+  const status      = cleared ? 'Cleared' : overdue ? 'Overdue' : 'Repaying';
+  return { principal, interest, totalDue, repaid, outstanding, due, cleared, overdue, pct, status };
+}
+function loanCard() {
+  const s = loanSummary();
+  const pillCss = s.cleared ? 'background:#eaf7f0;color:#007a33;border-color:#b3e6c8'
+    : s.overdue ? 'background:#fdecec;color:#c0392b;border-color:#f5b7b1'
+    : 'background:#fff5e6;color:#b06a00;border-color:#ffd699';
+  const history = repayments.map(r =>
+    `<div class="rp-row"><span>${formatDate(r.paid_on)}</span><span>UGX ${fmt(r.amount)}</span></div>`).join('')
+    || '<div class="rp-empty">No repayments recorded yet.</div>';
+  return `
+    <div class="card" style="margin-top:14px">
+      <div class="card-head">
+        <span class="card-title">Loan &amp; Repayment</span>
+        <span class="pill" style="${pillCss}">${s.status}</span>
+      </div>
+      <div class="loan-grid">
+        <div class="lg"><div class="lg-l">Principal</div><div class="lg-v">UGX ${fmt(s.principal)}</div></div>
+        <div class="lg"><div class="lg-l">Interest (6%)</div><div class="lg-v">UGX ${fmt(s.interest)}</div></div>
+        <div class="lg"><div class="lg-l">Total Due</div><div class="lg-v">UGX ${fmt(s.totalDue)}</div></div>
+        <div class="lg"><div class="lg-l">Repaid</div><div class="lg-v" style="color:var(--green)">UGX ${fmt(s.repaid)}</div></div>
+        <div class="lg"><div class="lg-l">Outstanding</div><div class="lg-v" style="color:${s.cleared ? 'var(--green)' : '#c0392b'}">UGX ${fmt(s.outstanding)}</div></div>
+        <div class="lg"><div class="lg-l">Due Date</div><div class="lg-v">${s.due ? formatDate(s.due) : '-'}</div></div>
+      </div>
+      <div class="loan-bar"><div class="loan-bar-fill" style="width:${s.pct}%"></div></div>
+      <div class="loan-bar-lbl">${s.pct}% repaid</div>
+      <button class="btn btn-green" style="margin-top:14px" onclick="openRepay()">
+        <svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg> Record Repayment
+      </button>
+      <div class="rp-head">Repayment history</div>
+      <div class="rp-list">${history}</div>
+    </div>`;
+}
+function openRepay() {
+  const s = loanSummary();
+  document.getElementById('repayInfo').innerHTML =
+    `Outstanding balance: <strong>UGX ${fmt(s.outstanding)}</strong> of UGX ${fmt(s.totalDue)} total due.`;
+  document.getElementById('rAmount').value = '';
+  document.getElementById('rDate').value = new Date().toISOString().split('T')[0];
+  openModal('repayModal');
+}
+async function saveRepayment() {
+  const amount = document.getElementById('rAmount').value.replace(/,/g, '');
+  const date   = document.getElementById('rDate').value;
+  if (!amount || Number(amount) <= 0) { showToast('Enter the amount repaid', 'error'); return; }
+  const btn = document.getElementById('rSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    const data = await apiFetch(`/api/members/${memberId}/repayments`, {
+      method: 'POST', body: { amount: Number(amount), paid_on: date || null },
+    });
+    repayments = data.repayments || [];
+    totalRepaid = data.total_repaid || 0;
+    closeModal('repayModal');
+    showToast('Repayment recorded');
+    renderProfile();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Save Repayment';
   }
 }
 
