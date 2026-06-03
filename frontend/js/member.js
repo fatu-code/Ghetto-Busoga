@@ -18,7 +18,12 @@ async function load() {
     const data = await apiFetch(`/api/members/${memberId}`);
     member = data.member;
     document.getElementById('profileNameBar').textContent = member.name;
+    const disb = isDisbursed(member);
     document.getElementById('topbarActions').innerHTML = `
+      <button class="btn ${disb ? '' : 'btn-green'}" onclick="openDisburse()">
+        <svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg>
+        <span class="mob-hide">${disb ? 'Update Disbursement' : 'Record Disbursement'}</span>
+      </button>
       <button class="btn" onclick="openEditModal()">
         <svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg>
         <span class="mob-hide">Edit</span>
@@ -27,7 +32,7 @@ async function load() {
         <svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M9.5 1.5V5h3.5M5.5 8h5M5.5 10.5h5"/></svg>
         <span class="mob-hide">Loan Agreement</span>
       </button>
-      <button class="btn btn-green" onclick="exportCard()">
+      <button class="btn ${disb ? 'btn-green' : ''}" onclick="exportCard()">
         <svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 6h12M5 9.5h3"/></svg>
         <span class="mob-hide">Export Card</span>
       </button>`;
@@ -187,6 +192,44 @@ function showTab(id, btn) {
 function copyLink() {
   const link = verifyUrl(memberId);
   navigator.clipboard.writeText(link).then(() => showToast('Link copied!'));
+}
+
+// ── RECORD DISBURSEMENT ────────────────────────────────────────────
+// Money is only ever entered here, on an already-profiled depot member.
+function openDisburse() {
+  const m = member;
+  document.getElementById('dAmount').value = Number(m.amount) > 0 ? m.amount : '';
+  document.getElementById('dDate').value = m.disbursement_date
+    ? m.disbursement_date.split('T')[0]
+    : new Date().toISOString().split('T')[0];
+  openModal('disburseModal');
+}
+
+async function saveDisbursement() {
+  const amount = document.getElementById('dAmount').value;
+  const date   = document.getElementById('dDate').value;
+  if (!amount || Number(amount) <= 0) {
+    showToast('Enter the amount received', 'error');
+    return;
+  }
+  const btn = document.getElementById('dSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    const fd = new FormData();
+    fd.append('amount', amount);
+    fd.append('disbursement_date', date || '');
+    const data = await apiFetch(`/api/members/${memberId}`, { method: 'PUT', body: fd });
+    member = data.member;
+    closeModal('disburseModal');
+    showToast('Disbursement recorded');
+    load(); // refresh profile + topbar button state
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Save Disbursement';
+  }
 }
 
 // Clean beneficiary card (export / give to the user). QR is generated live

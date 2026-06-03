@@ -145,9 +145,8 @@
         <div class="form-group"><label class="form-label">Village / Area</label><input class="form-input" id="mVillage" placeholder="Village or area"></div>
         <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="mGender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Amount Received (UGX)</label><input class="form-input" id="mAmount" type="number" placeholder="Leave blank if not yet disbursed"></div>
-        <div class="form-group"><label class="form-label">Disbursement Date</label><input class="form-input" id="mDate" type="date"></div>
+      <div class="form-group" style="background:var(--green-pale);border:1px solid var(--green-mid);border-radius:var(--radius-sm);padding:11px 14px;font-family:var(--font2);font-size:.74rem;font-weight:600;color:var(--green-dark);line-height:1.5">
+        This profiles the person as a depot member. Money is not entered here. When funds are disbursed, open their profile and use <strong>Record Disbursement</strong>.
       </div>
       <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="mNotes" rows="2" placeholder="Any additional notes..."></textarea></div>
     </div>
@@ -361,8 +360,6 @@ async function saveMember() {
   const nin      = document.getElementById('mNin').value.trim().toUpperCase();
   const district = document.getElementById('mDistrict').value;
   const depot    = document.getElementById('mDepot').value.trim();
-  const amount   = document.getElementById('mAmount').value;
-  const date     = document.getElementById('mDate').value;
   const photo    = document.getElementById('photoInput').files[0];
 
   if (!name || !nin || !district || !depot) {
@@ -389,8 +386,6 @@ async function saveMember() {
     fd.append('depot',             depot);
     fd.append('village',           document.getElementById('mVillage').value.trim());
     fd.append('gender',            document.getElementById('mGender').value);
-    fd.append('amount',            amount);
-    fd.append('disbursement_date', date);
     fd.append('notes',             document.getElementById('mNotes').value.trim());
     if (photo) fd.append('photo', photo);
 
@@ -399,11 +394,10 @@ async function saveMember() {
     closeModal('addModal');
     showToast(`${name} registered as ${data.member.id}`);
     // Reset form
-    ['mName','mNin','mPhone','mVillage','mAmount','mNotes'].forEach(i => document.getElementById(i).value = '');
+    ['mName','mNin','mPhone','mVillage','mNotes'].forEach(i => document.getElementById(i).value = '');
     ['mDistrict','mGender'].forEach(i => document.getElementById(i).value = '');
     updateSubCountyOptions();
     prefillDepot();
-    document.getElementById('mDate').value = '';
     document.getElementById('photoInput').value = '';
     document.getElementById('photoPreview').innerHTML = '?';
     document.getElementById('photoPreview').style.border = '2px dashed rgba(179,230,200,.3)';
