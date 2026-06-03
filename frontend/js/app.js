@@ -187,6 +187,10 @@ function formatDateShort(d) {
 function fmt(n) {
   return Number(n || 0).toLocaleString("en-UG");
 }
+// Display a name in Title Case regardless of how it was stored (WAMBI SALIMA -> Wambi Salima).
+function titleCase(s) {
+  return String(s || "").toLowerCase().replace(/\b([a-z])/g, (_, c) => c.toUpperCase());
+}
 // Whole number -> English words (for the loan agreement amount in words)
 function numberToWords(num) {
   num = Math.floor(Number(num) || 0);

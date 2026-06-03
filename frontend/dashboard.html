@@ -326,7 +326,7 @@
                   ? `<img src="${m.photo_url}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`
                   : initials(m.name)}</div>
                 <div class="recent-content">
-                  <div class="recent-name">${m.name}</div>
+                  <div class="recent-name">${titleCase(m.name)}</div>
                   <div class="recent-detail">${m.depot} • ${m.district_name}</div>
                 </div>
                 <div class="recent-amount">${compact(m.amount)}</div>
