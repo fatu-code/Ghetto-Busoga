@@ -149,13 +149,20 @@ function buildSidebar(active) {
       <div class="sb-online"></div>
     </div>
     <div class="sb-nav">
-      ${NAV_ITEMS.map(
-        (item) => `
+      ${(() => {
+        const adminIds = new Set(["staff", "audit"]);
+        let out = "", last = null;
+        NAV_ITEMS.forEach((item) => {
+          const sec = adminIds.has(item.id) ? "Admin" : "Navigation";
+          if (sec !== last) { out += `<div class="nav-section">${sec}</div>`; last = sec; }
+          out += `
         <a href="${item.href}" class="nav-item${active === item.id ? " active" : ""}">
           <div class="nav-icon">${item.icon}</div>
           <span class="nav-label">${item.label}</span>
-        </a>`,
-      ).join("")}
+        </a>`;
+        });
+        return out;
+      })()}
     </div>
     <div class="sb-bottom">
       <div class="sb-bottom-text">A programme by<br><strong>State House Uganda</strong></div>
