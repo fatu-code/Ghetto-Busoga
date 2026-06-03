@@ -9,6 +9,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
+/* Overview band */
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:20px}
+.ov-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:15px 18px;display:flex;align-items:center;gap:13px}
+.ov-ic{width:42px;height:42px;border-radius:12px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ov-ic svg{width:20px;height:20px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ov-v{font-family:var(--font);font-size:1.55rem;color:var(--text);line-height:1}
+.ov-l{font-family:var(--font2);font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:4px}
+
 /* District tiles */
 .dist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:14px}
 .dist-tile{background:#fff;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .16s}
@@ -16,8 +24,8 @@
 .dist-tile:hover .dt-go{background:var(--green);border-color:var(--green)}
 .dist-tile:hover .dt-go svg{stroke:#fff}
 .dt-head{display:flex;align-items:center;gap:12px;padding:16px 16px 15px}
-.dt-ic{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#0a7a3a 0%,#16271d 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dt-ic svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dt-ic{width:42px;height:42px;border-radius:12px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dt-ic svg{width:20px;height:20px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .dt-id{flex:1;min-width:0}
 .dt-name{font-family:var(--font2);font-size:1.02rem;font-weight:800;color:var(--text);line-height:1.12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dt-code{font-family:var(--font);font-size:.67rem;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-top:3px}
@@ -38,8 +46,8 @@
 .depot-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .15s}
 .depot-card:hover{border-color:var(--green-mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
 .depot-top{display:flex;align-items:center;gap:11px;margin-bottom:14px}
-.depot-ic{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#0a7a3a 0%,#16271d 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.depot-ic svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.depot-ic{width:40px;height:40px;border-radius:11px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.depot-ic svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .depot-name{font-family:var(--font2);font-size:.95rem;font-weight:800;color:var(--text);line-height:1.15}
 .depot-dist{font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted);margin-top:2px}
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
@@ -126,8 +134,10 @@ function render() {
 }
 
 function renderDistricts() {
+  let totalDepots = 0;
   const tiles = DISTRICTS.map(d => {
     const dc = depotsForDistrict(d.code).length;
+    totalDepots += dc;
     const mc = membersIn(d.code);
     return `
       <div class="dist-tile" onclick="select('${d.code}')">
@@ -142,7 +152,24 @@ function renderDistricts() {
         </div>
       </div>`;
   }).join('');
-  document.getElementById('depotsContainer').innerHTML = `<div class="dist-grid">${tiles}</div>`;
+
+  const overview = `
+    <div class="ov-grid">
+      <div class="ov-card">
+        <div class="ov-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5C5.2 1.5 3 3.6 3 6.3 3 9.8 8 14.5 8 14.5s5-4.7 5-8.2C13 3.6 10.8 1.5 8 1.5z"/><circle cx="8" cy="6.2" r="1.7"/></svg></div>
+        <div><div class="ov-v">${DISTRICTS.length}</div><div class="ov-l">Districts</div></div>
+      </div>
+      <div class="ov-card">
+        <div class="ov-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
+        <div><div class="ov-v">${totalDepots}</div><div class="ov-l">Depots</div></div>
+      </div>
+      <div class="ov-card">
+        <div class="ov-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div>
+        <div><div class="ov-v">${fmt(allMembers.length)}</div><div class="ov-l">Members profiled</div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('depotsContainer').innerHTML = overview + `<div class="dist-grid">${tiles}</div>`;
   document.getElementById('countLabel').textContent =
     `${DISTRICTS.length} districts · ${fmt(allMembers.length)} members profiled`;
 }
