@@ -252,8 +252,8 @@ function exportCard() {
 
     .sign{display:flex;gap:44px;margin-top:42px}
     .sig{flex:1;text-align:center}
-    .sig .line{border-top:1.4px solid #b9c7bf;height:48px}
-    .sig .nm2{font-family:'Varela Round',sans-serif;font-size:13px;color:#1c3326;padding-top:9px;line-height:1.2}
+    .sig .line{border-bottom:1.4px solid #b9c7bf;height:44px}
+    .sig .nm2{font-family:'Varela Round',sans-serif;font-size:13px;color:#1c3326;padding-top:6px;line-height:1.2}
     .sig .lbl{font-size:10.5px;font-weight:700;color:#7a8e83;text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
 
     .ft{margin-top:auto;padding:7mm 16mm 9mm;border-top:1.5px solid #eef2f0;display:flex;justify-content:space-between;align-items:flex-end;gap:18px;font-size:10px;color:#9aa8a0;font-weight:700}
