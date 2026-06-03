@@ -250,10 +250,11 @@ function exportCard() {
     .note{margin-top:18px;font-size:11.5px;line-height:1.65;color:#5b6b62;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:13px 16px}
     .note b{color:#1c3326}
 
-    .sign{display:flex;gap:40px;margin-top:26px}
-    .sig{flex:1}
-    .sig .line{border-top:1.4px solid #b9c7bf;height:40px}
-    .sig .lbl{font-size:11px;font-weight:800;color:#5b6b62;padding-top:6px}
+    .sign{display:flex;gap:44px;margin-top:42px}
+    .sig{flex:1;text-align:center}
+    .sig .line{border-top:1.4px solid #b9c7bf;height:48px}
+    .sig .nm2{font-family:'Varela Round',sans-serif;font-size:13px;color:#1c3326;padding-top:9px;line-height:1.2}
+    .sig .lbl{font-size:10.5px;font-weight:700;color:#7a8e83;text-transform:uppercase;letter-spacing:.07em;margin-top:4px}
 
     .ft{margin-top:auto;padding:7mm 16mm 9mm;border-top:1.5px solid #eef2f0;display:flex;justify-content:space-between;align-items:flex-end;gap:18px;font-size:10px;color:#9aa8a0;font-weight:700}
     .ft .vurl{color:#009c41;word-break:break-all}
@@ -327,9 +328,9 @@ function exportCard() {
       </div>
 
       <div class="sign">
-        <div class="sig"><div class="line"></div><div class="lbl">Beneficiary Signature</div></div>
-        <div class="sig"><div class="line"></div><div class="lbl">Authorising Officer</div></div>
-        <div class="sig"><div class="line"></div><div class="lbl">Date</div></div>
+        <div class="sig"><div class="line"></div><div class="nm2">${m.name}</div><div class="lbl">Beneficiary</div></div>
+        <div class="sig"><div class="line"></div><div class="nm2">Al-Hajj Faruk Kirunda</div><div class="lbl">Authorising Officer</div></div>
+        <div class="sig"><div class="line"></div><div class="nm2">${issued}</div><div class="lbl">Date</div></div>
       </div>
     </div>
 
