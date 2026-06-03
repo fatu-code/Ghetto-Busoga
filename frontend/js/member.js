@@ -190,6 +190,18 @@ function copyLink() {
 
 // Clean beneficiary card (export / give to the user). QR is generated live
 // from the public verify link, so it works for every beneficiary.
+// Authorising officer per district (the official who signs the card).
+const DISTRICT_OFFICERS = {
+  JJA: 'Waiswa Geoffrey',  JJD: 'Balidawa Samuel',   IGA: 'Isabirye Moses',
+  KLR: 'Kawanguzi David',  LUK: 'Tenywa Patrick',    MYG: 'Muganza Henry',
+  NMY: 'Wandera Joseph',   BGR: 'Kintu Wilberforce', BGW: 'Babirye Sarah',
+  NMT: 'Mutyaba Charles',  KML: 'Bagonza Stephen',   BYD: 'Kagoda Andrew',
+};
+// "BALULOBA NATHAN" -> "Baluloba Nathan" (first letter of each word capital, rest small)
+function titleCase(s) {
+  return String(s || '').toLowerCase().replace(/\b([a-z])/g, (_, c) => c.toUpperCase());
+}
+
 // Full A4 beneficiary profile sheet (the document we print and give out).
 // QR is generated live from the verify link, so it works for everyone.
 function exportCard() {
@@ -328,8 +340,8 @@ function exportCard() {
       </div>
 
       <div class="sign">
-        <div class="sig"><div class="line"></div><div class="nm2">${m.name}</div><div class="lbl">Beneficiary</div></div>
-        <div class="sig"><div class="line"></div><div class="nm2">Al-Hajj Faruk Kirunda</div><div class="lbl">Authorising Officer</div></div>
+        <div class="sig"><div class="line"></div><div class="nm2">${titleCase(m.name)}</div><div class="lbl">Beneficiary</div></div>
+        <div class="sig"><div class="line"></div><div class="nm2">${DISTRICT_OFFICERS[m.district] || 'Authorised Officer'}</div><div class="lbl">Authorising Officer</div></div>
         <div class="sig"><div class="line"></div><div class="nm2">${issued}</div><div class="lbl">Date</div></div>
       </div>
     </div>
