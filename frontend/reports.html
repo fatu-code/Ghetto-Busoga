@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Reports — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px}
+.sum-l{font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.sum-v{font-family:var(--font);font-size:1.45rem;color:var(--text);margin-top:6px;line-height:1}
+.sum-v.green{color:var(--green)} .sum-v.red{color:#c0392b} .sum-v.amber{color:#b06a00}
+.rep-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.rep-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-bottom:1.5px solid var(--border)}
+.rep-title{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.92rem}
+.rmoney{font-family:var(--font);font-weight:800;text-align:right;white-space:nowrap}
+table th.num,table td.num{text-align:right}
+tfoot td{font-weight:900;border-top:2px solid var(--border);background:var(--bg)}
+/* Print letterhead (screen-hidden) */
+.print-head{display:none}
+@media print{
+  .sidebar,.topbar,.filter-bar,.no-print{display:none !important}
+  .main-area,.content{margin:0;padding:0}
+  body{background:#fff}
+  .print-head{display:block;margin-bottom:14px}
+  .rep-card,.sum-card{box-shadow:none;break-inside:avoid}
+  @page{size:A4 landscape;margin:12mm}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Reports</div>
+          <div class="topbar-sub" id="countLabel">Loading...</div>
+        </div>
+      </div>
+      <div class="topbar-right no-print">
+        <button class="btn" onclick="downloadCSV()">
+          <svg viewBox="0 0 16 16"><path d="M8 1v9M5 7l3 3 3-3"/><path d="M2 12v2h12v-2"/></svg>
+          <span class="mob-hide">CSV</span>
+        </button>
+        <button class="btn btn-green" onclick="window.print()">
+          <svg viewBox="0 0 16 16"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><path d="M4 12h8v3H4z"/></svg>
+          <span class="mob-hide">Print / PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="filter-bar no-print">
+        <div style="flex:1;font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);min-width:200px">
+          Fund summary across all districts and depots. Use Print / PDF or CSV to export for records and audit.
+        </div>
+        <select class="filter-select" id="filterDistrict" onchange="render()"><option value="">All districts (depot table)</option></select>
+      </div>
+
+      <div id="reportBody">
+        <div class="card"><div class="empty-state"><div class="empty-title">Loading…</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('reports');
+
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('filterDistrict').appendChild(o);
+});
+
+let members = [];
+let districtRows = [];
+
+function isOverdue(m, outstanding) {
+  if (!(outstanding > 0) || !m.disbursement_date) return false;
+  const dd = new Date(m.disbursement_date);
+  if (isNaN(dd)) return false;
+  dd.setMonth(dd.getMonth() + 12);
+  return new Date() > dd;
+}
+function agg(list) {
+  const o = { count: 0, disbursedCount: 0, disbursed: 0, repaid: 0, outstanding: 0, overdue: 0 };
+  list.forEach(m => {
+    o.count++;
+    const amt = Number(m.amount) || 0;
+    if (amt > 0) {
+      const due = Math.round(amt * 1.06);
+      const rep = Number(m.repaid) || 0;
+      const out = Math.max(0, due - rep);
+      o.disbursedCount++;
+      o.disbursed   += amt;
+      o.repaid      += rep;
+      o.outstanding += out;
+      if (isOverdue(m, out)) o.overdue++;
+    }
+  });
+  return o;
+}
+
+async function load() {
+  try {
+    const data = await apiFetch('/api/members?limit=100000');
+    members = data.members || [];
+    render();
+  } catch (e) {
+    showToast('Failed to load report', 'error');
+  }
+}
+
+function moneyRow(label, a) {
+  return `<tr>
+    <td style="font-weight:800">${label}</td>
+    <td class="num">${fmt(a.count)}</td>
+    <td class="num">${fmt(a.disbursedCount)}</td>
+    <td class="num rmoney">UGX ${fmt(a.disbursed)}</td>
+    <td class="num rmoney" style="color:var(--green)">UGX ${fmt(a.repaid)}</td>
+    <td class="num rmoney" style="color:${a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(a.outstanding)}</td>
+    <td class="num" style="color:${a.overdue ? '#c0392b' : 'var(--muted)'}">${fmt(a.overdue)}</td>
+  </tr>`;
+}
+
+function render() {
+  const fund = agg(members);
+
+  // by district
+  districtRows = DISTRICTS.map(d => ({ d, a: agg(members.filter(m => m.district === d.code)) }))
+    .filter(r => r.a.count > 0);
+
+  // by depot (optionally narrowed to a district)
+  const dsel = document.getElementById('filterDistrict').value;
+  const depotKeys = {};
+  members.forEach(m => {
+    if (dsel && m.district !== dsel) return;
+    const k = m.district + '||' + m.depot;
+    (depotKeys[k] = depotKeys[k] || []).push(m);
+  });
+  const depotRows = Object.keys(depotKeys).map(k => {
+    const [code, depot] = k.split('||');
+    const dn = (DISTRICTS.find(x => x.code === code) || {}).name || code;
+    return { depot, dn, a: agg(depotKeys[k]) };
+  }).sort((x, y) => y.a.disbursed - x.a.disbursed || y.a.count - x.a.count);
+
+  const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('countLabel').textContent =
+    `${fmt(fund.count)} profiled · ${fmt(fund.disbursedCount)} disbursed`;
+
+  const head = `<tr>
+    <th>${''}</th><th class="num">Members</th><th class="num">Disbursed</th>
+    <th class="num">Amount (UGX)</th><th class="num">Repaid</th><th class="num">Outstanding</th><th class="num">Overdue</th>
+  </tr>`;
+
+  document.getElementById('reportBody').innerHTML = `
+    <div class="print-head">
+      <div style="font-family:'Varela Round',sans-serif;font-size:17px;color:#142a1d">Busoga Ghetto Presidential Empowerment Fund</div>
+      <div style="font-weight:800;color:#0a7a3a;text-transform:uppercase;letter-spacing:.1em;font-size:11px;margin-top:3px">Fund Report &middot; Generated ${issued}</div>
+    </div>
+
+    <div class="sum-grid">
+      <div class="sum-card"><div class="sum-l">Members Profiled</div><div class="sum-v">${fmt(fund.count)}</div></div>
+      <div class="sum-card"><div class="sum-l">Disbursed (UGX)</div><div class="sum-v">${fmt(fund.disbursed)}</div></div>
+      <div class="sum-card"><div class="sum-l">Repaid (UGX)</div><div class="sum-v green">${fmt(fund.repaid)}</div></div>
+      <div class="sum-card"><div class="sum-l">Outstanding (UGX)</div><div class="sum-v red">${fmt(fund.outstanding)}</div></div>
+      <div class="sum-card"><div class="sum-l">Overdue Loans</div><div class="sum-v amber">${fmt(fund.overdue)}</div></div>
+    </div>
+
+    <div class="rep-card">
+      <div class="rep-head"><span class="rep-title">By District</span></div>
+      <div class="table-wrap"><table>
+        <thead>${head}</thead>
+        <tbody>${districtRows.map(r => moneyRow(r.d.name, r.a)).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
+        <tfoot>${moneyRow('TOTAL', fund)}</tfoot>
+      </table></div>
+    </div>
+
+    <div class="rep-card">
+      <div class="rep-head"><span class="rep-title">By Depot${dsel ? ' — ' + ((DISTRICTS.find(x => x.code === dsel) || {}).name || '') : ''}</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid</th><th class="num">Outstanding</th></tr></thead>
+        <tbody>${depotRows.map(r => `<tr>
+            <td style="font-weight:800">${r.depot}</td>
+            <td style="color:var(--muted)">${r.dn}</td>
+            <td class="num">${fmt(r.a.count)}</td>
+            <td class="num">${fmt(r.a.disbursedCount)}</td>
+            <td class="num rmoney">UGX ${fmt(r.a.disbursed)}</td>
+            <td class="num rmoney" style="color:var(--green)">UGX ${fmt(r.a.repaid)}</td>
+            <td class="num rmoney" style="color:${r.a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(r.a.outstanding)}</td>
+          </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
+      </table></div>
+    </div>`;
+}
+
+function downloadCSV() {
+  const rows = [['District', 'Members', 'Disbursed (count)', 'Amount UGX', 'Repaid UGX', 'Outstanding UGX', 'Overdue']];
+  districtRows.forEach(r => rows.push([r.d.name, r.a.count, r.a.disbursedCount, r.a.disbursed, r.a.repaid, r.a.outstanding, r.a.overdue]));
+  const fund = agg(members);
+  rows.push(['TOTAL', fund.count, fund.disbursedCount, fund.disbursed, fund.repaid, fund.outstanding, fund.overdue]);
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bgs-fund-report.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+load();
+</script>
+</body>
+</html>

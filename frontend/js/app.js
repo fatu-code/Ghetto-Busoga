@@ -106,6 +106,12 @@ const NAV_ITEMS = [
     href: "repayments.html",
     icon: '<svg viewBox="0 0 16 16"><path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5"/></svg>',
   },
+  {
+    id: "reports",
+    label: "Reports",
+    href: "reports.html",
+    icon: '<svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M5.5 8h5M5.5 10.5h5M5.5 5.5h3"/></svg>',
+  },
 ];
 
 function buildSidebar(active) {
