@@ -202,10 +202,11 @@ function render(m) {
         ${[
           ['District',    m.district_name],
           ['Depot',       m.depot],
+          ['NIN',         m.nin_masked || '—'],
           ['Village',     m.village || '—'],
           ['Gender',      m.gender  || '—'],
           ['Programme',   'Busoga Ghetto SACCO Fund'],
-          ['Coordinator', 'Haji Faruk Kirunda'],
+          ['Coordinator', 'Al-Hajj Faruk Kirunda'],
         ].map(([k,v]) => `
           <div class="detail-row">
             <span class="detail-key">${k}</span>
@@ -225,7 +226,7 @@ function render(m) {
     </div>
     <div class="bottom-note">
       This record is maintained by the Busoga Ghetto Structure Programme<br>
-      under the direction of Haji Faruk Kirunda, Presidential Special Assistant.<br>
+      under the direction of Al-Hajj Faruk Kirunda, Presidential Special Assistant.<br>
       <strong style="color:var(--text)">ID: ${m.id}</strong>
     </div>`;
 }

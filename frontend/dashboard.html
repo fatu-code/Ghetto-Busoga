@@ -7,37 +7,43 @@
     <link rel="stylesheet" href="css/style.css" />
     <style>
       .btn-outline{border-color:var(--border);background:var(--white);color:var(--text);box-shadow:none}
-      .metrics-section{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
-      .metric-tile{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 18px 16px;transition:all .18s;min-height:145px;display:flex;flex-direction:column;justify-content:space-between}
-      .metric-tile:hover{border-color:var(--green-mid);box-shadow:0 10px 25px rgba(0,156,65,.08)}
-      .mc-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-      .metric-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+      /* HERO greeting band */
+      .hero{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);border-radius:18px;padding:24px 26px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;position:relative;overflow:hidden}
+      .hero::after{content:"";position:absolute;right:-40px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05)}
+      .hero-greet{font-family:var(--font);font-size:1.55rem;color:#fff;letter-spacing:-.01em;line-height:1.1;margin-bottom:5px;position:relative}
+      .hero-sub{font-family:var(--font2);font-size:.78rem;font-weight:600;color:rgba(255,255,255,.62);position:relative}
+      .hero-btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:11px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);color:#fff;font-family:var(--font2);font-size:.8rem;font-weight:800;text-decoration:none;transition:all .15s}
+      .hero-btn:hover{background:rgba(255,255,255,.22)}
+      .hero-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+      /* METRIC cards — icon left, number as hero, no dead space */
+      .metrics-section{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+      .metric-tile{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:18px;transition:all .18s;display:flex;align-items:center;gap:15px}
+      .metric-tile:hover{border-color:var(--green-mid);box-shadow:0 10px 24px rgba(0,156,65,.07);transform:translateY(-2px)}
+      .metric-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .metric-icon.green{background:var(--green-pale);border:1.5px solid var(--green-mid)}
       .metric-icon.blue{background:var(--blue-pale);border:1.5px solid var(--blue-mid)}
       .metric-icon.amber{background:var(--amber-pale);border:1.5px solid var(--amber-mid)}
-      .metric-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+      .metric-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
       .metric-icon.green svg{stroke:var(--green-dark)}
       .metric-icon.blue svg{stroke:var(--blue)}
       .metric-icon.amber svg{stroke:var(--amber)}
-      .metric-badge{font-family:var(--font2);font-size:.7rem;font-weight:800;color:var(--green-dark);background:var(--green-pale);border:1px solid var(--green-mid);border-radius:999px;padding:6px 12px;white-space:nowrap}
-      .metric-value{font-family:var(--font);font-size:2rem;font-weight:900;color:var(--text);margin-top:8px;line-height:1}
-      .metric-label{font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-      .grid-main{display:grid;grid-template-columns:2fr 1fr;gap:18px}
-      .district-grid{display:grid;gap:12px}
-      .district-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);transition:all .15s}
-      .district-row:hover{background:var(--green-pale);border-color:var(--green-mid)}
-      .district-name{font-family:var(--font2);font-size:.82rem;font-weight:800;color:var(--text)}
-      .district-stat{font-family:var(--font);font-size:.85rem;font-weight:700;color:var(--green);text-align:right}
+      .metric-body{min-width:0;flex:1}
+      .metric-value{font-family:var(--font);font-size:1.85rem;font-weight:900;color:var(--text);line-height:1.02;letter-spacing:-.01em}
+      .metric-label{font-family:var(--font2);font-size:.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+      .metric-sub{font-family:var(--font2);font-size:.67rem;font-weight:700;color:var(--green-dark);margin-top:4px}
+      .grid-main{display:grid;grid-template-columns:1.7fr 1fr;gap:18px;align-items:start}
+      .dcov-list{display:grid;gap:12px}
+      .dcov-row{display:grid;grid-template-columns:100px 1fr 84px;align-items:center;gap:12px}
+      .dcov-name{font-family:var(--font2);font-size:.78rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .dcov-track{height:9px;background:var(--bg);border:1px solid var(--border);border-radius:100px;overflow:hidden}
+      .dcov-fill{height:100%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:100px;transition:width .8s var(--ease)}
+      .dcov-val{font-family:var(--font);font-size:.78rem;font-weight:800;color:var(--text);text-align:right;white-space:nowrap}
+      .dcov-val span{font-size:.62rem;color:var(--muted);font-weight:700;margin-left:2px}
       .alerts-section{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px}
-      .dashboard-topbar{padding:18px 24px;gap:12px}
-      .topbar-left{display:flex;flex-direction:column;gap:6px;min-width:0}
-      .topbar{margin-bottom:20px !important}
       .alerts-title{font-family:var(--font2);font-size:.88rem;font-weight:900;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:space-between}
       .alerts-status{font-family:var(--font2);font-size:.72rem;font-weight:800;color:var(--green);border:1px solid var(--green-mid);border-radius:999px;padding:7px 12px;letter-spacing:.02em}
       .alert-list{display:grid;gap:10px}
-      .alert-item{padding:14px 16px;border-radius:var(--radius-sm);background:var(--green-pale);border:1px solid var(--green-mid);display:flex;align-items:center;gap:12px}
-      .alert-icon{width:16px;height:16px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:0}
-      .alert-text{font-family:var(--font2);font-size:.78rem;font-weight:700;color:var(--text);line-height:1.5}
       .alert-item{padding:12px 14px;border-radius:var(--radius-sm);background:var(--green-pale);border:1px solid var(--green-mid);display:flex;align-items:flex-start;gap:10px}
       .alert-icon{width:18px;height:18px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:2px}
       .alert-text{font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--text);line-height:1.5}
@@ -61,12 +67,17 @@
       .recent-detail{font-family:var(--font2);font-size:.65rem;color:var(--muted)}
       .recent-amount{font-family:var(--font);font-size:.78rem;font-weight:800;color:var(--green);text-align:right;flex-shrink:0}
 
-      /* Overrides to match PDM Portal visuals: tighten spacing */
-      .content{padding:0 18px 18px !important}
-      .metrics-section{gap:18px !important}
-      .metric-tile{padding:20px !important;min-height:150px !important;border-radius:16px !important;box-shadow:none !important}
-      .metric-value{font-size:1.45rem !important}
-      .metric-label{font-size:.72rem !important}
+      .content{padding:18px}
+      .right-stack{display:grid;gap:18px}
+
+      @media (max-width:900px){
+        .grid-main{grid-template-columns:1fr}
+        .metrics-section{grid-template-columns:1fr 1fr}
+      }
+      @media (max-width:560px){
+        .metrics-section{grid-template-columns:1fr 1fr}
+        .district-grid{grid-template-columns:1fr}
+      }
     </style>
   </head>
   <body>
@@ -79,75 +90,68 @@
             <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" /></svg>
           </button>
           <div>
-            <div class="topbar-title" id="greetingText">Good morning, Al-Hajji Faruk</div>
-            <div class="topbar-sub" id="greetingDate">Wednesday, 3 June 2026 · Busoga · All 12 Districts</div>
+            <div class="topbar-title">Dashboard</div>
+            <div class="topbar-sub">Busoga Ghetto Structure · Overview</div>
           </div>
         </div>
-        <div class="topbar-right">
-          <a href="#" class="btn btn-outline">Generate Report</a>
-        </div>
       </div>
-      
+
       <div class="content">
+            <!-- HERO -->
+            <div class="hero">
+              <div>
+                <div class="hero-greet" id="greetingText">Good morning</div>
+                <div class="hero-sub" id="greetingDate">Loading…</div>
+              </div>
+              <a href="#" class="hero-btn">
+                <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+                Generate Report
+              </a>
+            </div>
+
             <!-- METRICS -->
             <div class="metrics-section">
               <div class="metric-tile">
-                <div class="mc-top">
-                  <div class="metric-icon green">
-                    <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-                  </div>
+                <div class="metric-icon green">
+                  <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
                 </div>
-                <div class="metric-value">3,428</div>
-                <div class="metric-label">Beneficiaries</div>
+                <div class="metric-body">
+                  <div class="metric-value" id="mtBeneficiaries">—</div>
+                  <div class="metric-label">Beneficiaries</div>
+                  <div class="metric-sub" id="mtBeneficiariesSub">&nbsp;</div>
+                </div>
               </div>
 
               <div class="metric-tile">
-                <div class="mc-top">
-                  <div class="metric-icon green">
-                    <svg viewBox="0 0 16 16"><path d="M1 6l7-5 7 5v8H1z"/><rect x="5" y="9" width="6" height="6"/></svg>
-                  </div>
-                  <div class="metric-badge">96 active</div>
+                <div class="metric-icon green">
+                  <svg viewBox="0 0 16 16"><path d="M1 6l7-5 7 5v8H1z"/><rect x="5" y="9" width="6" height="6"/></svg>
                 </div>
-                <div class="metric-value">96</div>
-                <div class="metric-label">Active Depots</div>
+                <div class="metric-body">
+                  <div class="metric-value" id="mtDepots">—</div>
+                  <div class="metric-label">Active Depots</div>
+                  <div class="metric-sub" id="mtDepotsSub">&nbsp;</div>
+                </div>
               </div>
 
               <div class="metric-tile">
-                <div class="mc-top">
-                  <div class="metric-icon blue">
-                    <svg viewBox="0 0 16 16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/></svg>
-                  </div>
+                <div class="metric-icon blue">
+                  <svg viewBox="0 0 16 16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/></svg>
                 </div>
-                <div class="metric-value">12</div>
-                <div class="metric-label">Districts</div>
+                <div class="metric-body">
+                  <div class="metric-value" id="mtDistricts">—</div>
+                  <div class="metric-label">Districts</div>
+                  <div class="metric-sub" id="mtDistrictsSub">&nbsp;</div>
+                </div>
               </div>
 
               <div class="metric-tile">
-                <div class="mc-top">
-                  <div class="metric-icon amber">
-                    <svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>
-                  </div>
-                  <div class="metric-badge">UGX</div>
+                <div class="metric-icon amber">
+                  <svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>
                 </div>
-                <div class="metric-value">12.4M</div>
-                <div class="metric-label">Disbursed</div>
-              </div>
-            </div>
-
-            <!-- ALERTS -->
-            <div class="alerts-section">
-              <div class="alerts-title">
-                <span>Alerts & flags</span>
-                <span class="alerts-status">All clear</span>
-              </div>
-              <div class="alert-list">
-                <div class="alert-item">
-                  <div class="alert-icon"></div>
-                  <div class="alert-text"><strong>All depots operational</strong> — Every depot is actively receiving and processing beneficiaries across all 12 districts.</div>
-                </div>
-                <div class="alert-item">
-                  <div class="alert-icon"></div>
-                  <div class="alert-text"><strong>Disbursements on schedule</strong> — All scheduled disbursements have been completed. Next round: 15 June 2026.</div>
+                <div class="metric-body">
+                  <div class="metric-value" id="mtDisbursed">—</div>
+                  <div class="metric-label">Disbursed (UGX)</div>
+                  <div class="metric-sub" id="mtDisbursedSub">&nbsp;</div>
                 </div>
               </div>
             </div>
@@ -158,57 +162,10 @@
                 <!-- DISTRICT COVERAGE -->
                 <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px">
                   <div class="card-head-alt">
-                    <div class="card-title-alt">Coverage by district</div>
+                    <div class="card-title-alt">Beneficiaries by district</div>
                   </div>
-                  <div class="district-grid">
-                    <div class="district-row">
-                      <div class="district-name">Jinja City</div>
-                      <div class="district-stat">20 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Iganga</div>
-                      <div class="district-stat">15 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Jinja District</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Kaliro</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Luuka</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Mayuge</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Namayingo</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Bugiri</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Bugweri</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Namutumba</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Kamuli</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
-                    <div class="district-row">
-                      <div class="district-name">Buyende</div>
-                      <div class="district-stat">10 depots</div>
-                    </div>
+                  <div class="dcov-list" id="districtList">
+                    <div style="font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0">Loading…</div>
                   </div>
                 </div>
 
@@ -218,53 +175,32 @@
                     <div class="card-title-alt">Recently registered</div>
                     <a href="members.html" style="font-family:var(--font2);font-size:.72rem;font-weight:800;color:var(--green);text-decoration:none;cursor:pointer">View all →</a>
                   </div>
-                  <div class="recent-grid">
-                    <div class="recent-item">
-                      <div class="recent-avatar">AN</div>
-                      <div class="recent-content">
-                        <div class="recent-name">Annet Namutebi</div>
-                        <div class="recent-detail">Wakitaka • Jinja City</div>
-                      </div>
-                      <div class="recent-amount">500K</div>
-                    </div>
-                    <div class="recent-item">
-                      <div class="recent-avatar">JO</div>
-                      <div class="recent-content">
-                        <div class="recent-name">John Okello</div>
-                        <div class="recent-detail">Bugembe • Jinja District</div>
-                      </div>
-                      <div class="recent-amount">750K</div>
-                    </div>
-                    <div class="recent-item">
-                      <div class="recent-avatar">SM</div>
-                      <div class="recent-content">
-                        <div class="recent-name">Sarah Musoke</div>
-                        <div class="recent-detail">Iringa • Iganga</div>
-                      </div>
-                      <div class="recent-amount">600K</div>
-                    </div>
-                    <div class="recent-item">
-                      <div class="recent-avatar">PK</div>
-                      <div class="recent-content">
-                        <div class="recent-name">Patrick Kato</div>
-                        <div class="recent-detail">Kaliro Town • Kaliro</div>
-                      </div>
-                      <div class="recent-amount">550K</div>
-                    </div>
-                    <div class="recent-item">
-                      <div class="recent-avatar">EM</div>
-                      <div class="recent-content">
-                        <div class="recent-name">Emily Nanyonga</div>
-                        <div class="recent-detail">Luuka Central • Luuka</div>
-                      </div>
-                      <div class="recent-amount">625K</div>
-                    </div>
+                  <div class="recent-grid" id="recentList">
+                    <div style="font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0">Loading…</div>
                   </div>
                 </div>
               </div>
 
               <!-- RIGHT SIDEBAR -->
-              <div>
+              <div class="right-stack">
+                <!-- ALERTS -->
+                <div class="alerts-section" style="margin-bottom:0">
+                  <div class="alerts-title">
+                    <span>Alerts & flags</span>
+                    <span class="alerts-status">All clear</span>
+                  </div>
+                  <div class="alert-list">
+                    <div class="alert-item">
+                      <div class="alert-icon"></div>
+                      <div class="alert-text"><strong>All depots operational</strong> — Every depot is actively receiving and processing beneficiaries across all 12 districts.</div>
+                    </div>
+                    <div class="alert-item">
+                      <div class="alert-icon"></div>
+                      <div class="alert-text"><strong>Disbursements on schedule</strong> — All scheduled disbursements have been completed. Next round: 15 June 2026.</div>
+                    </div>
+                  </div>
+                </div>
+
                 <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px">
                   <div class="card-head-alt">
                     <div class="card-title-alt">Quick actions</div>
@@ -307,7 +243,6 @@
           </div>
         </div>
       </div>
-    </div>
 
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div class="toast" id="toast"></div>
@@ -319,7 +254,7 @@
 
       function updateGreeting() {
         const user = Auth.get();
-        const userName = user?.name?.trim() || 'Al-Hajji Faruk';
+        const userName = user?.name?.trim() || 'Al-Hajj Faruk Kirunda';
         const now = new Date();
         const day = now.toLocaleDateString('en-UG', { weekday: 'long' });
         const date = now.toLocaleDateString('en-UG', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -332,7 +267,79 @@
         document.getElementById('greetingDate').textContent = `${day}, ${date} · Busoga · All 12 Districts`;
       }
 
+      // Compact UGX: 12,400,000 -> "12.4M", 750,000 -> "750K"
+      function compact(n) {
+        n = Number(n || 0);
+        if (n >= 1e6) return (n / 1e6).toFixed(n % 1e6 === 0 ? 0 : 1).replace(/\.0$/, '') + 'M';
+        if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+        return String(n);
+      }
+
+      const muted = 'font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0';
+
+      async function loadStats() {
+        try {
+          const data = await apiFetch('/api/stats');
+          const t = data.totals || {};
+          const total     = Number(t.total_members     || 0);
+          const active    = Number(t.active_members    || 0);
+          const depots    = Number(t.total_depots      || 0);
+          const districts = Number(t.districts_covered || 0);
+          const disbursed = Number(t.total_disbursed   || 0);
+
+          document.getElementById('mtBeneficiaries').textContent    = fmt(total);
+          document.getElementById('mtBeneficiariesSub').textContent = `${fmt(active)} active`;
+          document.getElementById('mtDepots').textContent           = fmt(depots);
+          document.getElementById('mtDepotsSub').textContent        = `across ${districts} district${districts === 1 ? '' : 's'}`;
+          document.getElementById('mtDistricts').textContent        = String(districts);
+          document.getElementById('mtDistrictsSub').textContent     = 'of 12 covered';
+          document.getElementById('mtDisbursed').textContent        = compact(disbursed);
+          document.getElementById('mtDisbursedSub').textContent     = `to ${fmt(total)} beneficiar${total === 1 ? 'y' : 'ies'}`;
+
+          // District bars (by beneficiary count)
+          const dl  = document.getElementById('districtList');
+          const byD = data.byDistrict || [];
+          if (!byD.length) {
+            dl.innerHTML = `<div style="${muted}">No beneficiaries yet</div>`;
+          } else {
+            const max = Math.max(...byD.map(d => Number(d.member_count) || 0), 1);
+            dl.innerHTML = byD.map(d => {
+              const c   = Number(d.member_count) || 0;
+              const pct = Math.max(4, Math.round((c / max) * 100));
+              return `<div class="dcov-row">
+                <div class="dcov-name">${d.district_name}</div>
+                <div class="dcov-track"><div class="dcov-fill" style="width:${pct}%"></div></div>
+                <div class="dcov-val">${fmt(c)} <span>ppl</span></div>
+              </div>`;
+            }).join('');
+          }
+
+          // Recently registered
+          const rl  = document.getElementById('recentList');
+          const rec = data.recent || [];
+          if (!rec.length) {
+            rl.innerHTML = `<div style="${muted}">No registrations yet</div>`;
+          } else {
+            rl.innerHTML = rec.map(m => `
+              <a class="recent-item" href="member.html?id=${m.id}" style="text-decoration:none;color:inherit">
+                <div class="recent-avatar">${m.photo_url
+                  ? `<img src="${m.photo_url}" alt="${m.name}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`
+                  : initials(m.name)}</div>
+                <div class="recent-content">
+                  <div class="recent-name">${m.name}</div>
+                  <div class="recent-detail">${m.depot} • ${m.district_name}</div>
+                </div>
+                <div class="recent-amount">${compact(m.amount)}</div>
+              </a>`).join('');
+          }
+        } catch {
+          document.getElementById('districtList').innerHTML = `<div style="${muted}">Couldn't load stats — check the connection.</div>`;
+          document.getElementById('recentList').innerHTML   = `<div style="${muted}">—</div>`;
+        }
+      }
+
       updateGreeting();
+      loadStats();
     </script>
   </body>
 </html>

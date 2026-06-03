@@ -95,8 +95,8 @@
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)">
         <div id="photoPreview" style="width:72px;height:72px;border-radius:13px;background:#1a2e22;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:1.4rem;color:rgba(179,230,200,.6);flex-shrink:0;overflow:hidden;cursor:pointer;border:2px dashed rgba(179,230,200,.3)" onclick="document.getElementById('photoInput').click()">?</div>
         <div>
-          <div style="font-family:var(--font2);font-size:.82rem;font-weight:800;color:var(--text);margin-bottom:3px">Beneficiary Photo *</div>
-          <div style="font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:8px">Required — this is the proof. A real face with a real record.</div>
+          <div style="font-family:var(--font2);font-size:.82rem;font-weight:800;color:var(--text);margin-bottom:3px">Beneficiary Photo</div>
+          <div style="font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted);margin-bottom:8px">Optional but recommended. If left blank, the beneficiary's initials are used.</div>
           <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
           <button class="btn btn-sm" onclick="document.getElementById('photoInput').click()">
             <svg viewBox="0 0 16 16"><path d="M8 2v8M5 5l3-3 3 3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>
@@ -110,15 +110,35 @@
         <div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" id="mPhone" placeholder="+256..."></div>
       </div>
       <div class="form-row">
+        <div class="form-group"><label class="form-label">National ID (NIN) *</label><input class="form-input" id="mNin" placeholder="e.g. CM91XXXXXXXXXX" maxlength="14" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="form-group"></div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label class="form-label">District *</label>
-          <select class="form-select" id="mDistrict" onchange="updateDepotOptions()">
+          <select class="form-select" id="mDistrict" onchange="updateSubCountyOptions()">
             <option value="">Select district</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Depot *</label>
-          <input class="form-input" id="mDepot" placeholder="Enter depot name">
+          <label class="form-label">Depot (Ghetto Cell) *</label>
+          <select class="form-select" id="mDepot">
+            <option value="">Select district first</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Sub-County</label>
+          <select class="form-select" id="mSubCounty" onchange="updateParishOptions()">
+            <option value="">Select district first</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Parish</label>
+          <select class="form-select" id="mParish">
+            <option value="">Select sub-county first</option>
+          </select>
         </div>
       </div>
       <div class="form-row">
@@ -144,12 +164,15 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/app.js"></script>
+<script src="js/locations.js"></script>
+<script src="js/depots.js"></script>
 <script>
 Auth.require();
 buildSidebar('members');
 
 let allMembers = [], currentPage = 1, totalPages = 1, totalCount = 0;
-const LIMIT = 48;
+// Show every beneficiary on one page — no pagination, just scroll.
+const LIMIT = 100000;
 
 // Populate district filters
 DISTRICTS.forEach(d => {
@@ -210,7 +233,7 @@ function renderMembers() {
   if (view === 'table') {
     container.innerHTML = `<div class="card"><div class="table-wrap"><table>
       <thead><tr>
-        <th>Photo</th><th>Name</th><th>ID</th><th>District</th><th>Depot</th><th>Amount</th><th>Date</th><th>Status</th>
+        <th>Photo</th><th>Name</th><th>Serial No.</th><th>District</th><th>Depot</th><th>Amount</th><th>Date</th><th>Status</th>
       </tr></thead>
       <tbody>
         ${allMembers.map(m => `
@@ -284,21 +307,46 @@ function updatePreviewInitials() {
   }
 }
 
-function updateDepotOptions() { /* depot is free-text input */ }
+// Cascading location dropdowns: District -> Sub-County -> Parish (+ Depot)
+function updateSubCountyOptions() {
+  const code = document.getElementById('mDistrict').value;
+  const subs = (LOCATIONS[code] && Object.keys(LOCATIONS[code])) || [];
+  document.getElementById('mSubCounty').innerHTML =
+    '<option value="">' + (code ? 'Select sub-county' : 'Select district first') + '</option>' +
+    subs.map(s => `<option>${s}</option>`).join('');
+  updateParishOptions();
+  updateDepotOptions();
+}
+function updateDepotOptions() {
+  const code   = document.getElementById('mDistrict').value;
+  const depots = (typeof DEPOTS !== 'undefined' && DEPOTS[code]) || [];
+  document.getElementById('mDepot').innerHTML =
+    '<option value="">' + (code ? 'Select depot' : 'Select district first') + '</option>' +
+    depots.map(d => `<option>${d}</option>`).join('');
+}
+function updateParishOptions() {
+  const code = document.getElementById('mDistrict').value;
+  const sub  = document.getElementById('mSubCounty').value;
+  const parishes = (LOCATIONS[code] && LOCATIONS[code][sub]) || [];
+  document.getElementById('mParish').innerHTML =
+    '<option value="">' + (sub ? 'Select parish' : 'Select sub-county first') + '</option>' +
+    parishes.map(p => `<option>${p}</option>`).join('');
+}
 
 async function saveMember() {
   const name     = document.getElementById('mName').value.trim();
+  const nin      = document.getElementById('mNin').value.trim().toUpperCase();
   const district = document.getElementById('mDistrict').value;
   const depot    = document.getElementById('mDepot').value.trim();
   const amount   = document.getElementById('mAmount').value;
   const date     = document.getElementById('mDate').value;
   const photo    = document.getElementById('photoInput').files[0];
 
-  if (!name || !district || !depot || !amount || !date) {
+  if (!name || !nin || !district || !depot || !amount || !date) {
     showToast('Please fill all required fields', 'error'); return;
   }
-  if (!photo) {
-    showToast('Please upload a photo — it is required for proof', 'error'); return;
+  if (!/^[A-Z0-9]{10,14}$/.test(nin)) {
+    showToast('NIN should be 10–14 letters/numbers (e.g. CM91...)', 'error'); return;
   }
 
   const distObj  = DISTRICTS.find(d => d.code === district);
@@ -309,24 +357,28 @@ async function saveMember() {
   try {
     const fd = new FormData();
     fd.append('name',              name);
+    fd.append('nin',               nin);
     fd.append('phone',             document.getElementById('mPhone').value.trim());
     fd.append('district',          district);
     fd.append('district_name',     distObj?.name || district);
+    fd.append('sub_county',        document.getElementById('mSubCounty').value.trim());
+    fd.append('parish',            document.getElementById('mParish').value.trim());
     fd.append('depot',             depot);
     fd.append('village',           document.getElementById('mVillage').value.trim());
     fd.append('gender',            document.getElementById('mGender').value);
     fd.append('amount',            amount);
     fd.append('disbursement_date', date);
     fd.append('notes',             document.getElementById('mNotes').value.trim());
-    fd.append('photo',             photo);
+    if (photo) fd.append('photo', photo);
 
     const data = await apiFetch('/api/members', { method:'POST', body: fd });
 
     closeModal('addModal');
     showToast(`${name} registered as ${data.member.id}`);
     // Reset form
-    ['mName','mPhone','mVillage','mAmount','mNotes'].forEach(i => document.getElementById(i).value = '');
+    ['mName','mNin','mPhone','mVillage','mAmount','mNotes'].forEach(i => document.getElementById(i).value = '');
     ['mDistrict','mGender'].forEach(i => document.getElementById(i).value = '');
+    updateSubCountyOptions();
     document.getElementById('mDate').value = '';
     document.getElementById('photoInput').value = '';
     document.getElementById('photoPreview').innerHTML = '?';

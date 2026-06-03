@@ -2,6 +2,10 @@
 
 const API_BASE = "https://backend-ghetto-busoga-production.up.railway.app";
 
+// Public, phone-reachable verification URL (served by the backend, not the
+// local/Live-Server origin) so the QR works when scanned from any device.
+function verifyUrl(id) { return `${API_BASE}/v/${id}`; }
+
 // ── DISTRICTS ───────────────────────────────────────────────────────
 const DISTRICTS = [
   { code: "JJA", name: "Jinja City", max: 20 },
@@ -82,16 +86,16 @@ const NAV_ITEMS = [
     icon: '<svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>',
   },
   {
-    id: "leadership",
-    label: "Leadership",
-    href: "leadership.html",
-    icon: '<svg viewBox="0 0 16 16"><path d="M8 1.5l2.6 4.8 5.3.8-3.8 3.7.9 5.3L8 13.5 2 16.1l.9-5.3L0 7.1l5.3-.8L8 1.5z"/></svg>',
-  },
-  {
     id: "members",
     label: "Beneficiaries",
     href: "members.html",
     icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>',
+  },
+  {
+    id: "leadership",
+    label: "Leadership",
+    href: "leadership.html",
+    icon: '<svg viewBox="0 0 16 16"><path d="M8 1.5l2.6 4.8 5.3.8-3.8 3.7.9 5.3L8 13.5 2 16.1l.9-5.3L0 7.1l5.3-.8L8 1.5z"/></svg>',
   },
 ];
 
@@ -112,7 +116,7 @@ function buildSidebar(active) {
     <div class="sb-user">
       <div class="sb-avatar">${initials(user?.name || "HK")}</div>
       <div style="flex:1;min-width:0">
-        <div class="sb-user-name">${user?.name || "Haji Faruk Kirunda"}</div>
+        <div class="sb-user-name">${user?.name || "Al-Hajj Faruk Kirunda"}</div>
         <div class="sb-user-role">${user?.role === "admin" ? "National Coordinator" : "Staff"}</div>
       </div>
       <div class="sb-online"></div>
@@ -179,6 +183,32 @@ function formatDateShort(d) {
 }
 function fmt(n) {
   return Number(n || 0).toLocaleString("en-UG");
+}
+// Whole number -> English words (for the loan agreement amount in words)
+function numberToWords(num) {
+  num = Math.floor(Number(num) || 0);
+  if (num === 0) return "Zero";
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+    "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  function under1000(n) {
+    let s = "";
+    if (n >= 100) { s += ones[Math.floor(n / 100)] + " Hundred"; n %= 100; if (n) s += " "; }
+    if (n >= 20) { s += tens[Math.floor(n / 10)]; n %= 10; if (n) s += " " + ones[n]; }
+    else if (n > 0) { s += ones[n]; }
+    return s;
+  }
+  const scales = [["Billion", 1e9], ["Million", 1e6], ["Thousand", 1e3]];
+  let words = "";
+  for (const [label, value] of scales) {
+    if (num >= value) {
+      words += under1000(Math.floor(num / value)) + " " + label + " ";
+      num %= value;
+    }
+  }
+  if (num > 0) words += under1000(num);
+  return words.trim();
 }
 function statusPill(s) {
   const m = {
