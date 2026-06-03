@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Staff — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.u-av{width:34px;height:34px;border-radius:9px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:.75rem;color:var(--green-dark);flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Staff</div>
+          <div class="topbar-sub" id="countLabel">Loading...</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-green" id="addBtn" onclick="openAdd()">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
+          <span class="mob-hide">Add Staff</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div id="usersContainer">
+        <div class="card"><div class="empty-state"><div class="empty-title">Loading…</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ADD / EDIT STAFF MODAL -->
+<div class="modal-bg" id="userModal">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-head">
+      <div class="modal-title" id="uModalTitle">Add Staff</div>
+      <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="uName"></div>
+        <div class="form-group"><label class="form-label">Username *</label><input class="form-input" id="uUsername" oninput="this.value=this.value.toLowerCase()"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" id="uPwLabel">Password *</label><input class="form-input" id="uPassword" type="password" autocomplete="new-password"></div>
+        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="uRole"><option value="staff">Staff</option><option value="admin">Administrator</option></select></div>
+      </div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Administrators can manage staff and all records. Staff can register and disburse but cannot manage accounts.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn btn-green" id="uSaveBtn" onclick="saveUser()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('staff');
+const me = Auth.get() || {};
+let users = [], editId = null;
+
+function roleLabel(r) { return r === 'admin' ? 'Administrator' : 'Staff'; }
+
+async function loadUsers() {
+  try {
+    const data = await apiFetch('/api/users');
+    users = data.users || [];
+    render();
+  } catch (e) {
+    document.getElementById('usersContainer').innerHTML =
+      `<div class="card"><div class="empty-state"><div class="empty-title">Administrators only</div><div class="empty-sub">${e.message}</div></div></div>`;
+    document.getElementById('countLabel').textContent = '';
+    const ab = document.getElementById('addBtn'); if (ab) ab.style.display = 'none';
+  }
+}
+
+function render() {
+  document.getElementById('countLabel').textContent =
+    `${users.length} staff account${users.length === 1 ? '' : 's'}`;
+  document.getElementById('usersContainer').innerHTML = `<div class="card"><div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Added</th><th></th></tr></thead>
+    <tbody>${users.map(u => `
+      <tr>
+        <td><div style="display:flex;align-items:center;gap:10px"><div class="u-av">${initials(u.name)}</div><div style="font-weight:800">${u.name}${u.id === me.id ? ' <span style="color:var(--muted);font-weight:600">(you)</span>' : ''}</div></div></td>
+        <td style="color:var(--muted)">@${u.username}</td>
+        <td><span class="pill ${u.role === 'admin' ? 'pill-green' : 'pill-gray'}">${roleLabel(u.role)}</span></td>
+        <td style="color:var(--muted)">${formatDate(u.created_at)}</td>
+        <td style="text-align:right;white-space:nowrap">
+          <button class="btn btn-sm" onclick="openEdit(${u.id})">Edit</button>
+          ${u.id === me.id ? '' : `<button class="btn btn-sm btn-red" onclick="delUser(${u.id})">Delete</button>`}
+        </td>
+      </tr>`).join('')}</tbody>
+  </table></div></div>`;
+}
+
+function openAdd() {
+  editId = null;
+  document.getElementById('uModalTitle').textContent = 'Add Staff';
+  document.getElementById('uName').value = '';
+  document.getElementById('uUsername').value = '';
+  document.getElementById('uUsername').disabled = false;
+  document.getElementById('uPassword').value = '';
+  document.getElementById('uPassword').placeholder = 'At least 6 characters';
+  document.getElementById('uPwLabel').textContent = 'Password *';
+  document.getElementById('uRole').value = 'staff';
+  openModal('userModal');
+}
+function openEdit(id) {
+  const u = users.find(x => x.id === id); if (!u) return;
+  editId = id;
+  document.getElementById('uModalTitle').textContent = 'Edit Staff';
+  document.getElementById('uName').value = u.name;
+  document.getElementById('uUsername').value = u.username;
+  document.getElementById('uUsername').disabled = true;
+  document.getElementById('uPassword').value = '';
+  document.getElementById('uPassword').placeholder = 'Leave blank to keep current';
+  document.getElementById('uPwLabel').textContent = 'New Password';
+  document.getElementById('uRole').value = u.role === 'admin' ? 'admin' : 'staff';
+  openModal('userModal');
+}
+
+async function saveUser() {
+  const name     = document.getElementById('uName').value.trim();
+  const username = document.getElementById('uUsername').value.trim().toLowerCase();
+  const password = document.getElementById('uPassword').value;
+  const role     = document.getElementById('uRole').value;
+  if (!name || (!editId && !username)) { showToast('Name and username are required', 'error'); return; }
+  if (!editId && (!password || password.length < 6)) { showToast('Password must be at least 6 characters', 'error'); return; }
+  if (editId && password && password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+
+  const btn = document.getElementById('uSaveBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    if (editId) {
+      const body = { name, role }; if (password) body.password = password;
+      await apiFetch(`/api/users/${editId}`, { method: 'PUT', body });
+      showToast('Staff updated');
+    } else {
+      await apiFetch('/api/users', { method: 'POST', body: { name, username, password, role } });
+      showToast('Staff added');
+    }
+    closeModal('userModal');
+    loadUsers();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Save';
+  }
+}
+
+async function delUser(id) {
+  const u = users.find(x => x.id === id); if (!u) return;
+  if (!confirm(`Delete staff account "${u.name}" (@${u.username})? They will no longer be able to log in.`)) return;
+  try {
+    await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
+    showToast('Staff deleted');
+    loadUsers();
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
+}
+
+loadUsers();
+</script>
+</body>
+</html>
