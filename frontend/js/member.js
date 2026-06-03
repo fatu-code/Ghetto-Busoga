@@ -354,6 +354,7 @@ function exportCard() {
   const emblem = `${window.location.origin}/images/coat-of-arms.png`;
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const na     = '-';
+  const ls     = isDisbursed(m) ? loanSummary() : null;
 
   // Loan agreement details (appended as pages 2 and 3 of the export)
   const ad = m.disbursement_date ? new Date(m.disbursement_date) : new Date();
@@ -519,6 +520,21 @@ function exportCard() {
         <div class="l">Amount Received<span>${isDisbursed(m) ? 'Disbursed on ' + formatDate(m.disbursement_date) : 'Not yet disbursed'}</span></div>
         <div class="val">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : 'Pending'}</div>
       </div>
+      ${ls ? `
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:9px 12px;text-align:center">
+          <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#5b6b62">Total Due (loan + 6%)</div>
+          <div style="font-family:'Varela Round',sans-serif;font-size:14px;color:#142a1d;margin-top:3px">UGX ${fmt(ls.totalDue)}</div>
+        </div>
+        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:9px 12px;text-align:center">
+          <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#5b6b62">Repaid</div>
+          <div style="font-family:'Varela Round',sans-serif;font-size:14px;color:#0a7a3a;margin-top:3px">UGX ${fmt(ls.repaid)}</div>
+        </div>
+        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:9px 12px;text-align:center">
+          <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#5b6b62">Outstanding</div>
+          <div style="font-family:'Varela Round',sans-serif;font-size:14px;color:${ls.outstanding > 0 ? '#c0392b' : '#0a7a3a'};margin-top:3px">UGX ${fmt(ls.outstanding)}</div>
+        </div>
+      </div>` : ''}
 
       <div class="note">
         This document confirms that the above named person is a registered beneficiary of the

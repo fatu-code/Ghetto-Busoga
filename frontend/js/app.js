@@ -100,6 +100,12 @@ const NAV_ITEMS = [
     href: "depots.html",
     icon: '<svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg>',
   },
+  {
+    id: "repayments",
+    label: "Repayments",
+    href: "repayments.html",
+    icon: '<svg viewBox="0 0 16 16"><path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5"/></svg>',
+  },
 ];
 
 function buildSidebar(active) {

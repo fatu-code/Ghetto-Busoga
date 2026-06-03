@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Repayments — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:15px 17px}
+.sum-l{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sum-v{font-family:var(--font);font-size:1.5rem;color:var(--text);margin-top:6px;line-height:1}
+.sum-v.green{color:var(--green)}
+.sum-v.red{color:#c0392b}
+.sum-v.amber{color:#b06a00}
+.lp{font-size:.6rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:100px;display:inline-block}
+.lp.rep{background:#fff5e6;color:#b06a00;border:1px solid #ffd699}
+.lp.over{background:#fdecec;color:#c0392b;border:1px solid #f5b7b1}
+.lp.clr{background:#eaf7f0;color:#007a33;border:1px solid #b3e6c8}
+.r-money{font-family:var(--font);font-weight:800}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Repayments</div>
+          <div class="topbar-sub" id="countLabel">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
+          <input class="search-input" id="searchInput" type="text" placeholder="Search by name or serial..." oninput="render()">
+        </div>
+        <select class="filter-select" id="filterDistrict" onchange="render()"><option value="">All districts</option></select>
+        <select class="filter-select" id="filterStatus" onchange="render()">
+          <option value="">All statuses</option>
+          <option value="Overdue">Overdue</option>
+          <option value="Repaying">Repaying</option>
+          <option value="Cleared">Cleared</option>
+        </select>
+      </div>
+
+      <div id="repayContainer">
+        <div class="card"><div class="empty-state"><div class="empty-title">Loading…</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('repayments');
+
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('filterDistrict').appendChild(o);
+});
+
+let loans = [];
+
+function dueDate(d) {
+  if (!d) return null;
+  const x = new Date(d);
+  if (isNaN(x)) return null;
+  x.setMonth(x.getMonth() + 12);
+  return x;
+}
+
+async function loadRepayments() {
+  try {
+    const data = await apiFetch('/api/members?limit=100000');
+    const members = (data.members || []).filter(m => Number(m.amount) > 0); // only disbursed
+    loans = members.map(m => {
+      const principal   = Number(m.amount) || 0;
+      const totalDue     = Math.round(principal * 1.06);
+      const repaid      = Number(m.repaid) || 0;
+      const outstanding = Math.max(0, totalDue - repaid);
+      const due         = dueDate(m.disbursement_date);
+      const cleared     = outstanding <= 0;
+      const overdue     = !cleared && due && new Date() > due;
+      const status      = cleared ? 'Cleared' : overdue ? 'Overdue' : 'Repaying';
+      return { m, principal, totalDue, repaid, outstanding, due, status };
+    });
+    render();
+  } catch (e) {
+    showToast('Failed to load repayments', 'error');
+  }
+}
+
+function render() {
+  const q      = document.getElementById('searchInput').value.trim().toLowerCase();
+  const dist   = document.getElementById('filterDistrict').value;
+  const stat   = document.getElementById('filterStatus').value;
+
+  const rows = loans.filter(L =>
+    (!dist || L.m.district === dist) &&
+    (!stat || L.status === stat) &&
+    (!q || L.m.name.toLowerCase().includes(q) || L.m.id.toLowerCase().includes(q))
+  );
+
+  // Summary over the filtered set
+  const sumDue  = rows.reduce((s, L) => s + L.totalDue, 0);
+  const sumRep  = rows.reduce((s, L) => s + L.repaid, 0);
+  const sumOut  = rows.reduce((s, L) => s + L.outstanding, 0);
+  const overdue = rows.filter(L => L.status === 'Overdue').length;
+
+  document.getElementById('countLabel').textContent =
+    `${fmt(rows.length)} disbursed loan${rows.length === 1 ? '' : 's'}`;
+
+  const summary = `
+    <div class="sum-grid">
+      <div class="sum-card"><div class="sum-l">Total Due</div><div class="sum-v">UGX ${fmt(sumDue)}</div></div>
+      <div class="sum-card"><div class="sum-l">Repaid</div><div class="sum-v green">UGX ${fmt(sumRep)}</div></div>
+      <div class="sum-card"><div class="sum-l">Outstanding</div><div class="sum-v red">UGX ${fmt(sumOut)}</div></div>
+      <div class="sum-card"><div class="sum-l">Overdue</div><div class="sum-v amber">${fmt(overdue)}</div></div>
+    </div>`;
+
+  const body = rows.length
+    ? `<div class="card"><div class="table-wrap"><table>
+        <thead><tr>
+          <th>Beneficiary</th><th>Depot</th><th>Total Due</th><th>Repaid</th><th>Outstanding</th><th>Due</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map(L => `
+            <tr class="clickable" onclick="location.href='member.html?id=${L.m.id}'">
+              <td><div style="font-weight:800">${L.m.name}</div><div style="font-family:var(--font);color:var(--green);font-size:.72rem">${L.m.id}</div></td>
+              <td style="color:var(--muted)">${L.m.depot} · ${L.m.district_name}</td>
+              <td class="r-money">UGX ${fmt(L.totalDue)}</td>
+              <td class="r-money" style="color:var(--green)">UGX ${fmt(L.repaid)}</td>
+              <td class="r-money" style="color:${L.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(L.outstanding)}</td>
+              <td style="color:var(--muted)">${L.due ? formatDate(L.due) : '-'}</td>
+              <td><span class="lp ${L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep'}">${L.status}</span></td>
+            </tr>`).join('')}
+        </tbody>
+      </table></div></div>`
+    : `<div class="card"><div class="empty-state">
+        <div class="empty-title">No disbursed loans${dist || stat || q ? ' match this filter' : ' yet'}</div>
+        <div class="empty-sub">Repayments appear here once beneficiaries have been disbursed.</div>
+      </div></div>`;
+
+  document.getElementById('repayContainer').innerHTML = summary + body;
+}
+
+loadRepayments();
+</script>
+</body>
+</html>
