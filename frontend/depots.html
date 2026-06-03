@@ -9,6 +9,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
+/* District tiles */
+.dist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(198px,1fr));gap:12px}
+.dist-tile{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:17px 18px;cursor:pointer;transition:all .15s}
+.dist-tile:hover{border-color:var(--green-mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.dt-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.dt-ic{width:38px;height:38px;border-radius:11px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center}
+.dt-ic svg{width:18px;height:18px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dt-code{font-family:var(--font);font-size:.7rem;font-weight:700;color:var(--green);background:var(--green-pale);border-radius:7px;padding:3px 9px}
+.dt-name{font-family:var(--font2);font-size:1rem;font-weight:800;color:var(--text);line-height:1.15}
+.dt-meta{font-family:var(--font2);font-size:.72rem;font-weight:600;color:var(--muted);margin-top:5px}
+
+/* Depots within a district */
+.back-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.sel-title{font-family:var(--font2);font-weight:900;color:var(--text);font-size:1rem}
+.sel-title span{font-weight:700;color:var(--muted);font-size:.74rem;margin-left:7px}
 .depot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(244px,1fr));gap:12px}
 .depot-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:all .15s}
 .depot-card:hover{border-color:var(--green-mid);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
@@ -20,10 +35,6 @@
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
 .depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
 .depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
-.dist-sec{margin-bottom:22px}
-.dist-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid var(--border)}
-.dist-head .dn{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.95rem}
-.dist-meta{font-family:var(--font2);font-size:.7rem;font-weight:700;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -50,17 +61,8 @@
     </div>
 
     <div class="content">
-      <div class="filter-bar">
-        <div style="flex:1;font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);min-width:200px">
-          Each depot is a roster of profiled members. Open a depot to view or add its members. Members do not need to have received money.
-        </div>
-        <select class="filter-select" id="filterDistrict" onchange="renderDepots()">
-          <option value="">All districts</option>
-        </select>
-      </div>
-
       <div id="depotsContainer">
-        <div class="card"><div class="empty-state"><div class="empty-title">Loading depots…</div></div></div>
+        <div class="card"><div class="empty-state"><div class="empty-title">Loading…</div></div></div>
       </div>
     </div>
 
@@ -75,79 +77,89 @@
 Auth.require();
 buildSidebar('depots');
 
-// Populate district filter
-DISTRICTS.forEach(d => {
-  const o = document.createElement('option');
-  o.value = d.code; o.textContent = d.name;
-  document.getElementById('filterDistrict').appendChild(o);
-});
+let allMembers = [], counts = {}, selected = null;
 
-let allMembers = [], agg = {};
+// Deep-link straight to a district: depots.html?district=JJA
+selected = new URLSearchParams(location.search).get('district') || null;
 
 async function loadDepots() {
   try {
     const data = await apiFetch('/api/members?limit=100000');
     allMembers = data.members || [];
-    agg = {};
+    counts = {};
     allMembers.forEach(m => {
       const k = m.district + '||' + m.depot;
-      const o = agg[k] || (agg[k] = { count: 0, disbursed: 0, total: 0 });
-      o.count++;
-      if (Number(m.amount) > 0) { o.disbursed++; o.total += Number(m.amount); }
+      counts[k] = (counts[k] || 0) + 1;
     });
-    renderDepots();
+    render();
   } catch (e) {
     showToast('Failed to load depots', 'error');
   }
 }
 
-// All depot names for a district: the canonical list plus any already in the data
 function depotsForDistrict(code) {
   const canonical = (typeof DEPOTS !== 'undefined' && DEPOTS[code]) || [];
   const fromData  = allMembers.filter(m => m.district === code).map(m => m.depot);
-  return [...new Set([...canonical, ...fromData])].filter(Boolean)
-    .sort((a, b) => a.localeCompare(b));
+  return [...new Set([...canonical, ...fromData])].filter(Boolean).sort((a, b) => a.localeCompare(b));
+}
+function membersIn(code) { return allMembers.filter(m => m.district === code).length; }
+
+function select(code) {
+  selected = code;
+  render();
+  window.scrollTo(0, 0);
 }
 
-function renderDepots() {
-  const filter   = document.getElementById('filterDistrict').value;
-  const dists    = DISTRICTS.filter(d => !filter || d.code === filter);
-  let totDepots  = 0;
-  let totMembers = filter ? 0 : allMembers.length;
+function render() {
+  if (DISTRICTS.find(d => d.code === selected)) renderDepots(selected);
+  else { selected = null; renderDistricts(); }
+}
 
-  const html = dists.map(d => {
-    const depots = depotsForDistrict(d.code);
-    if (!depots.length) return '';
-    totDepots += depots.length;
-    const distMembers = allMembers.filter(m => m.district === d.code).length;
-    if (filter) totMembers += distMembers;
+function renderDistricts() {
+  const tiles = DISTRICTS.map(d => {
+    const dc = depotsForDistrict(d.code).length;
+    const mc = membersIn(d.code);
+    return `
+      <div class="dist-tile" onclick="select('${d.code}')">
+        <div class="dt-top">
+          <div class="dt-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5C5.2 1.5 3 3.6 3 6.3 3 9.8 8 14.5 8 14.5s5-4.7 5-8.2C13 3.6 10.8 1.5 8 1.5z"/><circle cx="8" cy="6.2" r="1.7"/></svg></div>
+          <div class="dt-code">${d.code}</div>
+        </div>
+        <div class="dt-name">${d.name}</div>
+        <div class="dt-meta">${dc} depots &middot; ${mc} member${mc === 1 ? '' : 's'}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('depotsContainer').innerHTML = `<div class="dist-grid">${tiles}</div>`;
+  document.getElementById('countLabel').textContent =
+    `${DISTRICTS.length} districts · ${fmt(allMembers.length)} members profiled`;
+}
 
-    const cards = depots.map(dep => {
-      const o = agg[d.code + '||' + dep] || { count: 0, disbursed: 0, total: 0 };
-      return `
-        <div class="depot-card" onclick="location.href='members.html?district=${d.code}&depot=${encodeURIComponent(dep)}'">
-          <div class="depot-top">
-            <div class="depot-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
-            <div><div class="depot-name">${dep}</div><div class="depot-dist">${d.name}</div></div>
-          </div>
-          <div class="depot-count">
-            <span class="num">${o.count}</span>
-            <span class="lbl">member${o.count === 1 ? '' : 's'} profiled</span>
-          </div>
-        </div>`;
-    }).join('');
+function renderDepots(code) {
+  const d = DISTRICTS.find(x => x.code === code);
+  const depots = depotsForDistrict(code);
+  const mc = membersIn(code);
 
-    return `<div class="dist-sec">
-      <div class="dist-head"><span class="dn">${d.name}</span><span class="dist-meta">${depots.length} depots &middot; ${distMembers} members</span></div>
-      <div class="depot-grid">${cards}</div>
-    </div>`;
+  const cards = depots.map(dep => {
+    const c = counts[code + '||' + dep] || 0;
+    return `
+      <div class="depot-card" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
+        <div class="depot-top">
+          <div class="depot-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
+          <div><div class="depot-name">${dep}</div><div class="depot-dist">${d.name}</div></div>
+        </div>
+        <div class="depot-count"><span class="num">${c}</span><span class="lbl">member${c === 1 ? '' : 's'} profiled</span></div>
+      </div>`;
   }).join('');
 
-  document.getElementById('depotsContainer').innerHTML = html ||
-    `<div class="card"><div class="empty-state"><div class="empty-title">No depots found</div></div></div>`;
+  document.getElementById('depotsContainer').innerHTML = `
+    <div class="back-row">
+      <button class="btn btn-sm" onclick="select(null)"><svg viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></svg> All districts</button>
+      <div class="sel-title">${d.name}<span>${depots.length} depots · ${mc} members</span></div>
+    </div>
+    <div class="depot-grid">${cards || '<div class="card"><div class="empty-state"><div class="empty-title">No depots</div></div></div>'}</div>`;
 
   document.getElementById('countLabel').textContent =
-    `${totDepots} depots &middot; ${fmt(totMembers)} members profiled`.replace('&middot;', '·');
+    `${d.name} · ${depots.length} depots · ${fmt(mc)} members`;
 }
 
 loadDepots();
