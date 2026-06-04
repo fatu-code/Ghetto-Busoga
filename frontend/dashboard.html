@@ -17,9 +17,13 @@
       .hero-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
       /* METRIC cards — icon left, number as hero, no dead space */
-      .metrics-section{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
-      .metric-tile{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:18px;transition:all .18s;display:flex;align-items:center;gap:15px}
-      .metric-tile:hover{border-color:var(--green-mid);box-shadow:0 10px 24px rgba(0,156,65,.07);transform:translateY(-2px)}
+      .metrics-section{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}
+      .metric-tile{position:relative;overflow:hidden;background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:18px 20px 18px 22px;transition:all .18s;display:flex;align-items:center;gap:15px}
+      /* Coloured accent bar so each tile has its own identity */
+      .metric-tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
+      .metric-tile:has(.metric-icon.blue)::before{background:var(--blue)}
+      .metric-tile:has(.metric-icon.amber)::before{background:var(--amber)}
+      .metric-tile:hover{border-color:var(--green-mid);box-shadow:0 12px 28px rgba(0,0,0,.08);transform:translateY(-3px)}
       .metric-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .metric-icon.green{background:var(--green-pale);border:1.5px solid var(--green-mid)}
       .metric-icon.blue{background:var(--blue-pale);border:1.5px solid var(--blue-mid)}
