@@ -124,6 +124,12 @@ const NAV_ITEMS = [
     href: "audit.html",
     icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
   },
+  {
+    id: "settings",
+    label: "Settings",
+    href: "settings.html",
+    icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v1.7M8 12.8v1.7M14.5 8h-1.7M3.2 8H1.5M12.6 3.4l-1.2 1.2M4.6 11.4l-1.2 1.2M12.6 12.6l-1.2-1.2M4.6 4.6L3.4 3.4"/></svg>',
+  },
 ];
 
 function buildSidebar(active) {
@@ -150,7 +156,7 @@ function buildSidebar(active) {
     </div>
     <div class="sb-nav">
       ${(() => {
-        const adminIds = new Set(["staff", "audit"]);
+        const adminIds = new Set(["staff", "audit", "settings"]);
         let out = "", last = null;
         NAV_ITEMS.forEach((item) => {
           const sec = adminIds.has(item.id) ? "Admin" : "Navigation";

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Settings — BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;max-width:780px}
+.set-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.set-card h3{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.9rem;margin-bottom:4px}
+.set-card .sub{font-family:var(--font2);font-size:.72rem;color:var(--muted);margin-bottom:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Settings</div>
+          <div class="topbar-sub">Your account</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="set-grid">
+
+        <div class="set-card">
+          <h3>My Account</h3>
+          <div class="sub">Your name appears on the dashboard greeting and on records you create.</div>
+          <div class="form-group" style="margin-bottom:12px"><label class="form-label">Full Name</label><input class="form-input" id="sName"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Username</label><input class="form-input" id="sUsername" disabled></div>
+            <div class="form-group"><label class="form-label">Role</label><input class="form-input" id="sRole" disabled></div>
+          </div>
+          <button class="btn btn-green" id="saveNameBtn" onclick="saveName()" style="margin-top:6px">
+            <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save Name
+          </button>
+        </div>
+
+        <div class="set-card">
+          <h3>Change Password</h3>
+          <div class="sub">Use a password only you know. Minimum 6 characters.</div>
+          <div class="form-group" style="margin-bottom:12px"><label class="form-label">Current Password</label><input class="form-input" id="sCurrent" type="password" autocomplete="current-password"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">New Password</label><input class="form-input" id="sNew" type="password" autocomplete="new-password"></div>
+            <div class="form-group"><label class="form-label">Confirm New</label><input class="form-input" id="sConfirm" type="password" autocomplete="new-password"></div>
+          </div>
+          <button class="btn btn-green" id="savePwBtn" onclick="savePassword()" style="margin-top:6px">
+            <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Update Password
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.require();
+buildSidebar('settings');
+const me = Auth.get() || {};
+document.getElementById('sName').value     = me.name || '';
+document.getElementById('sUsername').value = '@' + (me.username || '');
+document.getElementById('sRole').value     = me.role === 'admin' ? 'Administrator' : 'Staff';
+
+async function saveName() {
+  const name = document.getElementById('sName').value.trim();
+  if (!name) { showToast('Name cannot be empty', 'error'); return; }
+  const btn = document.getElementById('saveNameBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    const data = await apiFetch('/api/auth/account', { method: 'PUT', body: { name } });
+    Auth.set(data.user, data.token);
+    buildSidebar('settings');
+    showToast('Name updated');
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save Name';
+  }
+}
+
+async function savePassword() {
+  const currentPassword = document.getElementById('sCurrent').value;
+  const newPassword     = document.getElementById('sNew').value;
+  const confirm         = document.getElementById('sConfirm').value;
+  if (!currentPassword) { showToast('Enter your current password', 'error'); return; }
+  if (!newPassword || newPassword.length < 6) { showToast('New password must be at least 6 characters', 'error'); return; }
+  if (newPassword !== confirm) { showToast('New passwords do not match', 'error'); return; }
+  const btn = document.getElementById('savePwBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    const data = await apiFetch('/api/auth/account', { method: 'PUT', body: { currentPassword, newPassword } });
+    Auth.set(data.user, data.token);
+    document.getElementById('sCurrent').value = '';
+    document.getElementById('sNew').value = '';
+    document.getElementById('sConfirm').value = '';
+    showToast('Password updated');
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Update Password';
+  }
+}
+</script>
+</body>
+</html>
