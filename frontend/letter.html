@@ -339,67 +339,32 @@
         background: #aab8b0;
       }
 
-      /* Footer band: a green bookend to the letterhead, branding the office */
+      /* Footer: a thin green strip at the bottom, branding the office */
       .footer {
-        margin-top: auto; /* pin to the bottom of the page on screen */
-        margin-left: -22mm; /* bleed across the full width */
+        margin-top: auto; /* sits at the bottom of the page on screen */
+        margin-left: -22mm; /* bleeds across the full width */
         margin-right: -22mm;
         background: var(--green-dk);
         color: #fff;
-        padding: 26px 22mm 22px;
-        text-align: center;
-        position: relative;
-      }
-      .footer::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        height: 4px;
-        background: var(--green-br);
-      }
-      .footer .f-office {
-        font-family: var(--sans);
-        font-weight: 700;
-        font-size: 10.5px;
-        letter-spacing: 0.26em;
-        text-transform: uppercase;
-        color: #7fd6a0;
-      }
-      .footer .f-name {
-        font-family: var(--serif);
-        font-weight: 600;
-        font-size: 20px;
-        color: #fff;
-        margin-top: 9px;
-        letter-spacing: 0.01em;
-      }
-      .footer .f-role {
-        font-family: var(--serif);
-        font-style: italic;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.72);
-        margin-top: 5px;
-      }
-      .footer .f-meta {
+        padding: 9px 22mm;
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         align-items: center;
-        margin-top: 17px;
-        padding-top: 13px;
-        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        gap: 12px;
         font-family: var(--sans);
-        font-size: 9.5px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        color: rgba(255, 255, 255, 0.55);
-      }
-      .footer .f-meta .bar {
-        color: #7fd6a0;
-        font-weight: 800;
-        letter-spacing: 0.12em;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
+      }
+      .footer .of {
+        color: #7fd6a0;
+      }
+      .footer .nm {
+        color: #fff;
+      }
+      .footer .sep {
+        color: rgba(255, 255, 255, 0.3);
       }
 
       @media print {
@@ -431,7 +396,7 @@
         }
         /* Block flow drops the flex auto-margin, so set the gap explicitly. */
         .footer {
-          margin-top: 44px;
+          margin-top: 36px;
         }
       }
     </style>
@@ -575,19 +540,9 @@
         </div>
 
         <div class="footer">
-          <div class="f-office">Office of the Special Presidential Assistant</div>
-          <div class="f-name">Al-Hajj Faruk Kirunda</div>
-          <div class="f-role">
-            Special Presidential Assistant, Press and Mobilisation &middot; State
-            House
-          </div>
-          <div class="f-meta">
-            <span class="bar">Together We Can</span>
-            <span
-              >Busoga Ghetto Structure &middot; Presidential Empowerment Fund
-              (Busoga Pilot)</span
-            >
-          </div>
+          <span class="of">Office of the Special Presidential Assistant</span>
+          <span class="sep">&bull;</span>
+          <span class="nm">Al-Hajj Faruk Kirunda</span>
         </div>
       </div>
     </div>
