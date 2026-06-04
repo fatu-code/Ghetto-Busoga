@@ -291,10 +291,11 @@
       // second word is the given name): "Nankya Viola" -> "Viola".
       // Kirunda Faruk keeps both names.
       function greetingName(name) {
-        const n = String(name || '').trim().replace(/^al[- ]?hajj\s+/i, '');
-        if (!n) return 'Faruk Kirunda';
-        if (/kirunda|faruk/i.test(n)) return titleCase(n);
-        const parts = n.split(/\s+/);
+        const n = String(name || '').trim();
+        // Only Al-Hajj Faruk Kirunda carries the honorific and full name.
+        if (!n || /kirunda|faruk/i.test(n)) return 'Al-Hajj Faruk Kirunda';
+        const clean = n.replace(/^al[- ]?hajj\s+/i, '');
+        const parts = clean.split(/\s+/);
         return titleCase(parts.length > 1 ? parts[1] : parts[0]);
       }
 
