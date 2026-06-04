@@ -1367,3 +1367,72 @@ tbody tr.clickable {
     flex-wrap: wrap;
   }
 }
+
+/* ── PHONE POLISH (applies to every page via shared classes) ─────── */
+@media (max-width: 600px) {
+  .content {
+    padding: 14px 13px;
+  }
+  .card {
+    padding: 15px;
+  }
+  /* Wide tables scroll horizontally instead of cramming the columns */
+  .table-wrap table {
+    min-width: 540px;
+  }
+  .topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .topbar-title {
+    font-size: 0.92rem;
+  }
+  .btn {
+    height: 36px;
+    padding: 0 13px;
+    font-size: 0.76rem;
+  }
+  /* Filter bars: search takes the full first row, selects share the next */
+  .filter-bar {
+    gap: 8px;
+  }
+  .search-wrap {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+  .filter-select {
+    flex: 1;
+    min-width: 0;
+  }
+  .member-hero {
+    padding: 18px 16px;
+  }
+  .member-name {
+    font-size: 1.2rem;
+  }
+  .member-photo {
+    width: 64px;
+    height: 64px;
+    font-size: 1.3rem;
+  }
+  .member-hero-top {
+    gap: 14px;
+  }
+  .modal-head {
+    padding: 15px 18px 13px;
+  }
+  .modal-body {
+    padding: 16px 18px;
+  }
+  .modal-foot {
+    padding: 12px 18px;
+  }
+}
+@media (max-width: 380px) {
+  .topbar-right {
+    gap: 6px;
+  }
+  .btn {
+    padding: 0 11px;
+  }
+}
