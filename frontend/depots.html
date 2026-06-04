@@ -180,6 +180,9 @@ function render() {
 }
 
 function renderDistricts() {
+  // New Depot belongs to a district, so hide it on the all-districts view.
+  const nb = document.getElementById('newDepotBtn');
+  if (nb) nb.style.display = 'none';
   const tiles = DISTS.map((d, i) => {
     const c  = COLORS[i % COLORS.length];
     const dc = depotsForDistrict(d.code).length;
@@ -204,6 +207,9 @@ function renderDistricts() {
 }
 
 function renderDepots(code) {
+  // Inside a district: admins can add a depot here.
+  const nb = document.getElementById('newDepotBtn');
+  if (nb) nb.style.display = _acc.isAdmin ? '' : 'none';
   const d   = DISTRICTS.find(x => x.code === code);
   const idx = DISTRICTS.findIndex(x => x.code === code);
   const col = COLORS[idx % COLORS.length];
@@ -243,7 +249,7 @@ DISTRICTS.forEach(d => {
   o.value = d.code; o.textContent = d.name;
   document.getElementById('dpDistrict').appendChild(o);
 });
-if (_acc.isAdmin) document.getElementById('newDepotBtn').style.display = '';
+// Visibility of the New Depot button is controlled by the view (district only).
 
 // Cascading Sub-County -> Parish from LOCATIONS (the district reference data)
 function updateDpSubCounties() {
