@@ -223,6 +223,10 @@
         font-weight: 600;
         color: var(--green);
       }
+      .body .em {
+        font-weight: 700;
+        color: var(--ink);
+      }
 
       .blocktitle {
         font-family: var(--sans);
@@ -372,9 +376,11 @@
           margin: 0;
           box-shadow: none;
           min-height: 0;
+          display: block; /* flex breaks pagination; block lets @page margins apply */
         }
         .content {
           padding-bottom: 0;
+          display: block; /* normal flow so page 2 honours the @page top margin */
         }
         /* Give the footer breathing room above it and clear space below. */
         .foot {
@@ -498,10 +504,10 @@
         </ul>
 
         <p class="body">
-          I would like to request an appointment to fully present the system to
-          you when you come to Jinja, so you can see it working from end to end.
-          I have also attached a small presentation to usher you into what the
-          system is capable of.
+          <strong class="em">I would like to request an appointment to fully
+          present the system to you when you come to Jinja</strong>, so you can
+          see it working from end to end. I have also attached a small
+          presentation to usher you into what the system is capable of.
         </p>
 
         <div class="signoff">Yours sincerely,</div>
