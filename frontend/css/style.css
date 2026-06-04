@@ -115,6 +115,7 @@ img {
   font-style: normal;
   color: var(--green);
   display: block;
+  text-align: right;
 }
 .sb-user {
   padding: 12px 16px;
