@@ -4,76 +4,85 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Letter — Busoga Ghetto Structure</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --sans:'Inter',-apple-system,sans-serif;
+    --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
+    --ink:#1a261f;        /* body text */
+    --soft:#4a5a50;       /* secondary text */
+    --green:#0a7a3a;
+    --green-dk:#102a1c;   /* band */
+    --green-br:#009c41;   /* accent bar */
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   @page{size:A4;margin:0}
-  body{font-family:'Spectral',Georgia,serif;color:#1d2a22;background:#dfe6e1;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{font-family:var(--serif);color:var(--ink);background:#dfe6e1;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 
-  /* Screen toolbar */
   .toolbar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;padding:14px;background:rgba(16,39,27,.97)}
-  .toolbar button{font-family:'Nunito',sans-serif;font-weight:800;font-size:.84rem;border:none;border-radius:10px;padding:10px 22px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:#009c41;color:#fff}
-  .toolbar button:hover{background:#0a7a3a}
-  .toolbar svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .toolbar button{font-family:var(--sans);font-weight:700;font-size:.9rem;border:none;border-radius:10px;padding:11px 24px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:var(--green-br);color:#fff}
+  .toolbar button:hover{background:var(--green)}
+  .toolbar svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
   .sheet{width:210mm;min-height:297mm;margin:18px auto;background:#fff;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.16)}
-  .sheet + .sheet{margin-top:0}
 
-  /* ── Letterhead band ── */
-  .band{background:#102a1c;color:#fff;padding:30px 20mm 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
-  .band .over{font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#7fd6a0;margin-bottom:6px}
-  .band .org{font-family:'Nunito',sans-serif;font-weight:900;font-size:26px;letter-spacing:.005em;line-height:1.02}
-  .band .dept{font-family:'Nunito',sans-serif;font-weight:800;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#7fd6a0;margin-top:11px}
-  .band .contact{text-align:right;font-family:'Nunito',sans-serif;font-size:10.5px;font-weight:600;color:rgba(255,255,255,.7);line-height:1.75;flex-shrink:0;padding-top:4px}
-  .accent{height:6px;background:#009c41}
+  /* Letterhead band */
+  .band{background:var(--green-dk);color:#fff;padding:34px 22mm 28px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
+  .band .over{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#7fd6a0;margin-bottom:8px}
+  .band .org{font-family:var(--sans);font-weight:800;font-size:29px;letter-spacing:.01em;line-height:1.04}
+  .band .dept{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-top:13px}
+  .band .contact{text-align:right;font-family:var(--sans);font-size:12px;font-weight:500;color:rgba(255,255,255,.72);line-height:1.85;flex-shrink:0}
+  .accent{height:7px;background:var(--green-br)}
 
-  .content{padding:22px 20mm 14mm;flex:1;display:flex;flex-direction:column}
+  .content{padding:30px 22mm 18mm;flex:1;display:flex;flex-direction:column}
 
-  .meta{display:flex;justify-content:space-between;font-family:'Nunito',sans-serif}
-  .meta .lbl{font-size:9.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9aa8a0;margin-right:10px}
-  .meta .val{font-size:12.5px;font-weight:800;color:#1d2a22}
+  /* Reference / Date */
+  .meta{display:flex;justify-content:space-between;font-family:var(--sans)}
+  .meta .lbl{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#93a39a;margin-right:11px}
+  .meta .val{font-size:14px;font-weight:700;color:var(--ink)}
 
-  .to{margin-top:30px}
-  .to .nm{font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;color:#142a1d}
-  .to .ro{font-style:italic;font-size:13px;color:#3f4f46;margin-top:3px}
-  .to .ad{font-size:13px;color:#1d2a22;margin-top:2px;line-height:1.5}
-  .to .place{font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;letter-spacing:.18em;margin-top:5px}
+  /* Recipient */
+  .to{margin-top:34px;line-height:1.5}
+  .to .nm{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--ink)}
+  .to .ro{font-style:italic;font-size:15px;color:var(--soft);margin-top:4px}
+  .to .ad{font-size:15px;margin-top:3px}
+  .to .place{font-family:var(--sans);font-weight:800;font-size:13px;letter-spacing:.2em;margin-top:7px}
 
-  .salute{margin-top:24px;font-size:14px;color:#142a1d}
+  .salute{margin-top:28px;font-size:16.5px}
 
-  .re{margin-top:18px;padding-bottom:9px;border-bottom:2px solid #142a1d;font-family:'Nunito',sans-serif;font-weight:900;font-size:12.5px;letter-spacing:.02em;line-height:1.45;color:#0a7a3a;text-transform:uppercase}
-  .re b{color:#142a1d}
+  /* RE subject line */
+  .re{margin-top:20px;padding-bottom:11px;border-bottom:2px solid var(--ink);font-family:var(--sans);font-weight:800;font-size:14.5px;letter-spacing:.01em;line-height:1.5;text-transform:uppercase;color:var(--ink)}
+  .re .k{color:var(--green)}
 
-  p.body{margin-top:14px;font-size:13.3px;line-height:1.78;text-align:justify}
-  p.body:first-of-type{margin-top:16px}
-  .body b{color:#0a7a3a}
+  p.body{margin-top:15px;font-size:15.5px;line-height:1.85;text-align:justify}
+  p.body:first-of-type{margin-top:18px}
+  .body b{font-weight:600;color:var(--green)}
 
-  .blocktitle{font-family:'Nunito',sans-serif;font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;color:#0a7a3a;margin:20px 0 11px;display:flex;align-items:center;gap:14px}
-  .blocktitle::after{content:"";flex:1;height:1.5px;background:#e3ece7}
+  .blocktitle{font-family:var(--sans);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--green);margin:24px 0 13px;display:flex;align-items:center;gap:14px}
+  .blocktitle::after{content:"";flex:1;height:1.5px;background:#dde7e1}
 
-  ul.feat{list-style:none;display:grid;gap:9px}
-  ul.feat li{position:relative;padding-left:22px;font-size:13px;line-height:1.6}
-  ul.feat li::before{content:"";position:absolute;left:0;top:10px;width:11px;height:2.5px;background:#009c41}
-  ul.feat li b{font-family:'Nunito',sans-serif;font-weight:800;color:#142a1d}
+  ul.list{list-style:none;display:grid;gap:11px}
+  ul.list li{position:relative;padding-left:24px;font-size:15.5px;line-height:1.65}
+  ul.list li::before{content:"";position:absolute;left:2px;top:11px;width:7px;height:7px;border-radius:2px;background:var(--green-br)}
+  ul.list li b{font-weight:600;color:var(--ink)}
+  ul.list.roles li b{color:var(--green)}
 
-  .roles{display:grid;gap:9px}
-  .role{display:flex;gap:13px;align-items:baseline;font-size:13px;line-height:1.55}
-  .role .tag{font-family:'Nunito',sans-serif;font-weight:900;font-size:10.5px;color:#0a7a3a;background:#eaf7f0;border:1.5px solid #b3e6c8;border-radius:7px;padding:3px 10px;flex-shrink:0;min-width:100px;text-align:center;letter-spacing:.02em}
+  .signoff{margin-top:28px;font-size:15.5px}
+  .sign{margin-top:34px}
+  .sign .line{width:250px;border-bottom:1.5px solid var(--ink);height:26px}
+  .sign .nm{font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:.12em;text-transform:uppercase;margin-top:9px}
+  .sign .ti{font-style:italic;font-size:13.5px;color:var(--soft);margin-top:5px;line-height:1.55}
 
-  .signoff{margin-top:24px;font-size:13.3px}
-  .sign{margin-top:30px}
-  .sign .line{width:240px;border-bottom:1.5px solid #142a1d;height:24px}
-  .sign .nm{font-family:'Nunito',sans-serif;font-weight:900;font-size:13.5px;letter-spacing:.14em;color:#142a1d;margin-top:8px;text-transform:uppercase}
-  .sign .ti{font-style:italic;font-size:12px;color:#3f4f46;margin-top:4px;line-height:1.5}
+  .copy{margin-top:30px}
+  .copy .ch{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);padding-bottom:8px;border-bottom:1.5px solid var(--ink)}
+  .copy ul{list-style:none;margin-top:10px;display:grid;gap:5px}
+  .copy li{font-size:13.5px;color:var(--soft);padding-left:20px;position:relative}
+  .copy li::before{content:"";position:absolute;left:0;top:11px;width:10px;height:1.5px;background:#aab8b0}
 
-  .copy{margin-top:26px}
-  .copy .ch{font-family:'Nunito',sans-serif;font-weight:800;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#0a7a3a;padding-bottom:7px;border-bottom:1.5px solid #142a1d}
-  .copy ul{list-style:none;margin-top:9px;display:grid;gap:4px}
-  .copy li{font-size:11.5px;color:#3f4f46;padding-left:18px;position:relative}
-  .copy li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:1.5px;background:#9aa8a0}
-
-  .foot{margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;align-items:center;font-family:'Nunito',sans-serif;font-size:9.5px;font-weight:700;color:#9aa8a0;letter-spacing:.03em}
-  .foot .bar{color:#0a7a3a}
+  .foot{margin-top:auto;padding-top:16px;display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:10.5px;font-weight:600;color:#9aa8a0;letter-spacing:.03em}
+  .foot .bar{color:var(--green)}
 
   @media print{
     body{background:#fff}
@@ -97,7 +106,7 @@
     <div>
       <div class="over">Office of the</div>
       <div class="org">SPECIAL PRESIDENTIAL ASSISTANT</div>
-      <div class="dept">Press and Mobilisation &middot; State House</div>
+      <div class="dept">Press and Mobilisation, State House</div>
     </div>
     <div class="contact">
       State House, Entebbe<br>
@@ -124,7 +133,7 @@
 
     <div class="salute">Asalam aleikum Al-Hajj Faruk Kirunda,</div>
 
-    <div class="re">RE:&nbsp; <b>Introducing the Busoga Ghetto Structure, a system to profile and monitor ghetto activities</b></div>
+    <div class="re"><span class="k">RE:</span>&nbsp; Introducing the Busoga Ghetto Structure, a system to profile and monitor ghetto activities</div>
 
     <p class="body">
       For the past two months, I have been quietly building a system for you, a tool that lets you monitor
@@ -139,7 +148,7 @@
     </p>
 
     <div class="blocktitle">What the system does</div>
-    <ul class="feat">
+    <ul class="list">
       <li><b>Profiles</b> every ghetto beneficiary across all 12 districts of Busoga, organised by district and by depot.</li>
       <li>Captures the full profile: photo, NIN, sub-county, parish, village, depot and depot leadership role.</li>
       <li>Tracks disbursements, the SACCO loan advanced at 6% interest, repayable within twelve (12) months.</li>
@@ -150,11 +159,11 @@
     </ul>
 
     <div class="blocktitle">It carries roles, so the right people see the right things</div>
-    <div class="roles">
-      <div class="role"><span class="tag">Administrator</span><span>Yourself, a full view of everything across all 12 districts.</span></div>
-      <div class="role"><span class="tag">RDC</span><span>Oversees activities within their own district.</span></div>
-      <div class="role"><span class="tag">Profiler</span><span>Registers and profiles members in the field.</span></div>
-    </div>
+    <ul class="list roles">
+      <li><b>Administrator:</b> yourself, with a full view of everything across all 12 districts.</li>
+      <li><b>RDC:</b> oversees activities within their own district.</li>
+      <li><b>Profiler:</b> registers and profiles members in the field.</li>
+    </ul>
 
     <p class="body">
       I would like to request an appointment to fully present the system to you when you come to Jinja, so you
