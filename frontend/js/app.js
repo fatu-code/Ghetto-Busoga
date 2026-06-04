@@ -109,11 +109,11 @@ async function loadDepotsDB() {
   }
   return DEPOTS_DB;
 }
-// Depot names for a district: real DB depots merged with the static fallback.
+// Depot names for a district: the real depots you created in the system.
+// (The old hardcoded list is no longer merged in, so deleted depots stay gone.)
 function depotNamesFor(code) {
-  const dbNames = DEPOTS_DB.filter((x) => x.district === code).map((x) => x.name);
-  const staticNames = (typeof DEPOTS !== "undefined" && DEPOTS[code]) || [];
-  return [...new Set([...dbNames, ...staticNames])]
+  return DEPOTS_DB.filter((x) => x.district === code)
+    .map((x) => x.name)
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
 }

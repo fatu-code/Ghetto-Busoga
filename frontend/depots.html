@@ -45,10 +45,14 @@
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
 .depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
 .depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
-.dp-edit{position:absolute;top:10px;right:10px;width:27px;height:27px;border-radius:8px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
-.dp-edit svg{width:12px;height:12px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dp-edit,.dp-del{position:absolute;top:10px;width:27px;height:27px;border-radius:8px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.dp-edit svg,.dp-del svg{width:12px;height:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dp-edit{right:43px}
 .dp-edit:hover{border-color:var(--green-mid);background:var(--green-pale)}
 .dp-edit:hover svg{stroke:var(--green-dark)}
+.dp-del{right:10px}
+.dp-del:hover{border-color:#f5b7b1;background:#fdecec}
+.dp-del:hover svg{stroke:#c0392b}
 </style>
 </head>
 <body>
@@ -112,7 +116,6 @@
       <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Depots you create here appear in the depot dropdown when registering people. The sub-county and parish auto-fill on registration.</div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-red btn-sm" id="dpDelBtn" style="display:none" onclick="delDepot()">Delete</button>
       <button class="btn" onclick="closeModal('depotFormModal')">Cancel</button>
       <button class="btn btn-green" id="dpSaveBtn" onclick="saveDepot()">
         <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save Depot
@@ -216,9 +219,13 @@ function renderDepots(code) {
     const editBtn = (_acc.isAdmin && rec)
       ? `<button class="dp-edit" title="Edit depot" onclick="event.stopPropagation();openDepotForm(${rec.id})"><svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg></button>`
       : '';
+    const depArg = dep.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const delBtn = _acc.isAdmin
+      ? `<button class="dp-del" title="Delete depot" onclick="event.stopPropagation();clearDepot('${code}','${depArg}',${cnt})"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg></button>`
+      : '';
     return `
       <div class="depot-card" style="border-top:3px solid ${col};position:relative" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
-        ${editBtn}
+        ${editBtn}${delBtn}
         <div class="depot-top">
           <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
           <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
@@ -286,7 +293,6 @@ function openDepotForm(id) {
   dpSetSelect(document.getElementById('dpSub'), rec ? rec.sub_county : '');
   updateDpParishes();
   dpSetSelect(document.getElementById('dpParish'), rec ? rec.parish : '');
-  document.getElementById('dpDelBtn').style.display = rec ? '' : 'none';
   openModal('depotFormModal');
 }
 
@@ -318,17 +324,22 @@ async function saveDepot() {
   }
 }
 
-async function delDepot() {
-  if (!editingDepotId) return;
-  const rec = DEPOTS_DB.find(x => x.id === editingDepotId);
-  if (!confirm(`Delete depot "${rec ? rec.name : ''}"? Members already registered keep their depot name.`)) return;
+// Delete a depot AND everyone registered in it (works for legacy/hardcoded
+// depots too, which only exist because seeded test members point at them).
+async function clearDepot(code, name, count) {
+  const dn = (DISTRICTS.find(x => x.code === code) || {}).name || code;
+  const msg = count > 0
+    ? `Delete depot "${titleCase(name)}" in ${dn}?\n\nThis permanently removes the depot AND its ${count} beneficiar${count === 1 ? 'y' : 'ies'}. This cannot be undone.`
+    : `Delete depot "${titleCase(name)}" in ${dn}?`;
+  if (!confirm(msg)) return;
   try {
-    await apiFetch(`/api/depots/${editingDepotId}`, { method: 'DELETE' });
+    const r = await apiFetch('/api/depots/clear', { method: 'POST', body: { district: code, name } });
     await loadDepotsDB();
-    closeModal('depotFormModal');
-    showToast('Depot deleted');
-    render();
-  } catch (e) { showToast(e.message, 'error'); }
+    loadDepots(); // reloads members + re-renders
+    showToast(`Depot deleted${r.membersDeleted ? ` with ${r.membersDeleted} member${r.membersDeleted === 1 ? '' : 's'}` : ''}`);
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
 }
 
 (async () => { await loadDepotsDB(); loadDepots(); })();
