@@ -394,9 +394,15 @@
           padding-bottom: 0;
           display: block; /* normal flow so page 2 honours the @page top margin */
         }
-        /* Block flow drops the flex auto-margin, so set the gap explicitly. */
+        /* Pin the strip to the bottom of the printed page (anchored to the
+           page, not the text flow). The @page bottom margin reserves space so
+           it never overlaps the body text. */
         .footer {
-          margin-top: 36px;
+          position: fixed;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          margin: 0;
         }
       }
     </style>
