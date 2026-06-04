@@ -28,6 +28,26 @@
 /* Totals: a clear rule line above, bold figures, no fill (so no clipped corners) */
 .rep-card tfoot td{font-family:var(--font2);font-weight:900;color:#142a1d;border-top:2.5px solid var(--green);padding-top:14px;padding-bottom:14px}
 .rep-card tfoot td:first-child{color:#0a7a3a;text-transform:uppercase;letter-spacing:.05em;font-size:.74rem}
+
+/* ── MOBILE: turn each table row into a clean card (no sideways scroll) ── */
+@media (max-width:600px){
+  .sum-grid{gap:10px}
+  .sum-v{font-size:1.2rem}
+  .rep-card .table-wrap{overflow:visible}
+  .rep-card table{min-width:0}
+  .rep-card thead{display:none}
+  .rep-card tbody,.rep-card tbody tr,.rep-card tbody td,
+  .rep-card tfoot,.rep-card tfoot tr,.rep-card tfoot td{display:block}
+  .rep-card tbody tr{padding:13px 16px;border-bottom:1px solid var(--border)}
+  .rep-card tbody tr:hover td{background:transparent}
+  .rep-card td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0!important;border:none!important;text-align:right}
+  .rep-card td::before{content:attr(data-label);font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;flex-shrink:0}
+  .rep-card td:first-child{display:block;text-align:left;font-size:.95rem;padding:0 0 9px!important;margin-bottom:7px;border-bottom:1px solid var(--border)!important}
+  .rep-card td:first-child::before{display:none}
+  /* TOTAL row as a highlighted card */
+  .rep-card tfoot tr{background:var(--green-pale);padding:13px 16px;border-top:2px solid var(--green)}
+  .rep-card tfoot td:first-child{font-size:.8rem}
+}
 /* Print letterhead (screen-hidden) */
 .print-head{display:none}
 @media print{
@@ -138,12 +158,12 @@ async function load() {
 function moneyRow(label, a) {
   return `<tr>
     <td style="font-weight:800">${label}</td>
-    <td class="num">${fmt(a.count)}</td>
-    <td class="num">${fmt(a.disbursedCount)}</td>
-    <td class="money">${fmt(a.disbursed)}</td>
-    <td class="money" style="color:var(--green)">${fmt(a.repaid)}</td>
-    <td class="money" style="color:${a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">${fmt(a.outstanding)}</td>
-    <td class="num" style="color:${a.overdue ? '#c0392b' : 'var(--muted)'}">${fmt(a.overdue)}</td>
+    <td class="num" data-label="Members">${fmt(a.count)}</td>
+    <td class="num" data-label="Disbursed">${fmt(a.disbursedCount)}</td>
+    <td class="money" data-label="Amount (UGX)">${fmt(a.disbursed)}</td>
+    <td class="money" data-label="Repaid (UGX)" style="color:var(--green)">${fmt(a.repaid)}</td>
+    <td class="money" data-label="Outstanding (UGX)" style="color:${a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">${fmt(a.outstanding)}</td>
+    <td class="num" data-label="Overdue" style="color:${a.overdue ? '#c0392b' : 'var(--muted)'}">${fmt(a.overdue)}</td>
   </tr>`;
 }
 
@@ -206,12 +226,12 @@ function render() {
         <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid (UGX)</th><th class="num">Outstanding (UGX)</th></tr></thead>
         <tbody>${depotRows.map(r => `<tr>
             <td style="font-weight:800">${r.depot}</td>
-            <td style="color:var(--muted)">${r.dn}</td>
-            <td class="num">${fmt(r.a.count)}</td>
-            <td class="num">${fmt(r.a.disbursedCount)}</td>
-            <td class="money">${fmt(r.a.disbursed)}</td>
-            <td class="money" style="color:var(--green)">${fmt(r.a.repaid)}</td>
-            <td class="money" style="color:${r.a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">${fmt(r.a.outstanding)}</td>
+            <td data-label="District" style="color:var(--muted)">${r.dn}</td>
+            <td class="num" data-label="Members">${fmt(r.a.count)}</td>
+            <td class="num" data-label="Disbursed">${fmt(r.a.disbursedCount)}</td>
+            <td class="money" data-label="Amount (UGX)">${fmt(r.a.disbursed)}</td>
+            <td class="money" data-label="Repaid (UGX)" style="color:var(--green)">${fmt(r.a.repaid)}</td>
+            <td class="money" data-label="Outstanding (UGX)" style="color:${r.a.outstanding > 0 ? '#c0392b' : 'var(--green)'}">${fmt(r.a.outstanding)}</td>
           </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
       </table></div>
     </div>`;
