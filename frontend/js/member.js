@@ -419,10 +419,10 @@ function exportCard() {
     .amtbox .l span{display:block;font-size:11px;font-weight:700;text-transform:none;letter-spacing:0;color:#9aa8a0;margin-top:5px}
     .amtbox .val{font-family:'Varela Round',sans-serif;font-size:26px;color:#009c41}
 
-    .note{margin-top:18px;font-size:11.5px;line-height:1.65;color:#5b6b62;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:13px 16px}
+    .note{margin-top:18px;font-size:11.5px;line-height:1.75;color:#5b6b62;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:16px 18px}
     .note b{color:#1c3326}
 
-    .sign{display:flex;gap:44px;margin-top:42px}
+    .sign{display:flex;gap:44px;margin-top:30px}
     .sig{flex:1;text-align:center}
     .sig .line{border-bottom:1.4px solid #b9c7bf;height:44px}
     .sig .nm2{font-family:'Varela Round',sans-serif;font-size:13px;color:#1c3326;padding-top:6px;line-height:1.2}
@@ -526,16 +526,16 @@ function exportCard() {
         <div class="val">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : 'Pending'}</div>
       </div>
       ${ls ? `
-      <div style="display:flex;gap:10px;margin-top:10px">
-        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:9px 12px;text-align:center">
+      <div style="display:flex;gap:12px;margin-top:16px">
+        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:14px 14px;text-align:center">
           <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#5b6b62">Total Due (loan + 6%)</div>
           <div style="font-family:'Varela Round',sans-serif;font-size:14px;color:#142a1d;margin-top:3px">UGX ${fmt(ls.totalDue)}</div>
         </div>
-        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:9px 12px;text-align:center">
+        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:14px 14px;text-align:center">
           <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#5b6b62">Repaid</div>
           <div style="font-family:'Varela Round',sans-serif;font-size:14px;color:#0a7a3a;margin-top:3px">UGX ${fmt(ls.repaid)}</div>
         </div>
-        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:9px 12px;text-align:center">
+        <div style="flex:1;background:#fbfdfc;border:1px solid #eef2f0;border-radius:10px;padding:14px 14px;text-align:center">
           <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#5b6b62">Outstanding</div>
           <div style="font-family:'Varela Round',sans-serif;font-size:14px;color:${ls.outstanding > 0 ? '#c0392b' : '#0a7a3a'};margin-top:3px">UGX ${fmt(ls.outstanding)}</div>
         </div>
