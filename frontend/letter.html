@@ -85,9 +85,15 @@
   .foot .bar{color:var(--green)}
 
   @media print{
+    /* All pages get a top + bottom margin so text never hugs the page edge... */
+    @page{size:A4;margin:20mm 0 16mm}
+    /* ...except the FIRST page, where the green band bleeds to the very top. */
+    @page :first{margin-top:0}
     body{background:#fff}
     .toolbar{display:none}
-    .sheet{margin:0;box-shadow:none}
+    /* min-height must drop in print, or it forces a blank trailing page. */
+    .sheet{margin:0;box-shadow:none;min-height:0}
+    .content{padding-bottom:0}
   }
 </style>
 </head>
@@ -109,10 +115,10 @@
       <div class="dept">Press and Mobilisation, State House</div>
     </div>
     <div class="contact">
-      State House, Entebbe<br>
+      State House, Nakasero<br>
       P.O. Box 25497, Kampala<br>
-      +256 700 000 000<br>
-      spa@statehouse.go.ug
+      Tel: +256 41 231900<br>
+      info@statehouse.go.ug
     </div>
   </div>
   <div class="accent"></div>
@@ -127,8 +133,8 @@
     <div class="to">
       <div class="nm">Al-Hajj Faruk Kirunda</div>
       <div class="ro">Special Presidential Assistant, Press and Mobilisation</div>
-      <div class="ad">Office of the President, State House<br>P.O. Box 25497</div>
-      <div class="place">E N T E B B E</div>
+      <div class="ad">Office of the President, State House Nakasero<br>P.O. Box 25497</div>
+      <div class="place">K A M P A L A</div>
     </div>
 
     <div class="salute">Asalam aleikum Al-Hajj Faruk Kirunda,</div>
