@@ -1,206 +1,530 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Letter — Busoga Ghetto Structure</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --sans:'Inter',-apple-system,sans-serif;
-    --serif:'Source Serif 4',Georgia,'Times New Roman',serif;
-    --ink:#1a261f;        /* body text */
-    --soft:#4a5a50;       /* secondary text */
-    --green:#0a7a3a;
-    --green-dk:#102a1c;   /* band */
-    --green-br:#009c41;   /* accent bar */
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  @page{size:A4;margin:0}
-  body{font-family:var(--serif);color:var(--ink);background:#dfe6e1;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Letter — Busoga Ghetto Structure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --sans: "Inter", -apple-system, sans-serif;
+        --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+        --ink: #1a261f; /* body text */
+        --soft: #4a5a50; /* secondary text */
+        --green: #0a7a3a;
+        --green-dk: #102a1c; /* band */
+        --green-br: #009c41; /* accent bar */
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      body {
+        font-family: var(--serif);
+        color: var(--ink);
+        background: #dfe6e1;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
 
-  .toolbar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;padding:14px;background:rgba(16,39,27,.97)}
-  .toolbar button{font-family:var(--sans);font-weight:700;font-size:.9rem;border:none;border-radius:10px;padding:11px 24px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:var(--green-br);color:#fff}
-  .toolbar button:hover{background:var(--green)}
-  .toolbar svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        justify-content: center;
+        padding: 14px;
+        background: rgba(16, 39, 27, 0.97);
+      }
+      .toolbar button {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 10px;
+        padding: 11px 24px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--green-br);
+        color: #fff;
+      }
+      .toolbar button:hover {
+        background: var(--green);
+      }
+      .toolbar svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
 
-  .sheet{width:210mm;min-height:297mm;margin:18px auto;background:#fff;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.16)}
+      .sheet {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 18px auto;
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.16);
+      }
 
-  /* Letterhead band */
-  .band{background:var(--green-dk);color:#fff;padding:34px 22mm 28px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px}
-  .band .over{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:#7fd6a0;margin-bottom:8px}
-  .band .org{font-family:var(--sans);font-weight:800;font-size:29px;letter-spacing:.01em;line-height:1.04}
-  .band .dept{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-top:13px}
-  .band .contact{text-align:right;font-family:var(--sans);font-size:12px;font-weight:500;color:rgba(255,255,255,.72);line-height:1.85;flex-shrink:0}
-  .accent{height:7px;background:var(--green-br)}
+      /* Letterhead band */
+      .band {
+        background: var(--green-dk);
+        color: #fff;
+        padding: 34px 22mm 28px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 24px;
+      }
+      .band .over {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #7fd6a0;
+        margin-bottom: 8px;
+      }
+      .band .org {
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: 29px;
+        letter-spacing: 0.01em;
+        line-height: 1.04;
+      }
+      .band .dept {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.62);
+        margin-top: 13px;
+      }
+      .band .contact {
+        text-align: right;
+        font-family: var(--sans);
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.72);
+        line-height: 1.85;
+        flex-shrink: 0;
+      }
+      .accent {
+        height: 7px;
+        background: var(--green-br);
+      }
 
-  .content{padding:30px 22mm 18mm;flex:1;display:flex;flex-direction:column}
+      .content {
+        padding: 30px 22mm 18mm;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
 
-  /* Reference / Date */
-  .meta{display:flex;justify-content:space-between;font-family:var(--sans)}
-  .meta .lbl{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#93a39a;margin-right:11px}
-  .meta .val{font-size:14px;font-weight:700;color:var(--ink)}
+      /* Reference / Date */
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--sans);
+      }
+      .meta .lbl {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #93a39a;
+        margin-right: 11px;
+      }
+      .meta .val {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+      }
 
-  /* Recipient */
-  .to{margin-top:34px;line-height:1.5}
-  .to .nm{font-family:var(--sans);font-weight:800;font-size:18px;color:var(--ink)}
-  .to .ro{font-style:italic;font-size:15px;color:var(--soft);margin-top:4px}
-  .to .ad{font-size:15px;margin-top:3px}
-  .to .place{font-family:var(--sans);font-weight:800;font-size:13px;letter-spacing:.2em;margin-top:7px}
+      /* Recipient */
+      .to {
+        margin-top: 34px;
+        line-height: 1.5;
+      }
+      .to .nm {
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: 18px;
+        color: var(--ink);
+      }
+      .to .ro {
+        font-style: italic;
+        font-size: 15px;
+        color: var(--soft);
+        margin-top: 4px;
+      }
+      .to .ad {
+        font-size: 15px;
+        margin-top: 3px;
+      }
+      .to .place {
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 0.2em;
+        margin-top: 7px;
+      }
 
-  .salute{margin-top:28px;font-size:16.5px}
+      .salute {
+        margin-top: 28px;
+        font-size: 16.5px;
+      }
 
-  /* RE subject line */
-  .re{margin-top:20px;padding-bottom:11px;border-bottom:2px solid var(--ink);font-family:var(--sans);font-weight:800;font-size:14.5px;letter-spacing:.01em;line-height:1.5;text-transform:uppercase;color:var(--ink)}
-  .re .k{color:var(--green)}
+      /* RE subject line */
+      .re {
+        margin-top: 20px;
+        padding-bottom: 11px;
+        border-bottom: 2px solid var(--ink);
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: 14.5px;
+        letter-spacing: 0.01em;
+        line-height: 1.5;
+        text-transform: uppercase;
+        color: var(--ink);
+      }
+      .re .k {
+        color: var(--green);
+      }
 
-  p.body{margin-top:15px;font-size:15.5px;line-height:1.85;text-align:justify}
-  p.body:first-of-type{margin-top:18px}
-  .body b{font-weight:600;color:var(--green)}
+      p.body {
+        margin-top: 15px;
+        font-size: 15.5px;
+        line-height: 1.85;
+        text-align: justify;
+      }
+      p.body:first-of-type {
+        margin-top: 18px;
+      }
+      .body b {
+        font-weight: 600;
+        color: var(--green);
+      }
 
-  .blocktitle{font-family:var(--sans);font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--green);margin:24px 0 13px;display:flex;align-items:center;gap:14px}
-  .blocktitle::after{content:"";flex:1;height:1.5px;background:#dde7e1}
+      .blocktitle {
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--green);
+        margin: 24px 0 13px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .blocktitle::after {
+        content: "";
+        flex: 1;
+        height: 1.5px;
+        background: #dde7e1;
+      }
 
-  ul.list{list-style:none;display:grid;gap:11px}
-  ul.list li{position:relative;padding-left:24px;font-size:15.5px;line-height:1.65}
-  ul.list li::before{content:"";position:absolute;left:2px;top:11px;width:7px;height:7px;border-radius:2px;background:var(--green-br)}
-  ul.list li b{font-weight:600;color:var(--ink)}
-  ul.list.roles li b{color:var(--green)}
+      ul.list {
+        list-style: none;
+        display: grid;
+        gap: 11px;
+      }
+      ul.list li {
+        position: relative;
+        padding-left: 24px;
+        font-size: 15.5px;
+        line-height: 1.65;
+      }
+      ul.list li::before {
+        content: "";
+        position: absolute;
+        left: 2px;
+        top: 11px;
+        width: 7px;
+        height: 7px;
+        border-radius: 2px;
+        background: var(--green-br);
+      }
+      ul.list li b {
+        font-weight: 600;
+        color: var(--ink);
+      }
+      ul.list.roles li b {
+        color: var(--green);
+      }
 
-  .signoff{margin-top:28px;font-size:15.5px}
-  .sign{margin-top:34px}
-  .sign .line{width:250px;border-bottom:1.5px solid var(--ink);height:26px}
-  .sign .nm{font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:.12em;text-transform:uppercase;margin-top:9px}
-  .sign .ti{font-style:italic;font-size:13.5px;color:var(--soft);margin-top:5px;line-height:1.55}
+      .signoff {
+        margin-top: 28px;
+        font-size: 15.5px;
+      }
+      .sign {
+        margin-top: 34px;
+      }
+      .sign .line {
+        width: 250px;
+        border-bottom: 1.5px solid var(--ink);
+        height: 26px;
+      }
+      .sign .nm {
+        font-family: var(--sans);
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 9px;
+      }
+      .sign .ti {
+        font-style: italic;
+        font-size: 13.5px;
+        color: var(--soft);
+        margin-top: 5px;
+        line-height: 1.55;
+      }
 
-  .copy{margin-top:30px}
-  .copy .ch{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);padding-bottom:8px;border-bottom:1.5px solid var(--ink)}
-  .copy ul{list-style:none;margin-top:10px;display:grid;gap:5px}
-  .copy li{font-size:13.5px;color:var(--soft);padding-left:20px;position:relative}
-  .copy li::before{content:"";position:absolute;left:0;top:11px;width:10px;height:1.5px;background:#aab8b0}
+      .copy {
+        margin-top: 30px;
+      }
+      .copy .ch {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--green);
+        padding-bottom: 8px;
+        border-bottom: 1.5px solid var(--ink);
+      }
+      .copy ul {
+        list-style: none;
+        margin-top: 10px;
+        display: grid;
+        gap: 5px;
+      }
+      .copy li {
+        font-size: 13.5px;
+        color: var(--soft);
+        padding-left: 20px;
+        position: relative;
+      }
+      .copy li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 11px;
+        width: 10px;
+        height: 1.5px;
+        background: #aab8b0;
+      }
 
-  .foot{margin-top:auto;padding-top:16px;display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:10.5px;font-weight:600;color:#9aa8a0;letter-spacing:.03em}
-  .foot .bar{color:var(--green)}
+      .foot {
+        margin-top: auto;
+        padding-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--sans);
+        font-size: 10.5px;
+        font-weight: 600;
+        color: #9aa8a0;
+        letter-spacing: 0.03em;
+      }
+      .foot .bar {
+        color: var(--green);
+      }
 
-  @media print{
-    /* All pages get a top + bottom margin so text never hugs the page edge... */
-    @page{size:A4;margin:20mm 0 16mm}
-    /* ...except the FIRST page, where the green band bleeds to the very top. */
-    @page :first{margin-top:0}
-    body{background:#fff}
-    .toolbar{display:none}
-    /* min-height must drop in print, or it forces a blank trailing page. */
-    .sheet{margin:0;box-shadow:none;min-height:0}
-    .content{padding-bottom:0}
-  }
-</style>
-</head>
-<body>
-
-<div class="toolbar">
-  <button onclick="window.print()">
-    <svg viewBox="0 0 16 16"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><path d="M4 12h8v3H4z"/></svg>
-    Print / Save as PDF
-  </button>
-</div>
-
-<div class="sheet">
-
-  <div class="band">
-    <div>
-      <div class="over">Office of the</div>
-      <div class="org">SPECIAL PRESIDENTIAL ASSISTANT</div>
-      <div class="dept">Press and Mobilisation, State House</div>
+      @media print {
+        /* All pages get a top + bottom margin so text never hugs the page edge... */
+        @page {
+          size: A4;
+          margin: 20mm 0 16mm;
+        }
+        /* ...except the FIRST page, where the green band bleeds to the very top. */
+        @page :first {
+          margin-top: 0;
+        }
+        body {
+          background: #fff;
+        }
+        .toolbar {
+          display: none;
+        }
+        /* min-height must drop in print, or it forces a blank trailing page. */
+        .sheet {
+          margin: 0;
+          box-shadow: none;
+          min-height: 0;
+        }
+        .content {
+          padding-bottom: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button onclick="window.print()">
+        <svg viewBox="0 0 16 16">
+          <path d="M4 6V2h8v4" />
+          <rect x="2" y="6" width="12" height="6" rx="1" />
+          <path d="M4 12h8v3H4z" />
+        </svg>
+        Print / Save as PDF
+      </button>
     </div>
-    <div class="contact">
-      State House, Nakasero<br>
-      P.O. Box 25497, Kampala<br>
-      Tel: +256 41 231900<br>
-      info@statehouse.go.ug
+
+    <div class="sheet">
+      <div class="band">
+        <div>
+          <div class="over">Office of the</div>
+          <div class="org">SPECIAL PRESIDENTIAL ASSISTANT</div>
+          <div class="dept">Press and Mobilisation, State House</div>
+        </div>
+        <div class="contact">
+          State House, Nakasero<br />
+          P.O. Box 25497, Kampala<br />
+          Tel: +256 41 231900<br />
+          info@statehouse.go.ug
+        </div>
+      </div>
+      <div class="accent"></div>
+
+      <div class="content">
+        <div class="meta">
+          <div>
+            <span class="lbl">Reference</span
+            ><span class="val">BGS/SPA/2026/01</span>
+          </div>
+          <div>
+            <span class="lbl">Date</span><span class="val">4 June 2026</span>
+          </div>
+        </div>
+
+        <div class="to">
+          <div class="nm">Al-Hajj Faruk Kirunda</div>
+          <div class="ro">
+            Special Presidential Assistant, Press and Mobilisation
+          </div>
+          <div class="ad">
+            Office of the President, State House Nakasero<br />P.O. Box 25497
+          </div>
+          <div class="place">K A M P A L A</div>
+        </div>
+
+        <div class="salute">Asalam aleikum Al-Hajj Faruk Kirunda,</div>
+
+        <div class="re">
+          <span class="k">RE:</span>&nbsp; Introducing the Busoga Ghetto
+          Structure, a system to profile and monitor ghetto activities
+        </div>
+
+        <p class="body">
+          For the past two months, I have been quietly building a system for
+          you, a tool that lets you monitor ghetto activities from the comfort
+          of your office and your home. It is an application that sits on your
+          phone and on the office computer, so the entire structure is always in
+          the palm of your hand.
+        </p>
+
+        <p class="body">
+          At its heart, the system <b>profiles the ghetto</b>. Every member is
+          profiled with their photo, National Identification Number, location
+          and depot, and is then issued a unique serial number and a QR code
+          that anyone can scan to verify them on the spot.
+        </p>
+
+        <div class="blocktitle">What the system does</div>
+        <ul class="list">
+          <li>
+            <b>Profiles</b> every ghetto beneficiary across all 12 districts of
+            Busoga, organised by district and by depot.
+          </li>
+          <li>
+            Captures the full profile: photo, NIN, sub-county, parish, village,
+            depot and depot leadership role.
+          </li>
+          <li>
+            Tracks disbursements, the SACCO loan advanced at 6% interest,
+            repayable within twelve (12) months.
+          </li>
+          <li>
+            Tracks repayments, outstanding balances and overdue loans, district
+            by district.
+          </li>
+          <li>
+            Generates clean reports per district and per depot, ready to print
+            or export.
+          </li>
+          <li>
+            Issues each beneficiary an export card carrying a working QR code
+            for instant verification.
+          </li>
+          <li>Keeps an audit trail of who did what, and when.</li>
+        </ul>
+
+        <div class="blocktitle">
+          It carries roles, so the right people see the right things
+        </div>
+        <ul class="list roles">
+          <li>
+            <b>Administrator:</b> yourself, with a full view of everything
+            across all 12 districts.
+          </li>
+          <li><b>RDC:</b> oversees activities within their own district.</li>
+          <li><b>Profiler:</b> registers and profiles members in the field.</li>
+        </ul>
+
+        <p class="body">
+          I would like to request an appointment to fully present the system to
+          you when you come to Jinja, so you can see it working from end to end.
+          I have also attached a small presentation to usher you into what the
+          system is capable of.
+        </p>
+
+        <div class="signoff">Yours sincerely,</div>
+
+        <div class="sign">
+          <div class="line"></div>
+          <div class="nm">Fatume Shariff Alui</div>
+          <div class="ti">
+            Administrator, Office of the Special Presidential Assistant<br />Busoga
+            Ghetto Structure
+          </div>
+        </div>
+
+        <div class="copy">
+          <div class="ch">Copy to</div>
+          <ul>
+            <li>File</li>
+          </ul>
+        </div>
+
+        <div class="foot">
+          <span class="bar">Together We Can</span>
+          <span
+            >Busoga Ghetto Structure &middot; Presidential Empowerment Fund
+            (Busoga Pilot)</span
+          >
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="accent"></div>
-
-  <div class="content">
-
-    <div class="meta">
-      <div><span class="lbl">Reference</span><span class="val">BGS/SPA/2026/01</span></div>
-      <div><span class="lbl">Date</span><span class="val">4 June 2026</span></div>
-    </div>
-
-    <div class="to">
-      <div class="nm">Al-Hajj Faruk Kirunda</div>
-      <div class="ro">Special Presidential Assistant, Press and Mobilisation</div>
-      <div class="ad">Office of the President, State House Nakasero<br>P.O. Box 25497</div>
-      <div class="place">K A M P A L A</div>
-    </div>
-
-    <div class="salute">Asalam aleikum Al-Hajj Faruk Kirunda,</div>
-
-    <div class="re"><span class="k">RE:</span>&nbsp; Introducing the Busoga Ghetto Structure, a system to profile and monitor ghetto activities</div>
-
-    <p class="body">
-      For the past two months, I have been quietly building a system for you, a tool that lets you monitor
-      ghetto activities from the comfort of your office and your home. It is an application that sits on your
-      phone and on the office computer, so the entire structure is always in the palm of your hand.
-    </p>
-
-    <p class="body">
-      At its heart, the system <b>profiles the ghetto</b>. Every member is profiled with their photo, National
-      Identification Number, location and depot, and is then issued a unique serial number and a QR code that
-      anyone can scan to verify them on the spot.
-    </p>
-
-    <div class="blocktitle">What the system does</div>
-    <ul class="list">
-      <li><b>Profiles</b> every ghetto beneficiary across all 12 districts of Busoga, organised by district and by depot.</li>
-      <li>Captures the full profile: photo, NIN, sub-county, parish, village, depot and depot leadership role.</li>
-      <li>Tracks disbursements, the SACCO loan advanced at 6% interest, repayable within twelve (12) months.</li>
-      <li>Tracks repayments, outstanding balances and overdue loans, district by district.</li>
-      <li>Generates clean reports per district and per depot, ready to print or export.</li>
-      <li>Issues each beneficiary an export card carrying a working QR code for instant verification.</li>
-      <li>Keeps an audit trail of who did what, and when.</li>
-    </ul>
-
-    <div class="blocktitle">It carries roles, so the right people see the right things</div>
-    <ul class="list roles">
-      <li><b>Administrator:</b> yourself, with a full view of everything across all 12 districts.</li>
-      <li><b>RDC:</b> oversees activities within their own district.</li>
-      <li><b>Profiler:</b> registers and profiles members in the field.</li>
-    </ul>
-
-    <p class="body">
-      I would like to request an appointment to fully present the system to you when you come to Jinja, so you
-      can see it working from end to end. I have also attached a small presentation to usher you into what the
-      system is capable of.
-    </p>
-
-    <div class="signoff">Yours sincerely,</div>
-
-    <div class="sign">
-      <div class="line"></div>
-      <div class="nm">Fatume Shariff Alui</div>
-      <div class="ti">Administrator, Office of the Special Presidential Assistant<br>Busoga Ghetto Structure</div>
-    </div>
-
-    <div class="copy">
-      <div class="ch">Copy to</div>
-      <ul>
-        <li>The Resident City Commissioner, Jinja City</li>
-        <li>The District Ghetto Presidents, Busoga Sub-region</li>
-        <li>File</li>
-      </ul>
-    </div>
-
-    <div class="foot">
-      <span class="bar">Together We Can</span>
-      <span>Busoga Ghetto Structure &middot; Presidential Empowerment Fund (Busoga Pilot)</span>
-    </div>
-
-  </div>
-</div>
-
-</body>
+  </body>
 </html>
