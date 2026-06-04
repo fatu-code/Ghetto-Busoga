@@ -221,7 +221,7 @@ function renderDepots(code) {
         ${editBtn}
         <div class="depot-top">
           <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
-          <div><div class="depot-name">${dep}</div><div class="depot-dist">${loc}</div></div>
+          <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
         </div>
         <div class="depot-count"><span class="num" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
       </div>`;
