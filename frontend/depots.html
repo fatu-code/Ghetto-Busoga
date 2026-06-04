@@ -97,15 +97,17 @@
     <div class="modal-body">
       <div class="form-group">
         <label class="form-label">District *</label>
-        <select class="form-select" id="dpDistrict"><option value="">Select district</option></select>
+        <select class="form-select" id="dpDistrict" onchange="updateDpSubCounties()"><option value="">Select district</option></select>
       </div>
       <div class="form-group">
         <label class="form-label">Depot Name (Ghetto Cell) *</label>
         <input class="form-input" id="dpName" placeholder="e.g. Masese">
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Sub-County</label><input class="form-input" id="dpSub" placeholder="Sub-county"></div>
-        <div class="form-group"><label class="form-label">Parish</label><input class="form-input" id="dpParish" placeholder="Parish"></div>
+        <div class="form-group"><label class="form-label">Sub-County</label>
+          <select class="form-select" id="dpSub" onchange="updateDpParishes()"><option value="">Select district first</option></select></div>
+        <div class="form-group"><label class="form-label">Parish</label>
+          <select class="form-select" id="dpParish"><option value="">Select sub-county first</option></select></div>
       </div>
       <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Depots you create here appear in the depot dropdown when registering people. The sub-county and parish auto-fill on registration.</div>
     </div>
@@ -123,6 +125,7 @@
 
 <script src="js/app.js"></script>
 <script src="js/depots.js"></script>
+<script src="js/locations.js"></script>
 <script>
 Auth.require();
 buildSidebar('depots');
@@ -243,6 +246,32 @@ DISTRICTS.forEach(d => {
 });
 if (_acc.isAdmin) document.getElementById('newDepotBtn').style.display = '';
 
+// Cascading Sub-County -> Parish from LOCATIONS (the district reference data)
+function updateDpSubCounties() {
+  const code = document.getElementById('dpDistrict').value;
+  const subs = (typeof LOCATIONS !== 'undefined' && LOCATIONS[code] && Object.keys(LOCATIONS[code])) || [];
+  document.getElementById('dpSub').innerHTML =
+    '<option value="">' + (code ? 'Select sub-county' : 'Select district first') + '</option>' +
+    subs.map(s => `<option>${s}</option>`).join('');
+  updateDpParishes();
+}
+function updateDpParishes() {
+  const code = document.getElementById('dpDistrict').value;
+  const sub  = document.getElementById('dpSub').value;
+  const parishes = (typeof LOCATIONS !== 'undefined' && LOCATIONS[code] && LOCATIONS[code][sub]) || [];
+  document.getElementById('dpParish').innerHTML =
+    '<option value="">' + (sub ? 'Select parish' : 'Select sub-county first') + '</option>' +
+    parishes.map(p => `<option>${p}</option>`).join('');
+}
+// Set a select to a value, adding the option first if it isn't in the list (legacy entries).
+function dpSetSelect(sel, val) {
+  if (!sel) return;
+  if (val && ![...sel.options].some(o => o.value === val || o.textContent === val)) {
+    sel.insertAdjacentHTML('beforeend', `<option>${val}</option>`);
+  }
+  sel.value = val || '';
+}
+
 let editingDepotId = null;
 function openDepotForm(id) {
   const rec = id ? DEPOTS_DB.find(x => x.id === id) : null;
@@ -251,9 +280,12 @@ function openDepotForm(id) {
   const dd = document.getElementById('dpDistrict');
   dd.value = rec ? rec.district : (DISTRICTS.find(x => x.code === selected) ? selected : '');
   dd.disabled = !!rec;
-  document.getElementById('dpName').value   = rec ? rec.name : '';
-  document.getElementById('dpSub').value    = rec ? (rec.sub_county || '') : '';
-  document.getElementById('dpParish').value = rec ? (rec.parish || '') : '';
+  document.getElementById('dpName').value = rec ? rec.name : '';
+  // Cascade: sub-counties for the district, then parishes for the sub-county
+  updateDpSubCounties();
+  dpSetSelect(document.getElementById('dpSub'), rec ? rec.sub_county : '');
+  updateDpParishes();
+  dpSetSelect(document.getElementById('dpParish'), rec ? rec.parish : '');
   document.getElementById('dpDelBtn').style.display = rec ? '' : 'none';
   openModal('depotFormModal');
 }
