@@ -355,7 +355,7 @@
         /* All pages get a top + bottom margin so text never hugs the page edge... */
         @page {
           size: A4;
-          margin: 20mm 0 16mm;
+          margin: 20mm 0 20mm;
         }
         /* ...except the FIRST page, where the green band bleeds to the very top. */
         @page :first {
@@ -375,6 +375,11 @@
         }
         .content {
           padding-bottom: 0;
+        }
+        /* Give the footer breathing room above it and clear space below. */
+        .foot {
+          margin-top: 40px;
+          padding-bottom: 6mm;
         }
       }
     </style>
