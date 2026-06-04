@@ -98,6 +98,30 @@ function roleLabel(user) {
   return dn ? `${base} · ${dn}` : base;
 }
 
+// ── DEPOTS (real, DB-backed; merged with the static fallback list) ──
+let DEPOTS_DB = [];
+async function loadDepotsDB() {
+  try {
+    const d = await apiFetch("/api/depots");
+    DEPOTS_DB = d.depots || [];
+  } catch {
+    DEPOTS_DB = [];
+  }
+  return DEPOTS_DB;
+}
+// Depot names for a district: real DB depots merged with the static fallback.
+function depotNamesFor(code) {
+  const dbNames = DEPOTS_DB.filter((x) => x.district === code).map((x) => x.name);
+  const staticNames = (typeof DEPOTS !== "undefined" && DEPOTS[code]) || [];
+  return [...new Set([...dbNames, ...staticNames])]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+}
+// Full DB record for a depot, so we can auto-fill its sub-county / parish.
+function depotRecord(code, name) {
+  return DEPOTS_DB.find((x) => x.district === code && x.name === name) || null;
+}
+
 // ── API FETCH ────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };

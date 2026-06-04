@@ -136,7 +136,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Depot (Ghetto Cell) *</label>
-          <select class="form-select" id="mDepot">
+          <select class="form-select" id="mDepot" onchange="onDepotPicked()">
             <option value="">Select district first</option>
           </select>
         </div>
@@ -196,6 +196,7 @@
 <script>
 Auth.require();
 buildSidebar('members');
+loadDepotsDB(); // real depots for the registration dropdown
 
 // View-only roles (RDC) cannot register. Money is stripped by the backend for
 // profilers, so the funded directory is simply empty for them while depot
@@ -396,10 +397,25 @@ function updateSubCountyOptions() {
 }
 function updateDepotOptions() {
   const code   = document.getElementById('mDistrict').value;
-  const depots = (typeof DEPOTS !== 'undefined' && DEPOTS[code]) || [];
+  const depots = depotNamesFor(code); // real DB depots + static fallback
   document.getElementById('mDepot').innerHTML =
     '<option value="">' + (code ? 'Select depot' : 'Select district first') + '</option>' +
     depots.map(d => `<option>${d}</option>`).join('');
+}
+// Add a value to a select (inserting the option if missing) and select it.
+function setSelectValue(sel, val) {
+  if (!sel || !val) return;
+  if (![...sel.options].some(o => o.value === val || o.textContent === val)) {
+    sel.insertAdjacentHTML('beforeend', `<option>${val}</option>`);
+  }
+  sel.value = val;
+}
+// When a real (DB) depot is picked, auto-fill its sub-county and parish.
+function onDepotPicked() {
+  const rec = depotRecord(document.getElementById('mDistrict').value, document.getElementById('mDepot').value);
+  if (!rec) return;
+  setSelectValue(document.getElementById('mSubCounty'), rec.sub_county);
+  setSelectValue(document.getElementById('mParish'), rec.parish);
 }
 function updateParishOptions() {
   const code = document.getElementById('mDistrict').value;

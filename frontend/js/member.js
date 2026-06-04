@@ -3,6 +3,7 @@ buildSidebar('members');
 
 // Role gates what this page can do. Backend enforces the real rules.
 const acc = accessOf(Auth.get());
+loadDepotsDB(); // real depots for the edit dropdown
 
 const memberId = new URLSearchParams(window.location.search).get('id');
 if (!memberId) location.href = 'members.html';
@@ -841,7 +842,7 @@ function updateEditSubCounties() {
 }
 function updateEditDepots(current) {
   const code   = document.getElementById('eDistrict').value;
-  const depots = (typeof DEPOTS !== 'undefined' && DEPOTS[code]) || [];
+  const depots = depotNamesFor(code); // real DB depots + static fallback
   fillLocSelect(document.getElementById('eDepot'), depots, current || '');
 }
 function updateEditParishes() {

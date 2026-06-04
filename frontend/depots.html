@@ -45,6 +45,10 @@
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
 .depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
 .depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
+.dp-edit{position:absolute;top:10px;right:10px;width:27px;height:27px;border-radius:8px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
+.dp-edit svg{width:12px;height:12px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dp-edit:hover{border-color:var(--green-mid);background:var(--green-pale)}
+.dp-edit:hover svg{stroke:var(--green-dark)}
 </style>
 </head>
 <body>
@@ -63,6 +67,10 @@
         </div>
       </div>
       <div class="topbar-right">
+        <button class="btn btn-green" id="newDepotBtn" style="display:none" onclick="openDepotForm()">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
+          <span class="mob-hide">New Depot</span>
+        </button>
         <a href="members.html" class="btn">
           <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
           <span class="mob-hide">All Beneficiaries</span>
@@ -76,6 +84,38 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- CREATE / EDIT DEPOT MODAL -->
+<div class="modal-bg" id="depotFormModal">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-head">
+      <div class="modal-title" id="dpTitle">New Depot</div>
+      <button class="modal-close" onclick="closeModal('depotFormModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">District *</label>
+        <select class="form-select" id="dpDistrict"><option value="">Select district</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Depot Name (Ghetto Cell) *</label>
+        <input class="form-input" id="dpName" placeholder="e.g. Masese">
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Sub-County</label><input class="form-input" id="dpSub" placeholder="Sub-county"></div>
+        <div class="form-group"><label class="form-label">Parish</label><input class="form-input" id="dpParish" placeholder="Parish"></div>
+      </div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Depots you create here appear in the depot dropdown when registering people. The sub-county and parish auto-fill on registration.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-red btn-sm" id="dpDelBtn" style="display:none" onclick="delDepot()">Delete</button>
+      <button class="btn" onclick="closeModal('depotFormModal')">Cancel</button>
+      <button class="btn btn-green" id="dpSaveBtn" onclick="saveDepot()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save Depot
+      </button>
+    </div>
   </div>
 </div>
 
@@ -116,9 +156,9 @@ async function loadDepots() {
 }
 
 function depotsForDistrict(code) {
-  const canonical = (typeof DEPOTS !== 'undefined' && DEPOTS[code]) || [];
-  const fromData  = allMembers.filter(m => m.district === code).map(m => m.depot);
-  return [...new Set([...canonical, ...fromData])].filter(Boolean).sort((a, b) => a.localeCompare(b));
+  const known    = depotNamesFor(code); // real DB depots + static fallback
+  const fromData = allMembers.filter(m => m.district === code).map(m => m.depot);
+  return [...new Set([...known, ...fromData])].filter(Boolean).sort((a, b) => a.localeCompare(b));
 }
 function membersIn(code) { return allMembers.filter(m => m.district === code).length; }
 
@@ -166,11 +206,19 @@ function renderDepots(code) {
 
   const cards = depots.map(dep => {
     const cnt = counts[code + '||' + dep] || 0;
+    const rec = depotRecord(code, dep);
+    const loc = rec && (rec.sub_county || rec.parish)
+      ? [rec.sub_county, rec.parish].filter(Boolean).join(' · ')
+      : d.name;
+    const editBtn = (_acc.isAdmin && rec)
+      ? `<button class="dp-edit" title="Edit depot" onclick="event.stopPropagation();openDepotForm(${rec.id})"><svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg></button>`
+      : '';
     return `
-      <div class="depot-card" style="border-top:3px solid ${col}" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
+      <div class="depot-card" style="border-top:3px solid ${col};position:relative" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
+        ${editBtn}
         <div class="depot-top">
           <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
-          <div><div class="depot-name">${dep}</div><div class="depot-dist">${d.name}</div></div>
+          <div><div class="depot-name">${dep}</div><div class="depot-dist">${loc}</div></div>
         </div>
         <div class="depot-count"><span class="num" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
       </div>`;
@@ -187,7 +235,71 @@ function renderDepots(code) {
     `${d.name} · ${depots.length} depots · ${fmt(mc)} members`;
 }
 
-loadDepots();
+// ── DEPOT MANAGEMENT (admin) ───────────────────────────────────────
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('dpDistrict').appendChild(o);
+});
+if (_acc.isAdmin) document.getElementById('newDepotBtn').style.display = '';
+
+let editingDepotId = null;
+function openDepotForm(id) {
+  const rec = id ? DEPOTS_DB.find(x => x.id === id) : null;
+  editingDepotId = rec ? rec.id : null;
+  document.getElementById('dpTitle').textContent = rec ? 'Edit Depot' : 'New Depot';
+  const dd = document.getElementById('dpDistrict');
+  dd.value = rec ? rec.district : (DISTRICTS.find(x => x.code === selected) ? selected : '');
+  dd.disabled = !!rec;
+  document.getElementById('dpName').value   = rec ? rec.name : '';
+  document.getElementById('dpSub').value    = rec ? (rec.sub_county || '') : '';
+  document.getElementById('dpParish').value = rec ? (rec.parish || '') : '';
+  document.getElementById('dpDelBtn').style.display = rec ? '' : 'none';
+  openModal('depotFormModal');
+}
+
+async function saveDepot() {
+  const district   = document.getElementById('dpDistrict').value;
+  const name       = document.getElementById('dpName').value.trim();
+  const sub_county = document.getElementById('dpSub').value.trim();
+  const parish     = document.getElementById('dpParish').value.trim();
+  if (!district || !name) { showToast('District and depot name are required', 'error'); return; }
+  const district_name = (DISTRICTS.find(x => x.code === district) || {}).name || district;
+  const btn = document.getElementById('dpSaveBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    if (editingDepotId) {
+      await apiFetch(`/api/depots/${editingDepotId}`, { method: 'PUT', body: { name, sub_county, parish } });
+      showToast('Depot updated');
+    } else {
+      await apiFetch('/api/depots', { method: 'POST', body: { district, district_name, name, sub_county, parish } });
+      showToast('Depot created');
+    }
+    await loadDepotsDB();
+    closeModal('depotFormModal');
+    render();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save Depot';
+  }
+}
+
+async function delDepot() {
+  if (!editingDepotId) return;
+  const rec = DEPOTS_DB.find(x => x.id === editingDepotId);
+  if (!confirm(`Delete depot "${rec ? rec.name : ''}"? Members already registered keep their depot name.`)) return;
+  try {
+    await apiFetch(`/api/depots/${editingDepotId}`, { method: 'DELETE' });
+    await loadDepotsDB();
+    closeModal('depotFormModal');
+    showToast('Depot deleted');
+    render();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+(async () => { await loadDepotsDB(); loadDepots(); })();
 </script>
 </body>
 </html>
