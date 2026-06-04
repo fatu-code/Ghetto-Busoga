@@ -114,7 +114,7 @@ const NAV_ITEMS = [
   },
   {
     id: "staff",
-    label: "Staff",
+    label: "Manage Users",
     href: "users.html",
     icon: '<svg viewBox="0 0 16 16"><circle cx="5.5" cy="5" r="2.3"/><path d="M1.5 13c0-2.4 1.8-4 4-4s4 1.6 4 4"/><circle cx="11.5" cy="5.5" r="1.8"/><path d="M10 9.2c2 .1 3.4 1.5 3.4 3.8"/></svg>',
   },

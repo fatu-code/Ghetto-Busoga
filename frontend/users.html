@@ -10,6 +10,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
 .u-av{width:34px;height:34px;border-radius:9px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:.75rem;color:var(--green-dark);flex-shrink:0}
+.mu-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+.mu-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px 18px}
+.mu-ic{width:40px;height:40px;border-radius:11px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.mu-ic svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.mu-v{font-family:var(--font);font-size:1.6rem;color:var(--text);line-height:1}
+.mu-l{font-family:var(--font2);font-size:.68rem;font-weight:700;color:var(--muted);margin-top:5px}
 </style>
 </head>
 <body>
@@ -23,14 +29,14 @@
           <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
         </button>
         <div>
-          <div class="topbar-title">Staff</div>
+          <div class="topbar-title">Manage Users</div>
           <div class="topbar-sub" id="countLabel">Loading...</div>
         </div>
       </div>
       <div class="topbar-right">
         <button class="btn btn-green" id="addBtn" onclick="openAdd()">
           <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
-          <span class="mob-hide">Add Staff</span>
+          <span class="mob-hide">Create User</span>
         </button>
       </div>
     </div>
@@ -97,9 +103,15 @@ async function loadUsers() {
 }
 
 function render() {
-  document.getElementById('countLabel').textContent =
-    `${users.length} staff account${users.length === 1 ? '' : 's'}`;
-  document.getElementById('usersContainer').innerHTML = `<div class="card"><div class="table-wrap"><table>
+  const total = users.length;
+  const admins = users.filter(u => u.role === 'admin').length;
+  document.getElementById('countLabel').textContent = `${total} user${total === 1 ? '' : 's'}`;
+  const stats = `<div class="mu-stats">
+    <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><circle cx="5.5" cy="5" r="2.3"/><path d="M1.5 13c0-2.4 1.8-4 4-4s4 1.6 4 4"/><circle cx="11.5" cy="5.5" r="1.8"/><path d="M10 9.2c2 .1 3.4 1.5 3.4 3.8"/></svg></div><div class="mu-v">${total}</div><div class="mu-l">Total users</div></div>
+    <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5l5 2v4c0 3.5-2.5 5.6-5 6.5-2.5-.9-5-3-5-6.5v-4z"/><path d="M5.8 8l1.6 1.6L10.4 6.6"/></svg></div><div class="mu-v">${admins}</div><div class="mu-l">Administrators</div></div>
+    <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div><div class="mu-v">${total - admins}</div><div class="mu-l">Staff</div></div>
+  </div>`;
+  document.getElementById('usersContainer').innerHTML = stats + `<div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Added</th><th></th></tr></thead>
     <tbody>${users.map(u => `
       <tr>
@@ -117,7 +129,7 @@ function render() {
 
 function openAdd() {
   editId = null;
-  document.getElementById('uModalTitle').textContent = 'Add Staff';
+  document.getElementById('uModalTitle').textContent = 'Create User';
   document.getElementById('uName').value = '';
   document.getElementById('uUsername').value = '';
   document.getElementById('uUsername').disabled = false;
@@ -130,7 +142,7 @@ function openAdd() {
 function openEdit(id) {
   const u = users.find(x => x.id === id); if (!u) return;
   editId = id;
-  document.getElementById('uModalTitle').textContent = 'Edit Staff';
+  document.getElementById('uModalTitle').textContent = 'Edit User';
   document.getElementById('uName').value = u.name;
   document.getElementById('uUsername').value = u.username;
   document.getElementById('uUsername').disabled = true;
