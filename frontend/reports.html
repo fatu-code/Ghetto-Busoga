@@ -17,10 +17,17 @@
 .rep-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
 .rep-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-bottom:1.5px solid var(--border)}
 .rep-title{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.92rem}
-.money{font-family:var(--font);font-weight:800;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-table th.num,table td.num{text-align:right;font-variant-numeric:tabular-nums}
-.rep-card th{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-tfoot td{font-weight:900;border-top:2px solid var(--green-mid);background:var(--green-pale);color:#142a1d}
+.money{font-family:var(--font);font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Clean financial-report table */
+.rep-card table{width:100%;border-collapse:collapse}
+.rep-card th,.rep-card td{padding:12px 18px;text-align:left;font-size:.82rem;color:var(--text)}
+.rep-card th.num,.rep-card td.num,.rep-card td.money{text-align:right;font-variant-numeric:tabular-nums}
+.rep-card thead th{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:#f7faf8;border-bottom:1.5px solid var(--border)}
+.rep-card tbody tr + tr td{border-top:1px solid #eef2f0}
+.rep-card tbody tr:hover td{background:#fafdfb}
+/* Totals: a clear rule line above, bold figures, no fill (so no clipped corners) */
+.rep-card tfoot td{font-family:var(--font2);font-weight:900;color:#142a1d;border-top:2.5px solid var(--green);padding-top:14px;padding-bottom:14px}
+.rep-card tfoot td:first-child{color:#0a7a3a;text-transform:uppercase;letter-spacing:.05em;font-size:.74rem}
 /* Print letterhead (screen-hidden) */
 .print-head{display:none}
 @media print{
