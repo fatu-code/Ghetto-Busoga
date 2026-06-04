@@ -287,9 +287,20 @@
         });
       }
 
+      // Greet by the given name only (names are stored surname-first, so the
+      // second word is the given name): "Nankya Viola" -> "Viola".
+      // Kirunda Faruk keeps both names.
+      function greetingName(name) {
+        const n = String(name || '').trim().replace(/^al[- ]?hajj\s+/i, '');
+        if (!n) return 'Faruk Kirunda';
+        if (/kirunda|faruk/i.test(n)) return titleCase(n);
+        const parts = n.split(/\s+/);
+        return titleCase(parts.length > 1 ? parts[1] : parts[0]);
+      }
+
       function updateGreeting() {
         const user = Auth.get();
-        const userName = user?.name?.trim() || 'Al-Hajj Faruk Kirunda';
+        const userName = greetingName(user?.name);
         const now = new Date();
         const day = now.toLocaleDateString('en-UG', { weekday: 'long' });
         const date = now.toLocaleDateString('en-UG', { year: 'numeric', month: 'long', day: 'numeric' });
