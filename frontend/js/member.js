@@ -663,8 +663,10 @@ function exportCard() {
   </div>
   ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},450)}</scr' + 'ipt>'}
   </body></html>`;
+  // Export only page 1 (the card). Drop the appended loan-agreement pages.
+  const cardOnly = html.replace(/<div class="agr">[\s\S]*?(?=<script)/, '');
   const w = window.open('', '_blank');
-  w.document.write(html);
+  w.document.write(cardOnly);
   w.document.close();
 }
 
