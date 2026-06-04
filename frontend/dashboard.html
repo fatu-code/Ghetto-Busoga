@@ -24,6 +24,17 @@
       .metric-tile:has(.metric-icon.blue)::before{background:var(--blue)}
       .metric-tile:has(.metric-icon.amber)::before{background:var(--amber)}
       .metric-tile:hover{border-color:var(--green-mid);box-shadow:0 12px 28px rgba(0,0,0,.08);transform:translateY(-3px)}
+      /* Entrance life: tiles rise in with a quick stagger */
+      @keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+      .hero{animation:riseIn .5s var(--ease) backwards}
+      .metric-tile{animation:riseIn .5s var(--ease) backwards}
+      .metric-tile:nth-child(1){animation-delay:.05s}
+      .metric-tile:nth-child(2){animation-delay:.1s}
+      .metric-tile:nth-child(3){animation-delay:.15s}
+      .metric-tile:nth-child(4){animation-delay:.2s}
+      .metric-tile:nth-child(5){animation-delay:.25s}
+      .metric-tile:nth-child(6){animation-delay:.3s}
+      @media (prefers-reduced-motion:reduce){.hero,.metric-tile{animation:none}}
       .metric-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .metric-icon.green{background:var(--green-pale);border:1.5px solid var(--green-mid)}
       .metric-icon.blue{background:var(--blue-pale);border:1.5px solid var(--blue-mid)}
@@ -325,6 +336,26 @@
         return String(n);
       }
 
+      // A distinct accent colour per district bar, to give the list colour and life.
+      const BAR_COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
+
+      // Count a number up from zero on load (eased), formatted each frame.
+      function animateCount(el, target, fmtFn, dur = 900) {
+        if (!el) return;
+        target = Number(target) || 0;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          el.textContent = fmtFn(target); return;
+        }
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - p, 3);
+          el.textContent = fmtFn(Math.round(target * eased));
+          if (p < 1) requestAnimationFrame(tick); else el.textContent = fmtFn(target);
+        }
+        requestAnimationFrame(tick);
+      }
+
       const muted = 'font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0';
 
       async function loadStats() {
@@ -337,13 +368,13 @@
           const districts = Number(t.districts_covered || 0);
           const disbursed = Number(t.total_disbursed   || 0);
 
-          document.getElementById('mtBeneficiaries').textContent    = fmt(total);
+          animateCount(document.getElementById('mtBeneficiaries'), total, fmt);
           document.getElementById('mtBeneficiariesSub').textContent = `${fmt(active)} active`;
-          document.getElementById('mtDepots').textContent           = fmt(depots);
+          animateCount(document.getElementById('mtDepots'), depots, fmt);
           document.getElementById('mtDepotsSub').textContent        = `across ${districts} district${districts === 1 ? '' : 's'}`;
-          document.getElementById('mtDistricts').textContent        = String(districts);
+          animateCount(document.getElementById('mtDistricts'), districts, String);
           document.getElementById('mtDistrictsSub').textContent     = 'of 12 covered';
-          document.getElementById('mtDisbursed').textContent        = compact(disbursed);
+          animateCount(document.getElementById('mtDisbursed'), disbursed, compact);
           document.getElementById('mtDisbursedSub').textContent     = `to ${fmt(total)} beneficiar${total === 1 ? 'y' : 'ies'}`;
 
           const repaid      = Number(t.total_repaid || 0);
@@ -351,9 +382,9 @@
           const outstanding = Math.max(0, totalDue - repaid);
           const overdue     = Number(t.overdue_count || 0);
           const repaidPct   = totalDue ? Math.round((repaid / totalDue) * 100) : 0;
-          document.getElementById('mtRepaid').textContent           = compact(repaid);
+          animateCount(document.getElementById('mtRepaid'), repaid, compact);
           document.getElementById('mtRepaidSub').textContent        = disbursed ? `${repaidPct}% of UGX ${compact(totalDue)} due` : ' ';
-          document.getElementById('mtOutstanding').textContent      = compact(outstanding);
+          animateCount(document.getElementById('mtOutstanding'), outstanding, compact);
           document.getElementById('mtOutstandingSub').textContent   = overdue ? `${overdue} overdue` : 'on track';
 
           // District bars (by beneficiary count)
@@ -363,15 +394,18 @@
             dl.innerHTML = `<div style="${muted}">No beneficiaries yet</div>`;
           } else {
             const max = Math.max(...byD.map(d => Number(d.member_count) || 0), 1);
-            dl.innerHTML = byD.map(d => {
-              const c   = Number(d.member_count) || 0;
-              const pct = Math.max(4, Math.round((c / max) * 100));
+            dl.innerHTML = byD.map((d, i) => {
+              const cnt = Number(d.member_count) || 0;
+              const pct = Math.max(4, Math.round((cnt / max) * 100));
+              const col = BAR_COLORS[i % BAR_COLORS.length];
               return `<div class="dcov-row">
                 <div class="dcov-name">${d.district_name}</div>
-                <div class="dcov-track"><div class="dcov-fill" style="width:${pct}%"></div></div>
-                <div class="dcov-val">${fmt(c)} <span>ppl</span></div>
+                <div class="dcov-track"><div class="dcov-fill" data-w="${pct}" style="width:0;background:${col}"></div></div>
+                <div class="dcov-val">${fmt(cnt)} <span>ppl</span></div>
               </div>`;
             }).join('');
+            // Grow the bars into place (the .dcov-fill width transition does the rest).
+            requestAnimationFrame(() => dl.querySelectorAll('.dcov-fill').forEach(f => { f.style.width = f.dataset.w + '%'; }));
           }
 
           // Recently registered
