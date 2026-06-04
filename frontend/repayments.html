@@ -34,12 +34,13 @@
   .dbar .dmeta{font-size:.66rem}
   .dsec .card{background:transparent;border:none;box-shadow:none}
   .dsec .table-wrap{overflow:visible}
+  /* The table element itself must become block flow, or rows collapse to content width */
+  .dsec table,.dsec tbody,.dsec tr{display:block;width:100%}
   .dsec table{min-width:0}
   .dsec thead{display:none}
-  .dsec tbody,.dsec tr,.dsec td{display:block}
   .dsec tbody tr{background:#fff;border:1.5px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:10px}
   .dsec tbody tr:hover{background:#fff}
-  .dsec td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;border:none;text-align:right}
+  .dsec td{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;border:none;text-align:right}
   .dsec td::before{content:attr(data-label);font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;flex-shrink:0}
   .dsec td:first-child{display:block;text-align:left;padding:0 0 10px;margin-bottom:8px;border-bottom:1px solid var(--border)}
   .dsec td:first-child::before{display:none}

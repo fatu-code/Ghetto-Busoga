@@ -34,19 +34,21 @@
   .sum-grid{gap:10px}
   .sum-v{font-size:1.2rem}
   .rep-card .table-wrap{overflow:visible}
+  /* The table element itself must become block flow, or rows collapse to content width */
+  .rep-card table,
+  .rep-card tbody,
+  .rep-card tfoot,
+  .rep-card tr{display:block;width:100%}
   .rep-card table{min-width:0}
   .rep-card thead{display:none}
-  .rep-card tbody,.rep-card tbody tr,.rep-card tbody td,
-  .rep-card tfoot,.rep-card tfoot tr,.rep-card tfoot td{display:block}
   .rep-card tbody tr{padding:13px 16px;border-bottom:1px solid var(--border)}
-  .rep-card tbody tr:hover td{background:transparent}
-  .rep-card td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0!important;border:none!important;text-align:right}
-  .rep-card td::before{content:attr(data-label);font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;flex-shrink:0}
-  .rep-card td:first-child{display:block;text-align:left;font-size:.95rem;padding:0 0 9px!important;margin-bottom:7px;border-bottom:1px solid var(--border)!important}
+  .rep-card td{display:flex;width:100%;justify-content:space-between;align-items:center;gap:12px;padding:7px 0!important;border:none!important;text-align:right}
+  .rep-card td::before{content:attr(data-label);font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;flex-shrink:0}
+  .rep-card td:first-child{display:block;text-align:left;font-size:.98rem;font-weight:800;padding:0 0 9px!important;margin-bottom:7px;border-bottom:1px solid var(--border)!important}
   .rep-card td:first-child::before{display:none}
   /* TOTAL row as a highlighted card */
   .rep-card tfoot tr{background:var(--green-pale);padding:13px 16px;border-top:2px solid var(--green)}
-  .rep-card tfoot td:first-child{font-size:.8rem}
+  .rep-card tfoot td:first-child{font-size:.82rem}
 }
 /* Print letterhead (screen-hidden) */
 .print-head{display:none}
