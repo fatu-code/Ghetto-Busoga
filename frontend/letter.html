@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Letter — Busoga Ghetto Structure</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  @page{size:A4;margin:0}
+  body{font-family:'Spectral',Georgia,serif;color:#21302a;background:#e9efeb;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* Screen toolbar */
+  .toolbar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:14px;background:rgba(20,42,29,.96);backdrop-filter:blur(6px)}
+  .toolbar button{font-family:'Nunito',sans-serif;font-weight:800;font-size:.84rem;border:none;border-radius:10px;padding:10px 20px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+  .toolbar .pr{background:#009c41;color:#fff}
+  .toolbar .pr:hover{background:#0a7a3a}
+  .toolbar svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .sheet{width:210mm;min-height:297mm;margin:18px auto;background:#fff;padding:20mm 22mm 16mm;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.16)}
+
+  /* Letterhead */
+  .lh{text-align:center;padding-bottom:14px;border-bottom:2.5px solid #0a7a3a;position:relative}
+  .lh::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:1px;background:#cfe3d6}
+  .lh .emblem{width:74px;height:74px;object-fit:contain;margin:0 auto 8px;display:block}
+  .lh .rep{font-family:'Nunito',sans-serif;font-size:10px;font-weight:800;letter-spacing:.32em;text-transform:uppercase;color:#7a8e83}
+  .lh .office{font-family:'Varela Round',sans-serif;font-size:21px;color:#142a1d;margin-top:7px;letter-spacing:.01em}
+  .lh .sub{font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;letter-spacing:.05em;color:#0a7a3a;margin-top:6px;text-transform:uppercase}
+
+  .meta{display:flex;justify-content:space-between;align-items:flex-start;margin-top:20px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:#5b6b62}
+  .meta .ref span,.meta .date span{color:#9aa8a0;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:9.5px;display:block;margin-bottom:2px}
+
+  .salute{margin-top:26px;font-size:15px;font-weight:600;color:#142a1d}
+  p.body{margin-top:13px;font-size:13.4px;line-height:1.85;text-align:justify}
+  .body b,.lead b{color:#0a7a3a}
+  .lead{margin-top:14px;font-size:13.4px;line-height:1.85;text-align:justify}
+
+  .blocktitle{font-family:'Nunito',sans-serif;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:#0a7a3a;margin:22px 0 10px;display:flex;align-items:center;gap:14px}
+  .blocktitle::after{content:"";flex:1;height:1.5px;background:#e3ece7}
+
+  ul.feat{list-style:none;display:grid;gap:9px}
+  ul.feat li{position:relative;padding-left:24px;font-size:13px;line-height:1.6}
+  ul.feat li::before{content:"";position:absolute;left:0;top:7px;width:9px;height:9px;border-radius:3px;background:#009c41}
+  ul.feat li b{font-family:'Nunito',sans-serif;font-weight:800;color:#142a1d}
+
+  .roles{display:grid;gap:9px;margin-top:2px}
+  .role{display:flex;gap:13px;align-items:baseline;font-size:13px;line-height:1.55}
+  .role .tag{font-family:'Nunito',sans-serif;font-weight:900;font-size:11px;color:#0a7a3a;background:#eaf7f0;border:1.5px solid #b3e6c8;border-radius:7px;padding:3px 11px;flex-shrink:0;min-width:104px;text-align:center;letter-spacing:.02em}
+
+  .closing{margin-top:24px;font-size:13.4px;line-height:1.85;text-align:justify}
+  .slogan{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:15px;margin-top:18px;letter-spacing:.02em}
+
+  .sign{margin-top:30px}
+  .sign .line{width:230px;border-bottom:1.4px solid #142a1d;height:30px}
+  .sign .nm{font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;color:#142a1d;margin-top:7px}
+  .sign .ti{font-family:'Nunito',sans-serif;font-weight:700;font-size:11.5px;color:#5b6b62;margin-top:3px}
+
+  .foot{margin-top:auto;padding-top:14px;border-top:1.5px solid #eef2f0;display:flex;justify-content:space-between;align-items:center;font-family:'Nunito',sans-serif;font-size:9.5px;font-weight:700;color:#9aa8a0;letter-spacing:.03em}
+  .foot .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:11px;letter-spacing:.04em}
+
+  @media print{
+    body{background:#fff}
+    .toolbar{display:none}
+    .sheet{margin:0;box-shadow:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button class="pr" onclick="window.print()">
+    <svg viewBox="0 0 16 16"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><path d="M4 12h8v3H4z"/></svg>
+    Print / Save as PDF
+  </button>
+</div>
+
+<div class="sheet">
+
+  <div class="lh">
+    <img class="emblem" src="images/coat-of-arms.png" alt="" onerror="this.style.display='none'">
+    <div class="rep">The Republic of Uganda</div>
+    <div class="office">Office of the Special Presidential Assistant</div>
+    <div class="sub">Press and Mobilisation &middot; State House</div>
+  </div>
+
+  <div class="meta">
+    <div class="ref"><span>Our Ref</span>BGS/ADM/2026/01</div>
+    <div class="date" style="text-align:right"><span>Date</span>4th June, 2026</div>
+  </div>
+
+  <div class="salute">Asalam aleikum Al-Hajj Faruk Kirunda,</div>
+
+  <p class="body">
+    For the past two months, I have been quietly building a system for you, a tool that lets you monitor
+    ghetto activities from the comfort of your office and your home. It is an application that sits on your
+    phone and on the office computer, so the entire structure is always in the palm of your hand.
+  </p>
+
+  <p class="lead">
+    At its heart, the system <b>profiles the ghetto</b>. Every member is profiled with their photo, National
+    Identification Number, location and depot, and is then issued a unique serial number and a QR code that
+    anyone can scan to verify them on the spot.
+  </p>
+
+  <div class="blocktitle">What the system does</div>
+  <ul class="feat">
+    <li><b>Profiles</b> every ghetto beneficiary across all 12 districts of Busoga, organised by district and by depot.</li>
+    <li>Captures the full profile: photo, NIN, sub-county, parish, village, depot and depot leadership role.</li>
+    <li>Tracks disbursements, the SACCO loan advanced at 6% interest, repayable within twelve (12) months.</li>
+    <li>Tracks repayments, outstanding balances and overdue loans, district by district.</li>
+    <li>Generates clean reports per district and per depot, ready to print or export.</li>
+    <li>Issues each beneficiary an export card carrying a working QR code for instant verification.</li>
+    <li>Keeps an audit trail of who did what, and when.</li>
+  </ul>
+
+  <div class="blocktitle">It carries roles, so the right people see the right things</div>
+  <div class="roles">
+    <div class="role"><span class="tag">Administrator</span><span>Yourself, a full view of everything across all 12 districts.</span></div>
+    <div class="role"><span class="tag">RDC</span><span>Oversees activities within their own district.</span></div>
+    <div class="role"><span class="tag">Profiler</span><span>Registers and profiles members in the field.</span></div>
+  </div>
+
+  <p class="closing">
+    I would like to request an appointment to fully present the system to you when you come to Jinja, so you
+    can see it working from end to end. I have also attached a small presentation to usher you into what the
+    system is capable of.
+  </p>
+
+  <div class="slogan">Together we can.</div>
+
+  <div class="sign">
+    <div class="line"></div>
+    <div class="nm">Fatume Shariff Alui</div>
+    <div class="ti">Administrator, Office of the Special Presidential Assistant</div>
+  </div>
+
+  <div class="foot">
+    <span class="bar">Together We Can</span>
+    <span>Busoga Ghetto Structure &middot; Presidential Empowerment Fund (Busoga Pilot)</span>
+  </div>
+
+</div>
+
+</body>
+</html>
