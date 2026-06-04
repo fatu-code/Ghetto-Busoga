@@ -85,6 +85,33 @@
       .content{padding:18px}
       .right-stack{display:grid;gap:18px}
 
+      /* Repayment donut ring */
+      .ring-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px}
+      .ring-wrap{position:relative;width:168px;height:168px;margin:10px auto 2px}
+      .ring-svg{width:168px;height:168px;transform:rotate(-90deg)}
+      .ring-bg{fill:none;stroke:var(--bg);stroke-width:12}
+      .ring-fg{fill:none;stroke:var(--green);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1.2s var(--ease)}
+      .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+      .ring-pct{font-family:var(--font);font-size:2.05rem;color:var(--text);line-height:1}
+      .ring-lbl{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
+      .ring-foot{display:flex;justify-content:space-around;margin-top:14px;font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted)}
+      .ring-foot b{color:var(--text);margin-left:5px;font-weight:900}
+      .ring-foot .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+      .ring-foot .dot.green{background:var(--green)}
+      .ring-foot .dot.grey{background:var(--border)}
+
+      /* Soft shimmer drifting across the hero band */
+      .hero::before{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);transform:skewX(-18deg);pointer-events:none;animation:heroShimmer 6.5s ease-in-out infinite}
+      @keyframes heroShimmer{0%{left:-60%}60%{left:135%}100%{left:135%}}
+
+      /* Gentle pulse on the 'All clear' status */
+      .alerts-status{display:inline-flex;align-items:center;gap:7px}
+      .pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--green);position:relative;flex-shrink:0}
+      .pulse-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--green);animation:pulseRing 1.9s ease-out infinite}
+      @keyframes pulseRing{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.8);opacity:0}}
+
+      @media (prefers-reduced-motion:reduce){.hero::before,.pulse-dot::after,.ring-fg{animation:none;transition:none}}
+
       @media (max-width:900px){
         .grid-main{grid-template-columns:1fr}
         .metrics-section{grid-template-columns:1fr 1fr}
@@ -220,11 +247,30 @@
 
               <!-- RIGHT SIDEBAR -->
               <div class="right-stack">
+                <!-- REPAYMENT RING -->
+                <div class="ring-card" id="repayCard">
+                  <div class="card-head-alt"><div class="card-title-alt">Repayment progress</div></div>
+                  <div class="ring-wrap">
+                    <svg class="ring-svg" viewBox="0 0 168 168">
+                      <circle class="ring-bg" cx="84" cy="84" r="72"></circle>
+                      <circle class="ring-fg" id="repayRing" cx="84" cy="84" r="72"></circle>
+                    </svg>
+                    <div class="ring-center">
+                      <div class="ring-pct" id="repayRingPct">0%</div>
+                      <div class="ring-lbl">repaid</div>
+                    </div>
+                  </div>
+                  <div class="ring-foot">
+                    <div><span class="dot green"></span>Repaid <b id="ringRepaid">—</b></div>
+                    <div><span class="dot grey"></span>Due <b id="ringDue">—</b></div>
+                  </div>
+                </div>
+
                 <!-- ALERTS -->
                 <div class="alerts-section" style="margin-bottom:0">
                   <div class="alerts-title">
                     <span>Alerts & flags</span>
-                    <span class="alerts-status">All clear</span>
+                    <span class="alerts-status"><span class="pulse-dot"></span>All clear</span>
                   </div>
                   <div class="alert-list">
                     <div class="alert-item">
@@ -296,6 +342,8 @@
           const tile = document.getElementById(id)?.closest('.metric-tile');
           if (tile) tile.style.display = 'none';
         });
+        const rc = document.getElementById('repayCard');
+        if (rc) rc.style.display = 'none';
       }
 
       // Greet by the given name only (names are stored surname-first, so the
@@ -386,6 +434,18 @@
           document.getElementById('mtRepaidSub').textContent        = disbursed ? `${repaidPct}% of UGX ${compact(totalDue)} due` : ' ';
           animateCount(document.getElementById('mtOutstanding'), outstanding, compact);
           document.getElementById('mtOutstandingSub').textContent   = overdue ? `${overdue} overdue` : 'on track';
+
+          // Repayment donut ring (repaid vs total due)
+          const ring = document.getElementById('repayRing');
+          if (ring) {
+            const C = 2 * Math.PI * 72;
+            ring.style.strokeDasharray = C;
+            ring.style.strokeDashoffset = C;
+            requestAnimationFrame(() => { ring.style.strokeDashoffset = C * (1 - Math.min(100, repaidPct) / 100); });
+            animateCount(document.getElementById('repayRingPct'), repaidPct, v => v + '%');
+            document.getElementById('ringRepaid').textContent = 'UGX ' + compact(repaid);
+            document.getElementById('ringDue').textContent    = 'UGX ' + compact(totalDue);
+          }
 
           // District bars (by beneficiary count)
           const dl  = document.getElementById('districtList');
