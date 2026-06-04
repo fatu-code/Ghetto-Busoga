@@ -274,6 +274,15 @@
       Auth.require();
       buildSidebar('dashboard');
 
+      // Role-aware dashboard. Profilers never see money; scoped users see one district.
+      const _acc = accessOf(Auth.get());
+      if (!_acc.canSeeMoney) {
+        ['mtDisbursed', 'mtRepaid', 'mtOutstanding'].forEach(id => {
+          const tile = document.getElementById(id)?.closest('.metric-tile');
+          if (tile) tile.style.display = 'none';
+        });
+      }
+
       function updateGreeting() {
         const user = Auth.get();
         const userName = user?.name?.trim() || 'Al-Hajj Faruk Kirunda';
@@ -285,8 +294,11 @@
         if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
         if (hour >= 18) greeting = 'Good evening';
 
+        const scope = _acc.scoped
+          ? (DISTRICTS.find(d => d.code === _acc.district)?.name || _acc.district || 'Busoga')
+          : 'Busoga · All 12 Districts';
         document.getElementById('greetingText').textContent = `${greeting}, ${userName}`;
-        document.getElementById('greetingDate').textContent = `${day}, ${date} · Busoga · All 12 Districts`;
+        document.getElementById('greetingDate').textContent = `${day}, ${date} · ${scope}`;
       }
 
       // Compact UGX: 12,400,000 -> "12.4M", 750,000 -> "750K"

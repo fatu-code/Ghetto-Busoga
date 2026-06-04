@@ -52,7 +52,7 @@
         </div>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-green" onclick="openModal('addModal')">
+        <button class="btn btn-green" id="registerBtn" onclick="openModal('addModal')">
           <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
           <span class="mob-hide">Register Beneficiary</span>
         </button>
@@ -196,6 +196,12 @@
 <script>
 Auth.require();
 buildSidebar('members');
+
+// View-only roles (RDC) cannot register. Money is stripped by the backend for
+// profilers, so the funded directory is simply empty for them while depot
+// rosters still work. Scoped roles are locked to their own district below.
+const _acc = accessOf(Auth.get());
+if (!_acc.canWrite) { const rb = document.getElementById('registerBtn'); if (rb) rb.style.display = 'none'; }
 
 let allMembers = [], currentPage = 1, totalPages = 1, totalCount = 0;
 // Show every beneficiary on one page — no pagination, just scroll.
@@ -458,6 +464,14 @@ async function saveMember() {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Register & Generate QR';
   }
+}
+
+// Scoped users (RDC / Profiler) are locked to their own district everywhere.
+if (_acc.scoped) {
+  const fd = document.getElementById('filterDistrict');
+  if (fd) { fd.value = _acc.district; fd.disabled = true; }
+  const md = document.getElementById('mDistrict');
+  if (md) { md.value = _acc.district; md.disabled = true; updateSubCountyOptions(); }
 }
 
 loadMembers();

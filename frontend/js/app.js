@@ -53,7 +53,50 @@ const Auth = {
     }
     return u;
   },
+  // Page-level guard: bounce a signed-in user away from a page their role
+  // may not open. (The backend enforces the real rules; this is just UX.)
+  guard(allowedRoles, redirect = "dashboard.html") {
+    const u = this.require();
+    if (!u) return null;
+    const role = accessOf(u).role;
+    if (!allowedRoles.includes(role)) {
+      window.location.href = redirect;
+      return null;
+    }
+    return u;
+  },
 };
+
+// ── ROLE ACCESS (mirrors the backend) ────────────────────────────────
+// admin = full · rdc = view-only, one district · profiler = register, one
+// district, never sees money. Unknown/legacy roles are treated as admin.
+function accessOf(user) {
+  const role = (user && user.role) || "admin";
+  const isRDC = role === "rdc";
+  const isProfiler = role === "profiler";
+  const isAdmin = !isRDC && !isProfiler;
+  return {
+    role: isAdmin ? "admin" : role,
+    isAdmin,
+    isRDC,
+    isProfiler,
+    district: (user && user.district) || null,
+    scoped: isRDC || isProfiler,
+    canSeeMoney: !isProfiler,
+    canWrite: isAdmin || isProfiler,
+    canDisburse: isAdmin,
+    canDelete: isAdmin,
+  };
+}
+// Friendly label for a role, e.g. "RDC · Jinja City".
+function roleLabel(user) {
+  const acc = accessOf(user);
+  if (acc.isAdmin) return "Administrator";
+  const d = DISTRICTS.find((x) => x.code === acc.district);
+  const dn = d ? d.name : acc.district || "";
+  const base = acc.isRDC ? "RDC" : "Profiler";
+  return dn ? `${base} · ${dn}` : base;
+}
 
 // ── API FETCH ────────────────────────────────────────────────────────
 async function apiFetch(path, options = {}) {
@@ -81,53 +124,64 @@ async function apiFetch(path, options = {}) {
 }
 
 // ── SIDEBAR BUILDER ──────────────────────────────────────────────────
+// `roles` controls which roles see the nav item. Everyone is signed in;
+// the backend still enforces the real access rules.
+const ALL_ROLES = ["admin", "rdc", "profiler"];
 const NAV_ITEMS = [
   {
     id: "dashboard",
     label: "Dashboard",
     href: "dashboard.html",
+    roles: ALL_ROLES,
     icon: '<svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>',
   },
   {
     id: "members",
     label: "Beneficiaries",
     href: "members.html",
+    roles: ["admin", "rdc"],
     icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>',
   },
   {
     id: "depots",
     label: "Depots",
     href: "depots.html",
+    roles: ALL_ROLES,
     icon: '<svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg>',
   },
   {
     id: "repayments",
     label: "Repayments",
     href: "repayments.html",
+    roles: ["admin", "rdc"],
     icon: '<svg viewBox="0 0 16 16"><path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5"/></svg>',
   },
   {
     id: "reports",
     label: "Reports",
     href: "reports.html",
+    roles: ["admin", "rdc"],
     icon: '<svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M5.5 8h5M5.5 10.5h5M5.5 5.5h3"/></svg>',
   },
   {
     id: "staff",
     label: "Manage Users",
     href: "users.html",
+    roles: ["admin"],
     icon: '<svg viewBox="0 0 16 16"><circle cx="5.5" cy="5" r="2.3"/><path d="M1.5 13c0-2.4 1.8-4 4-4s4 1.6 4 4"/><circle cx="11.5" cy="5.5" r="1.8"/><path d="M10 9.2c2 .1 3.4 1.5 3.4 3.8"/></svg>',
   },
   {
     id: "audit",
     label: "Audit Log",
     href: "audit.html",
+    roles: ["admin"],
     icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
   },
   {
     id: "settings",
     label: "Settings",
     href: "settings.html",
+    roles: ALL_ROLES,
     icon: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v1.7M8 12.8v1.7M14.5 8h-1.7M3.2 8H1.5M12.6 3.4l-1.2 1.2M4.6 11.4l-1.2 1.2M12.6 12.6l-1.2-1.2M4.6 4.6L3.4 3.4"/></svg>',
   },
 ];
@@ -136,6 +190,7 @@ function buildSidebar(active) {
   const el = document.getElementById("sidebar");
   if (!el) return;
   const user = Auth.get();
+  const role = accessOf(user).role;
 
   el.innerHTML = `
     <div class="sb-logo">
@@ -150,16 +205,18 @@ function buildSidebar(active) {
       <div class="sb-avatar">${initials(user?.name || "HK")}</div>
       <div style="flex:1;min-width:0">
         <div class="sb-user-name">${user?.name || "Al-Hajj Faruk Kirunda"}</div>
-        <div class="sb-user-role">${user?.role === "admin" ? "National Coordinator" : "Staff"}</div>
+        <div class="sb-user-role">${roleLabel(user)}</div>
       </div>
       <div class="sb-online"></div>
     </div>
     <div class="sb-nav">
       ${(() => {
-        const adminIds = new Set(["staff", "audit", "settings"]);
+        // Section a nav item falls under in the sidebar.
+        const sectionOf = (id) =>
+          id === "settings" ? "Account" : (id === "staff" || id === "audit") ? "Admin" : "Navigation";
         let out = "", last = null;
-        NAV_ITEMS.forEach((item) => {
-          const sec = adminIds.has(item.id) ? "Admin" : "Navigation";
+        NAV_ITEMS.filter((item) => item.roles.includes(role)).forEach((item) => {
+          const sec = sectionOf(item.id);
           if (sec !== last) { out += `<div class="nav-section">${sec}</div>`; last = sec; }
           out += `
         <a href="${item.href}" class="nav-item${active === item.id ? " active" : ""}">

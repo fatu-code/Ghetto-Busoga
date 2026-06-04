@@ -64,9 +64,17 @@
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label" id="uPwLabel">Password *</label><input class="form-input" id="uPassword" type="password" autocomplete="new-password"></div>
-        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="uRole"><option value="staff">Staff</option><option value="admin">Administrator</option></select></div>
+        <div class="form-group"><label class="form-label">Role</label><select class="form-select" id="uRole" onchange="toggleDistrict()"><option value="profiler">Profiler</option><option value="rdc">RDC</option><option value="admin">Administrator</option></select></div>
       </div>
-      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Administrators can manage staff and all records. Staff can register and disburse but cannot manage accounts.</div>
+      <div class="form-row" id="uDistrictWrap">
+        <div class="form-group"><label class="form-label">Assigned District *</label><select class="form-select" id="uDistrict"><option value="">Select district</option></select></div>
+        <div class="form-group"></div>
+      </div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.6">
+        <strong>Administrator</strong> — full access, all 12 districts.<br>
+        <strong>RDC</strong> — view-only oversight of one district.<br>
+        <strong>Profiler</strong> — registers people in one district, never sees money.
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal('userModal')">Cancel</button>
@@ -82,12 +90,25 @@
 
 <script src="js/app.js"></script>
 <script>
-Auth.require();
+Auth.guard(['admin'], 'depots.html');
 buildSidebar('staff');
 const me = Auth.get() || {};
 let users = [], editId = null;
 
-function roleLabel(r) { return r === 'admin' ? 'Administrator' : 'Staff'; }
+// Fill the assigned-district dropdown.
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('uDistrict').appendChild(o);
+});
+
+function roleName(r) { return r === 'admin' ? 'Administrator' : r === 'rdc' ? 'RDC' : 'Profiler'; }
+function districtName(code) { const d = DISTRICTS.find(x => x.code === code); return d ? d.name : (code || ''); }
+// Admins have no district; show the picker only for RDC / Profiler.
+function toggleDistrict() {
+  const isAdmin = document.getElementById('uRole').value === 'admin';
+  document.getElementById('uDistrictWrap').style.display = isAdmin ? 'none' : '';
+}
 
 async function loadUsers() {
   try {
@@ -117,7 +138,10 @@ function render() {
       <tr>
         <td><div style="display:flex;align-items:center;gap:10px"><div class="u-av">${initials(u.name)}</div><div style="font-weight:800">${u.name}${u.id === me.id ? ' <span style="color:var(--muted);font-weight:600">(you)</span>' : ''}</div></div></td>
         <td style="color:var(--muted)">@${u.username}</td>
-        <td><span class="pill ${u.role === 'admin' ? 'pill-green' : 'pill-gray'}">${roleLabel(u.role)}</span></td>
+        <td>
+          <span class="pill ${u.role === 'admin' ? 'pill-green' : u.role === 'rdc' ? 'pill-amber' : 'pill-gray'}">${roleName(u.role)}</span>
+          ${u.district ? `<div style="font-size:.68rem;color:var(--muted);margin-top:4px;font-weight:700">${districtName(u.district)}</div>` : ''}
+        </td>
         <td style="color:var(--muted)">${formatDate(u.created_at)}</td>
         <td style="text-align:right;white-space:nowrap">
           <button class="btn btn-sm" onclick="openEdit(${u.id})">Edit</button>
@@ -136,7 +160,9 @@ function openAdd() {
   document.getElementById('uPassword').value = '';
   document.getElementById('uPassword').placeholder = 'At least 6 characters';
   document.getElementById('uPwLabel').textContent = 'Password *';
-  document.getElementById('uRole').value = 'staff';
+  document.getElementById('uRole').value = 'profiler';
+  document.getElementById('uDistrict').value = '';
+  toggleDistrict();
   openModal('userModal');
 }
 function openEdit(id) {
@@ -149,7 +175,9 @@ function openEdit(id) {
   document.getElementById('uPassword').value = '';
   document.getElementById('uPassword').placeholder = 'Leave blank to keep current';
   document.getElementById('uPwLabel').textContent = 'New Password';
-  document.getElementById('uRole').value = u.role === 'admin' ? 'admin' : 'staff';
+  document.getElementById('uRole').value = ['admin', 'rdc', 'profiler'].includes(u.role) ? u.role : 'profiler';
+  document.getElementById('uDistrict').value = u.district || '';
+  toggleDistrict();
   openModal('userModal');
 }
 
@@ -158,20 +186,22 @@ async function saveUser() {
   const username = document.getElementById('uUsername').value.trim().toLowerCase();
   const password = document.getElementById('uPassword').value;
   const role     = document.getElementById('uRole').value;
+  const district = role === 'admin' ? null : document.getElementById('uDistrict').value;
   if (!name || (!editId && !username)) { showToast('Name and username are required', 'error'); return; }
   if (!editId && (!password || password.length < 6)) { showToast('Password must be at least 6 characters', 'error'); return; }
   if (editId && password && password.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+  if (role !== 'admin' && !district) { showToast('Choose the district for this RDC or Profiler', 'error'); return; }
 
   const btn = document.getElementById('uSaveBtn');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
   try {
     if (editId) {
-      const body = { name, role }; if (password) body.password = password;
+      const body = { name, role, district }; if (password) body.password = password;
       await apiFetch(`/api/users/${editId}`, { method: 'PUT', body });
-      showToast('Staff updated');
+      showToast('User updated');
     } else {
-      await apiFetch('/api/users', { method: 'POST', body: { name, username, password, role } });
-      showToast('Staff added');
+      await apiFetch('/api/users', { method: 'POST', body: { name, username, password, role, district } });
+      showToast('User added');
     }
     closeModal('userModal');
     loadUsers();
@@ -185,10 +215,10 @@ async function saveUser() {
 
 async function delUser(id) {
   const u = users.find(x => x.id === id); if (!u) return;
-  if (!confirm(`Delete staff account "${u.name}" (@${u.username})? They will no longer be able to log in.`)) return;
+  if (!confirm(`Delete the account "${u.name}" (@${u.username})? They will no longer be able to log in.`)) return;
   try {
     await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
-    showToast('Staff deleted');
+    showToast('User deleted');
     loadUsers();
   } catch (e) {
     showToast(e.message, 'error');

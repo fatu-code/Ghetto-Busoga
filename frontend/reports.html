@@ -80,7 +80,7 @@ tfoot td{font-weight:900;border-top:2px solid var(--green-mid);background:var(--
 
 <script src="js/app.js"></script>
 <script>
-Auth.require();
+Auth.guard(['admin', 'rdc'], 'depots.html');
 buildSidebar('reports');
 
 DISTRICTS.forEach(d => {

@@ -1,6 +1,9 @@
 Auth.require();
 buildSidebar('members');
 
+// Role gates what this page can do. Backend enforces the real rules.
+const acc = accessOf(Auth.get());
+
 const memberId = new URLSearchParams(window.location.search).get('id');
 if (!memberId) location.href = 'members.html';
 
@@ -26,14 +29,16 @@ async function load() {
     document.getElementById('profileNameBar').textContent = member.name;
     const disb = isDisbursed(member);
     document.getElementById('topbarActions').innerHTML = `
+      ${acc.canDisburse ? `
       <button class="btn ${disb ? '' : 'btn-green'}" onclick="openDisburse()">
         <svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg>
         <span class="mob-hide">${disb ? 'Update Disbursement' : 'Record Disbursement'}</span>
-      </button>
+      </button>` : ''}
+      ${acc.canWrite ? `
       <button class="btn" onclick="openEditModal()">
         <svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg>
         <span class="mob-hide">Edit</span>
-      </button>
+      </button>` : ''}
       <button class="btn" onclick="printAgreement()">
         <svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M9.5 1.5V5h3.5M5.5 8h5M5.5 10.5h5"/></svg>
         <span class="mob-hide">Loan Agreement</span>
@@ -292,9 +297,9 @@ function loanCard() {
       </div>
       <div class="loan-bar"><div class="loan-bar-fill" style="width:${s.pct}%"></div></div>
       <div class="loan-bar-lbl">${s.pct}% repaid</div>
-      <button class="btn btn-green" style="margin-top:14px" onclick="openRepay()">
+      ${acc.canDisburse ? `<button class="btn btn-green" style="margin-top:14px" onclick="openRepay()">
         <svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg> Record Repayment
-      </button>
+      </button>` : ''}
       <div class="rp-head">Repayment history</div>
       <div class="rp-list">${history}</div>
     </div>`;

@@ -71,7 +71,7 @@
 
 <script src="js/app.js"></script>
 <script>
-Auth.require();
+Auth.guard(['admin', 'rdc'], 'depots.html');
 buildSidebar('repayments');
 
 DISTRICTS.forEach(d => {

@@ -92,8 +92,13 @@ let allMembers = [], counts = {}, selected = null;
 // A distinct accent colour per district, to give the grid colour and life.
 const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
 
+// Scoped users (RDC / Profiler) only ever see their own district's depots.
+const _acc = accessOf(Auth.get());
+const DISTS = _acc.scoped ? DISTRICTS.filter(d => d.code === _acc.district) : DISTRICTS;
+
 // Deep-link straight to a district: depots.html?district=JJA
-selected = new URLSearchParams(location.search).get('district') || null;
+// Scoped users land straight inside their own district.
+selected = new URLSearchParams(location.search).get('district') || (_acc.scoped ? _acc.district : null);
 
 async function loadDepots() {
   try {
@@ -129,7 +134,7 @@ function render() {
 }
 
 function renderDistricts() {
-  const tiles = DISTRICTS.map((d, i) => {
+  const tiles = DISTS.map((d, i) => {
     const c  = COLORS[i % COLORS.length];
     const dc = depotsForDistrict(d.code).length;
     const mc = membersIn(d.code);
@@ -147,8 +152,9 @@ function renderDistricts() {
       </div>`;
   }).join('');
   document.getElementById('depotsContainer').innerHTML = `<div class="dist-grid">${tiles}</div>`;
-  document.getElementById('countLabel').textContent =
-    `${DISTRICTS.length} districts · ${fmt(allMembers.length)} members profiled`;
+  document.getElementById('countLabel').textContent = DISTS.length === 1
+    ? `${DISTS[0].name} · ${fmt(allMembers.length)} members profiled`
+    : `${DISTS.length} districts · ${fmt(allMembers.length)} members profiled`;
 }
 
 function renderDepots(code) {
