@@ -219,9 +219,7 @@ function renderDepots(code) {
   const cards = depots.map(dep => {
     const cnt = counts[code + '||' + dep] || 0;
     const rec = depotRecord(code, dep);
-    const loc = rec && (rec.sub_county || rec.parish)
-      ? [rec.sub_county, rec.parish].filter(Boolean).join(' · ')
-      : d.name;
+    const loc = (rec && rec.sub_county) ? rec.sub_county : d.name;
     return `
       <div class="depot-card" style="border-top:3px solid ${col}" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
         <div class="depot-top">
