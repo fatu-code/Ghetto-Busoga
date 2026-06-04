@@ -199,7 +199,7 @@ function buildSidebar(active) {
         <span style="background:#b3e6c8"></span>
         <span style="background:#eaf7f0"></span>
       </div>
-      <div class="logo-name">BGS <em>Busoga</em></div>
+      <div class="logo-name">Busoga <em>Ghetto Structure</em></div>
     </div>
     <div class="sb-user">
       <div class="sb-avatar">${initials(user?.name || "HK")}</div>
