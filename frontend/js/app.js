@@ -228,7 +228,7 @@ function buildSidebar(active) {
       })()}
     </div>
     <div class="sb-bottom">
-      <div class="sb-bottom-text">A programme by<br><strong>State House Uganda</strong></div>
+      <div class="sb-bottom-text">Presidential Empowerment Fund<br><strong>Busoga Pilot</strong></div>
       <button class="sb-logout" onclick="logout()">
         <svg viewBox="0 0 16 16"><path d="M10 8H2M7 5l-3 3 3 3"/><path d="M6 3H13a1 1 0 011 1v8a1 1 0 01-1 1H6"/></svg>
         Sign Out
