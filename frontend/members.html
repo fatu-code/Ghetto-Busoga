@@ -34,6 +34,14 @@
 .lead-name{font-family:var(--font2);font-weight:800;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lead-card:not(.filled) .lead-name{color:var(--muted);font-weight:700}
 .lead-role{font-family:var(--font2);font-size:.62rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+/* Depot "More actions" dropdown */
+.depot-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:60;min-width:172px;overflow:hidden}
+.depot-menu button{display:flex;width:100%;align-items:center;gap:9px;padding:11px 14px;background:none;border:none;font-family:var(--font2);font-size:.8rem;font-weight:700;color:var(--text);cursor:pointer;text-align:left}
+.depot-menu button + button{border-top:1px solid var(--border)}
+.depot-menu button:hover{background:var(--green-pale)}
+.depot-menu button.danger{color:#c0392b}
+.depot-menu button.danger:hover{background:#fdecec}
+.depot-menu svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -188,6 +196,33 @@
   </div>
 </div>
 
+<!-- EDIT DEPOT MODAL -->
+<div class="modal-bg" id="depotEditModal">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-head">
+      <div class="modal-title">Edit Depot</div>
+      <button class="modal-close" onclick="closeModal('depotEditModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">District</label><input class="form-input" id="deDistrict" disabled></div>
+      <div class="form-group"><label class="form-label">Depot Name *</label><input class="form-input" id="deName"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Sub-County</label>
+          <select class="form-select" id="deSub" onchange="updateDeParishes()"><option value="">Select</option></select></div>
+        <div class="form-group"><label class="form-label">Parish</label>
+          <select class="form-select" id="deParish"><option value="">Select</option></select></div>
+      </div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Renaming the depot updates it for everyone already registered in it.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('depotEditModal')">Cancel</button>
+      <button class="btn btn-green" id="deSaveBtn" onclick="saveDepotEdit()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="js/app.js"></script>
@@ -239,7 +274,17 @@ if (depotFilter) {
   const banner = document.createElement('div');
   banner.className = 'card';
   banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:13px 16px';
-  banner.innerHTML = `<div><div style="font-weight:800;color:var(--text)">Depot roster: <span style="color:var(--green)">${depotFilter}</span></div><div style="font-weight:600;color:var(--muted);font-size:.76rem;margin-top:2px">Members profiled under this depot. New registrations are added here.</div></div><a href="members.html" class="btn btn-sm">View all</a>`;
+  const moreActions = _acc.isAdmin ? `
+    <div style="position:relative">
+      <button class="btn btn-sm" onclick="toggleDepotMenu(event)">More actions
+        <svg viewBox="0 0 16 16" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 6l4 4 4-4"/></svg>
+      </button>
+      <div class="depot-menu" id="depotMenu" style="display:none">
+        <button onclick="openDepotEdit()"><svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg> Edit depot</button>
+        <button class="danger" onclick="deleteDepotRoster()"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot</button>
+      </div>
+    </div>` : '';
+  banner.innerHTML = `<div><div style="font-weight:800;color:var(--text)">Depot roster: <span style="color:var(--green)">${titleCase(depotFilter)}</span></div><div style="font-weight:600;color:var(--muted);font-size:.76rem;margin-top:2px">Members profiled under this depot. New registrations are added here.</div></div><div style="display:flex;align-items:center;gap:8px">${moreActions}<a href="members.html" class="btn btn-sm">View all</a></div>`;
   const c = document.getElementById('membersContainer');
   c.parentNode.insertBefore(banner, c);
 }
@@ -479,6 +524,95 @@ async function saveMember() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>Register & Generate QR';
+  }
+}
+
+// ── DEPOT ACTIONS (admin, inside the depot roster) ─────────────────
+function toggleDepotMenu(e) {
+  e.stopPropagation();
+  const m = document.getElementById('depotMenu');
+  if (m) m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+function closeDepotMenu() { const m = document.getElementById('depotMenu'); if (m) m.style.display = 'none'; }
+document.addEventListener('click', closeDepotMenu);
+
+function updateDeSubCounties() {
+  const subs = (typeof LOCATIONS !== 'undefined' && LOCATIONS[districtParam] && Object.keys(LOCATIONS[districtParam])) || [];
+  document.getElementById('deSub').innerHTML =
+    '<option value="">Select sub-county</option>' + subs.map(s => `<option>${s}</option>`).join('');
+  updateDeParishes();
+}
+function updateDeParishes() {
+  const sub = document.getElementById('deSub').value;
+  const parishes = (typeof LOCATIONS !== 'undefined' && LOCATIONS[districtParam] && LOCATIONS[districtParam][sub]) || [];
+  document.getElementById('deParish').innerHTML =
+    '<option value="">Select parish</option>' + parishes.map(p => `<option>${p}</option>`).join('');
+}
+function deSet(sel, val) {
+  if (!sel) return;
+  if (val && ![...sel.options].some(o => o.value === val || o.textContent === val)) {
+    sel.insertAdjacentHTML('beforeend', `<option>${val}</option>`);
+  }
+  sel.value = val || '';
+}
+
+function openDepotEdit() {
+  closeDepotMenu();
+  const rec = depotRecord(districtParam, depotFilter);
+  document.getElementById('deDistrict').value = (DISTRICTS.find(d => d.code === districtParam) || {}).name || districtParam;
+  document.getElementById('deName').value = depotFilter;
+  updateDeSubCounties();
+  deSet(document.getElementById('deSub'), rec ? rec.sub_county : '');
+  updateDeParishes();
+  deSet(document.getElementById('deParish'), rec ? rec.parish : '');
+  openModal('depotEditModal');
+}
+
+async function saveDepotEdit() {
+  const name       = document.getElementById('deName').value.trim();
+  const sub_county = document.getElementById('deSub').value.trim();
+  const parish     = document.getElementById('deParish').value.trim();
+  if (!name) { showToast('Depot name is required', 'error'); return; }
+  const rec = depotRecord(districtParam, depotFilter);
+  const btn = document.getElementById('deSaveBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    if (rec) {
+      await apiFetch(`/api/depots/${rec.id}`, { method: 'PUT', body: { name, sub_county, parish } });
+    } else {
+      const dn = (DISTRICTS.find(d => d.code === districtParam) || {}).name || districtParam;
+      await apiFetch('/api/depots', { method: 'POST', body: { district: districtParam, district_name: dn, name, sub_county, parish } });
+    }
+    await loadDepotsDB();
+    closeModal('depotEditModal');
+    showToast('Depot updated');
+    if (name !== depotFilter) {
+      location.href = `members.html?district=${districtParam}&depot=${encodeURIComponent(name)}`;
+    } else {
+      loadMembers();
+    }
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save';
+  }
+}
+
+async function deleteDepotRoster() {
+  closeDepotMenu();
+  const count = allMembers.length;
+  const dn = (DISTRICTS.find(d => d.code === districtParam) || {}).name || districtParam;
+  const msg = count > 0
+    ? `Delete depot "${titleCase(depotFilter)}" in ${dn}?\n\nThis permanently removes the depot AND its ${count} beneficiar${count === 1 ? 'y' : 'ies'}. This cannot be undone.`
+    : `Delete depot "${titleCase(depotFilter)}" in ${dn}?`;
+  if (!confirm(msg)) return;
+  try {
+    await apiFetch('/api/depots/clear', { method: 'POST', body: { district: districtParam, name: depotFilter } });
+    showToast('Depot deleted');
+    setTimeout(() => location.href = `depots.html?district=${districtParam}`, 700);
+  } catch (e) {
+    showToast(e.message, 'error');
   }
 }
 

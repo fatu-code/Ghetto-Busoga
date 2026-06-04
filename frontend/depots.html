@@ -216,16 +216,8 @@ function renderDepots(code) {
     const loc = rec && (rec.sub_county || rec.parish)
       ? [rec.sub_county, rec.parish].filter(Boolean).join(' · ')
       : d.name;
-    const editBtn = (_acc.isAdmin && rec)
-      ? `<button class="dp-edit" title="Edit depot" onclick="event.stopPropagation();openDepotForm(${rec.id})"><svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg></button>`
-      : '';
-    const depArg = dep.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-    const delBtn = _acc.isAdmin
-      ? `<button class="dp-del" title="Delete depot" onclick="event.stopPropagation();clearDepot('${code}','${depArg}',${cnt})"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg></button>`
-      : '';
     return `
-      <div class="depot-card" style="border-top:3px solid ${col};position:relative" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
-        ${editBtn}${delBtn}
+      <div class="depot-card" style="border-top:3px solid ${col}" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
         <div class="depot-top">
           <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
           <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
@@ -321,24 +313,6 @@ async function saveDepot() {
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Save Depot';
-  }
-}
-
-// Delete a depot AND everyone registered in it (works for legacy/hardcoded
-// depots too, which only exist because seeded test members point at them).
-async function clearDepot(code, name, count) {
-  const dn = (DISTRICTS.find(x => x.code === code) || {}).name || code;
-  const msg = count > 0
-    ? `Delete depot "${titleCase(name)}" in ${dn}?\n\nThis permanently removes the depot AND its ${count} beneficiar${count === 1 ? 'y' : 'ies'}. This cannot be undone.`
-    : `Delete depot "${titleCase(name)}" in ${dn}?`;
-  if (!confirm(msg)) return;
-  try {
-    const r = await apiFetch('/api/depots/clear', { method: 'POST', body: { district: code, name } });
-    await loadDepotsDB();
-    loadDepots(); // reloads members + re-renders
-    showToast(`Depot deleted${r.membersDeleted ? ` with ${r.membersDeleted} member${r.membersDeleted === 1 ? '' : 's'}` : ''}`);
-  } catch (e) {
-    showToast(e.message, 'error');
   }
 }
 
