@@ -25,6 +25,26 @@
 .dbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid var(--border)}
 .dbar .dn{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.95rem}
 .dbar .dmeta{font-family:var(--font2);font-size:.7rem;font-weight:700;color:var(--muted)}
+
+/* ── MOBILE: turn each loan row into a clean card (no sideways scroll) ── */
+@media (max-width:600px){
+  .sum-grid{gap:10px}
+  .sum-v{font-size:1.15rem}
+  .dbar{align-items:flex-start}
+  .dbar .dmeta{font-size:.66rem}
+  .dsec .card{background:transparent;border:none;box-shadow:none}
+  .dsec .table-wrap{overflow:visible}
+  .dsec table{min-width:0}
+  .dsec thead{display:none}
+  .dsec tbody,.dsec tr,.dsec td{display:block}
+  .dsec tbody tr{background:#fff;border:1.5px solid var(--border);border-radius:13px;padding:13px 15px;margin-bottom:10px}
+  .dsec tbody tr:hover{background:#fff}
+  .dsec td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;border:none;text-align:right}
+  .dsec td::before{content:attr(data-label);font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);text-align:left;flex-shrink:0}
+  .dsec td:first-child{display:block;text-align:left;padding:0 0 10px;margin-bottom:8px;border-bottom:1px solid var(--border)}
+  .dsec td:first-child::before{display:none}
+  .dsec td:last-child{padding-bottom:0}
+}
 </style>
 </head>
 <body>
@@ -141,13 +161,13 @@ function render() {
 
   const rowHtml = L => `
     <tr class="clickable" onclick="location.href='member.html?id=${L.m.id}'">
-      <td><div style="font-weight:800">${L.m.name}</div><div style="font-family:var(--font);color:var(--green);font-size:.72rem">${L.m.id}</div></td>
-      <td style="color:var(--muted)">${L.m.depot}</td>
-      <td class="r-money">UGX ${fmt(L.totalDue)}</td>
-      <td class="r-money" style="color:var(--green)">UGX ${fmt(L.repaid)}</td>
-      <td class="r-money" style="color:${L.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(L.outstanding)}</td>
-      <td style="color:var(--muted)">${L.due ? formatDate(L.due) : '-'}</td>
-      <td><span class="lp ${L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep'}">${L.status}</span></td>
+      <td data-label="Beneficiary"><div style="font-weight:800">${L.m.name}</div><div style="font-family:var(--font);color:var(--green);font-size:.72rem">${L.m.id}</div></td>
+      <td data-label="Depot" style="color:var(--muted)">${L.m.depot}</td>
+      <td data-label="Total Due" class="r-money">UGX ${fmt(L.totalDue)}</td>
+      <td data-label="Repaid" class="r-money" style="color:var(--green)">UGX ${fmt(L.repaid)}</td>
+      <td data-label="Outstanding" class="r-money" style="color:${L.outstanding > 0 ? '#c0392b' : 'var(--green)'}">UGX ${fmt(L.outstanding)}</td>
+      <td data-label="Due" style="color:var(--muted)">${L.due ? formatDate(L.due) : '-'}</td>
+      <td data-label="Status"><span class="lp ${L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep'}">${L.status}</span></td>
     </tr>`;
 
   // Categorised by district: one section per district that has loans.
