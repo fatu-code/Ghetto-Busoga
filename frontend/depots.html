@@ -53,6 +53,28 @@
 .dp-del{right:10px}
 .dp-del:hover{border-color:#f5b7b1;background:#fdecec}
 .dp-del:hover svg{stroke:#c0392b}
+
+/* Hero */
+.dp-hero{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);border-radius:18px;padding:20px 24px;margin-bottom:16px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;overflow:hidden;flex-wrap:wrap}
+.dp-hero::after{content:"";position:absolute;right:-50px;top:-70px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.05)}
+.dp-hero::before{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);transform:skewX(-18deg);pointer-events:none;animation:dpShimmer 6.5s ease-in-out infinite}
+@keyframes dpShimmer{0%{left:-60%}60%{left:135%}100%{left:135%}}
+.dp-hero-l{display:flex;align-items:center;gap:14px;position:relative;min-width:0}
+.dp-hero-ic{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dp-hero-ic svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dp-hero-t{font-family:var(--font);font-size:1.3rem;color:#fff;line-height:1.1}
+.dp-hero-s{font-family:var(--font2);font-size:.74rem;font-weight:600;color:rgba(255,255,255,.6);margin-top:3px}
+.dp-hero-fig{display:flex;gap:22px;text-align:right;position:relative}
+.dp-hero-fig span{display:block;font-family:var(--font2);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5);margin-bottom:3px}
+.dp-hero-fig b{font-family:var(--font);font-size:1.5rem;font-weight:400}
+
+/* Entrance */
+@keyframes dpRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.dist-tile{animation:dpRise .45s var(--ease) backwards}
+.dist-tile:nth-child(1){animation-delay:.03s}.dist-tile:nth-child(2){animation-delay:.06s}.dist-tile:nth-child(3){animation-delay:.09s}.dist-tile:nth-child(4){animation-delay:.12s}.dist-tile:nth-child(5){animation-delay:.15s}.dist-tile:nth-child(6){animation-delay:.18s}
+.depot-card{animation:dpRise .4s var(--ease) backwards}
+.depot-card:nth-child(1){animation-delay:.03s}.depot-card:nth-child(2){animation-delay:.06s}.depot-card:nth-child(3){animation-delay:.09s}.depot-card:nth-child(4){animation-delay:.12s}
+@media (prefers-reduced-motion:reduce){.dp-hero::before{animation:none}.dist-tile,.depot-card{animation:none}}
 </style>
 </head>
 <body>
@@ -83,6 +105,7 @@
     </div>
 
     <div class="content">
+      <div id="depotHero"></div>
       <div id="depotsContainer">
         <div class="card"><div class="empty-state"><div class="empty-title">Loading…</div></div></div>
       </div>
@@ -133,7 +156,7 @@
 Auth.require();
 buildSidebar('depots');
 
-let allMembers = [], counts = {}, selected = null;
+let allMembers = [], counts = {}, selected = null, dpIntro = false;
 
 // A distinct accent colour per district, to give the grid colour and life.
 const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
@@ -175,8 +198,48 @@ function select(code) {
 }
 
 function render() {
+  setHero();
   if (DISTRICTS.find(d => d.code === selected)) renderDepots(selected);
   else { selected = null; renderDistricts(); }
+  if (!dpIntro) {
+    dpIntro = true;
+    requestAnimationFrame(() => document.querySelectorAll('.cup').forEach(animateUp));
+  }
+}
+
+// Green page hero with the depot + member totals (scoped to the user's district).
+function setHero() {
+  const totalDepots  = DISTS.reduce((s, d) => s + depotsForDistrict(d.code).length, 0);
+  const totalMembers = DISTS.reduce((s, d) => s + membersIn(d.code), 0);
+  const scoped = _acc.scoped;
+  document.getElementById('depotHero').innerHTML = `
+    <div class="dp-hero">
+      <div class="dp-hero-l">
+        <div class="dp-hero-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
+        <div>
+          <div class="dp-hero-t">${scoped ? (DISTS[0] ? DISTS[0].name : 'Depots') : 'Depot Network'}</div>
+          <div class="dp-hero-s">Ghetto cells${scoped ? '' : ' across Busoga'}, organised by district</div>
+        </div>
+      </div>
+      <div class="dp-hero-fig">
+        <div><span>Depots</span><b class="cup" data-to="${totalDepots}">${totalDepots}</b></div>
+        <div><span>Members</span><b class="cup" data-to="${totalMembers}">${fmt(totalMembers)}</b></div>
+        ${scoped ? '' : `<div><span>Districts</span><b class="cup" data-to="${DISTS.length}">${DISTS.length}</b></div>`}
+      </div>
+    </div>`;
+}
+
+// Count a number up from zero on first load.
+function animateUp(el) {
+  const to = Number(el.dataset.to) || 0;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = fmt(to); return; }
+  const dur = 850, start = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = fmt(Math.round(to * e));
+    if (p < 1) requestAnimationFrame(tick); else el.textContent = fmt(to);
+  }
+  requestAnimationFrame(tick);
 }
 
 function renderDistricts() {
@@ -195,8 +258,8 @@ function renderDistricts() {
           <div class="dt-go"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></div>
         </div>
         <div class="dt-stats">
-          <div class="dt-stat"><div class="v">${dc}</div><div class="l">Depots</div></div>
-          <div class="dt-stat"><div class="v" style="color:${c}">${mc}</div><div class="l">Members</div></div>
+          <div class="dt-stat"><div class="v cup" data-to="${dc}">${dc}</div><div class="l">Depots</div></div>
+          <div class="dt-stat"><div class="v cup" data-to="${mc}" style="color:${c}">${fmt(mc)}</div><div class="l">Members</div></div>
         </div>
       </div>`;
   }).join('');
