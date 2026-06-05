@@ -108,6 +108,12 @@
           <div class="topbar-sub" id="countLabel">Loading...</div>
         </div>
       </div>
+      <div class="topbar-right">
+        <button class="btn btn-green" onclick="printReport()">
+          <svg viewBox="0 0 16 16"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><path d="M4 12h8v3H4z"/></svg>
+          <span class="mob-hide">Print for RDC</span>
+        </button>
+      </div>
     </div>
 
     <div class="content">
@@ -148,6 +154,7 @@ DISTRICTS.forEach(d => {
 
 let loans = [];
 let rpIntro = false;
+let lastView = null;
 // A distinct accent colour per district, to match the rest of the app.
 const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
 
@@ -209,6 +216,7 @@ function render() {
     `${fmt(rows.length)} disbursed loan${rows.length === 1 ? '' : 's'}`;
 
   const pct = sumDue ? Math.round((sumRep / sumDue) * 100) : 0;
+  lastView = { rows, sumDue, sumRep, sumOut, overdue, pct };
   const tier = tierFor(pct);
   const nextMs = [25, 50, 75, 100].find(m => m > pct);
   const toNext = !sumDue ? 'No disbursed loans yet'
@@ -307,6 +315,126 @@ function render() {
       });
     });
   }
+}
+
+// Printable district repayment sheet for the RDC to mobilise collections.
+function printReport() {
+  const v = lastView;
+  if (!v || !v.rows.length) { showToast('Nothing to print for this view', 'error'); return; }
+
+  const uniq = [...new Set(v.rows.map(L => L.m.district))];
+  const distName = uniq.length === 1
+    ? ((DISTRICTS.find(d => d.code === uniq[0]) || {}).name || 'District')
+    : 'All 12 Districts';
+  const stat = document.getElementById('filterStatus').value;
+  const statusNote = stat ? ` &middot; Showing ${stat} loans only` : '';
+  const emblem = `${location.origin}/images/coat-of-arms.png`;
+  const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Chase the worst first: overdue, then largest outstanding.
+  const sorted = [...v.rows].sort((a, b) => {
+    const ao = a.status === 'Overdue' ? 0 : 1, bo = b.status === 'Overdue' ? 0 : 1;
+    return ao - bo || b.outstanding - a.outstanding;
+  });
+  const rowsHtml = sorted.map((L, i) => {
+    const trc = L.status === 'Overdue' ? 'od' : L.status === 'Cleared' ? 'cl' : '';
+    const stc = L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep';
+    return `<tr class="${trc}">
+      <td class="c">${i + 1}</td>
+      <td><b>${L.m.name}</b><div class="sid">${L.m.id}</div></td>
+      <td>${L.m.depot}</td>
+      <td class="n">${fmt(L.totalDue)}</td>
+      <td class="n g">${fmt(L.repaid)}</td>
+      <td class="n r">${fmt(L.outstanding)}</td>
+      <td class="c">${L.due ? formatDate(L.due) : '-'}</td>
+      <td class="c"><span class="st ${stc}">${L.status}</span></td>
+    </tr>`;
+  }).join('');
+  const totalRow = `<tr class="tot"><td colspan="3" style="text-align:right">TOTAL</td><td class="n">${fmt(v.sumDue)}</td><td class="n g">${fmt(v.sumRep)}</td><td class="n r">${fmt(v.sumOut)}</td><td colspan="2"></td></tr>`;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Repayment Status - ${distName}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    @page{size:A4;margin:0}
+    body{font-family:'Nunito',sans-serif;color:#1c3326;background:#e9efeb;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .sheet{width:210mm;min-height:297mm;margin:0 auto;background:#fff;display:flex;flex-direction:column}
+    .hd{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);color:#fff;padding:13mm 16mm 11mm;display:flex;align-items:center;gap:15px;position:relative;overflow:hidden}
+    .hd::after{content:"";position:absolute;right:-60px;top:-90px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.05)}
+    .hd .emblem{width:56px;height:56px;object-fit:contain;position:relative;flex-shrink:0}
+    .hd .ht{position:relative;flex:1}
+    .hd .prog{font-family:'Varela Round',sans-serif;font-size:20px;line-height:1.14}
+    .hd .off{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,.66);margin-top:7px}
+    .titlebar{display:flex;justify-content:space-between;align-items:center;padding:8mm 16mm 0}
+    .titlebar .t{font-family:'Varela Round',sans-serif;font-size:15px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.13em}
+    .titlebar .dist{font-family:'Varela Round',sans-serif;font-size:13px;color:#142a1d;background:#eaf7f0;border:1.5px solid #b3e6c8;border-radius:8px;padding:6px 15px}
+    .meta{padding:3mm 16mm 0;font-size:10.5px;font-weight:700;color:#7a8e83}
+    .body{padding:6mm 16mm 0;flex:1}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4mm}
+    .cd{border:1.5px solid #e3ece7;border-radius:11px;padding:10px 13px}
+    .cd .l{font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#7a8e83}
+    .cd .v{font-family:'Varela Round',sans-serif;font-size:15px;color:#142a1d;margin-top:4px}
+    .cd .v.g{color:#0a7a3a}
+    .callout{background:#fdecec;border:1.5px solid #f5b7b1;border-radius:12px;padding:13px 18px;margin-bottom:5mm;display:flex;justify-content:space-between;align-items:center}
+    .callout .l{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;color:#a02c2c}
+    .callout .l span{display:block;font-size:10px;font-weight:700;text-transform:none;letter-spacing:0;color:#c0392b;margin-top:3px}
+    .callout .v{font-family:'Varela Round',sans-serif;font-size:23px;color:#c0392b}
+    table{width:100%;border-collapse:collapse;font-size:10.5px}
+    thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:8px;border-bottom:1.5px solid #d8ece1}
+    tbody td{padding:8px;border-bottom:1px solid #eef2f0;vertical-align:top}
+    td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
+    td.c{text-align:center}
+    td.n.g{color:#0a7a3a}td.n.r{color:#c0392b}
+    .sid{font-size:8.5px;color:#0a7a3a;font-weight:800;margin-top:1px}
+    tr.od td{background:#fdf3f3}
+    tr.cl td{color:#8aa297}
+    .st{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;padding:2px 7px;border-radius:100px;border:1px solid;white-space:nowrap}
+    .st.over{background:#fdecec;color:#c0392b;border-color:#f5b7b1}
+    .st.clr{background:#eaf7f0;color:#007a33;border-color:#b3e6c8}
+    .st.rep{background:#fff5e6;color:#b06a00;border-color:#ffd699}
+    tr.tot td{font-weight:900;border-top:2px solid #0a7a3a;background:#f4f9f6;color:#142a1d}
+    .sign{display:flex;gap:42px;padding:11mm 16mm 0}
+    .sig{flex:1}
+    .sig .line{border-bottom:1.4px solid #b9c7bf;height:32px}
+    .sig .lbl{font-size:9.5px;font-weight:800;color:#7a8e83;text-transform:uppercase;letter-spacing:.05em;margin-top:6px}
+    .ft{margin-top:auto;padding:7mm 16mm 9mm;border-top:1.5px solid #eef2f0;display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#9aa8a0;font-weight:700}
+    .ft .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
+    @media print{body{background:#fff}.sheet{margin:0}}
+  </style></head><body>
+  <div class="sheet">
+    <div class="hd">
+      <img class="emblem" src="${emblem}" alt="" onerror="this.style.display='none'">
+      <div class="ht"><div class="prog">Busoga Ghetto Presidential Empowerment Fund</div><div class="off">Office of the President, State House Uganda</div></div>
+    </div>
+    <div class="titlebar"><div class="t">Loan Repayment Status</div><div class="dist">${distName}</div></div>
+    <div class="meta">Generated ${issued}${statusNote}</div>
+    <div class="body">
+      <div class="cards">
+        <div class="cd"><div class="l">Disbursed Loans</div><div class="v">${fmt(v.rows.length)}</div></div>
+        <div class="cd"><div class="l">Total Due (UGX)</div><div class="v">${fmt(v.sumDue)}</div></div>
+        <div class="cd"><div class="l">Repaid (UGX)</div><div class="v g">${fmt(v.sumRep)}</div></div>
+        <div class="cd"><div class="l">Collected</div><div class="v">${v.pct}%</div></div>
+      </div>
+      <div class="callout">
+        <div class="l">Outstanding to mobilise<span>${fmt(v.overdue)} loan${v.overdue === 1 ? '' : 's'} overdue (past the 12-month due date)</span></div>
+        <div class="v">UGX ${fmt(v.sumOut)}</div>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Beneficiary</th><th>Depot</th><th style="text-align:right">Total Due</th><th style="text-align:right">Repaid</th><th style="text-align:right">Outstanding</th><th style="text-align:center">Due Date</th><th style="text-align:center">Status</th></tr></thead>
+        <tbody>${rowsHtml}${totalRow}</tbody>
+      </table>
+    </div>
+    <div class="sign">
+      <div class="sig"><div class="line"></div><div class="lbl">Issued by (Coordinator)</div></div>
+      <div class="sig"><div class="line"></div><div class="lbl">Received by (RDC) &middot; Date</div></div>
+    </div>
+    <div class="ft"><span class="bar">Together We Can</span><span>Busoga Ghetto Structure &middot; Presidential Empowerment Fund (Busoga Pilot)</span></div>
+  </div>
+  ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},420)}</scr' + 'ipt>'}
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 loadRepayments();
