@@ -21,6 +21,9 @@
 .rp-hero-fig b{font-family:var(--font);font-size:1.05rem;font-weight:400}
 .rp-hero-bar{height:9px;background:rgba(255,255,255,.16);border-radius:100px;margin-top:16px;overflow:hidden;position:relative}
 .rp-hero-fill{height:100%;background:linear-gradient(90deg,#b3e6c8,#5fd99a);border-radius:100px;transition:width 1s var(--ease)}
+.rp-hero::before{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);transform:skewX(-18deg);pointer-events:none;animation:rpShimmer 6.5s ease-in-out infinite}
+@keyframes rpShimmer{0%{left:-60%}60%{left:135%}100%{left:135%}}
+@media (prefers-reduced-motion:reduce){.rp-hero::before{animation:none}}
 
 /* Stat tiles with icon + accent bar */
 .sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(184px,1fr));gap:12px;margin-bottom:20px}
@@ -226,12 +229,12 @@ function render() {
       <div class="rp-hero-top">
         <div>
           <div class="rp-hero-l">Loan collection<span class="rp-tier">${tier.label}</span></div>
-          <div class="rp-hero-v">${pct}% <span>collected</span></div>
+          <div class="rp-hero-v"><span class="cup" data-to="${pct}" data-suf="%">${pct}%</span> <span>collected</span></div>
           <div class="rp-hero-next"><svg viewBox="0 0 16 16"><path d="M8 1.5l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.7 3.9 13l.7-4.3-3.1-3 4.3-.6z"/></svg>${toNext}</div>
         </div>
         <div class="rp-hero-fig">
-          <div><span>Repaid</span><b style="color:#b3e6c8">UGX ${fmt(sumRep)}</b></div>
-          <div><span>Outstanding</span><b>UGX ${fmt(sumOut)}</b></div>
+          <div><span>Repaid</span><b class="cup" data-to="${sumRep}" data-pre="UGX " style="color:#b3e6c8">UGX ${fmt(sumRep)}</b></div>
+          <div><span>Outstanding</span><b class="cup" data-to="${sumOut}" data-pre="UGX ">UGX ${fmt(sumOut)}</b></div>
         </div>
       </div>
       <div class="rp-hero-bar">
@@ -242,10 +245,10 @@ function render() {
       </div>
     </div>
     <div class="sum-grid">
-      <div class="sum-card due"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg></div><div><div class="sum-l">Total Due</div><div class="sum-v">UGX ${fmt(sumDue)}</div></div></div>
-      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid</div><div class="sum-v green">UGX ${fmt(sumRep)}</div></div></div>
-      <div class="sum-card out"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding</div><div class="sum-v red">UGX ${fmt(sumOut)}</div></div></div>
-      <div class="sum-card ovd"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.7l6.3 11.1a.6.6 0 01-.5.9H2.2a.6.6 0 01-.5-.9z"/><path d="M8 6.3v3.1M8 11.4v.2"/></svg></div><div><div class="sum-l">Overdue</div><div class="sum-v amber">${fmt(overdue)}</div></div></div>
+      <div class="sum-card due"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg></div><div><div class="sum-l">Total Due</div><div class="sum-v cup" data-to="${sumDue}" data-pre="UGX ">UGX ${fmt(sumDue)}</div></div></div>
+      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid</div><div class="sum-v green cup" data-to="${sumRep}" data-pre="UGX ">UGX ${fmt(sumRep)}</div></div></div>
+      <div class="sum-card out"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding</div><div class="sum-v red cup" data-to="${sumOut}" data-pre="UGX ">UGX ${fmt(sumOut)}</div></div></div>
+      <div class="sum-card ovd"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.7l6.3 11.1a.6.6 0 01-.5.9H2.2a.6.6 0 01-.5-.9z"/><path d="M8 6.3v3.1M8 11.4v.2"/></svg></div><div><div class="sum-l">Overdue</div><div class="sum-v amber cup" data-to="${overdue}">${fmt(overdue)}</div></div></div>
     </div>`;
 
   const rowHtml = L => `
@@ -305,7 +308,7 @@ function render() {
 
   document.getElementById('repayContainer').innerHTML = summary + body;
 
-  // Grow the progress bars once on first load (skipped on live filtering).
+  // Grow the bars + count the numbers up once on first load (not on filtering).
   if (!rpIntro) {
     rpIntro = true;
     requestAnimationFrame(() => {
@@ -313,8 +316,26 @@ function render() {
         const w = f.style.width; f.style.width = '0';
         requestAnimationFrame(() => { f.style.width = w; });
       });
+      document.querySelectorAll('.cup').forEach(animateUp);
     });
   }
+}
+
+// Count a number up from zero, formatted, honouring reduced-motion.
+function animateUp(el) {
+  const to  = Number(el.dataset.to) || 0;
+  const pre = el.dataset.pre || '';
+  const suf = el.dataset.suf || '';
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.textContent = pre + fmt(to) + suf; return;
+  }
+  const dur = 900, start = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = pre + fmt(Math.round(to * e)) + suf;
+    if (p < 1) requestAnimationFrame(tick); else el.textContent = pre + fmt(to) + suf;
+  }
+  requestAnimationFrame(tick);
 }
 
 // Printable district repayment sheet for the RDC to mobilise collections.
