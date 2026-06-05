@@ -143,6 +143,12 @@
             <div class="topbar-sub">Busoga Ghetto Structure · Overview</div>
           </div>
         </div>
+        <div class="topbar-right">
+          <a href="members.html?action=add" class="btn btn-green" id="dashRegBtn" style="display:none">
+            <svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.8 2-5 4.5-5s4.5 2.2 4.5 5"/><path d="M12.5 6v4M10.5 8h4"/></svg>
+            <span class="mob-hide">Register Beneficiary</span>
+          </a>
+        </div>
       </div>
 
       <div class="content">
@@ -152,7 +158,7 @@
                 <div class="hero-greet" id="greetingText">Good morning</div>
                 <div class="hero-sub" id="greetingDate">Loading…</div>
               </div>
-              <a href="#" class="hero-btn">
+              <a href="reports.html" class="hero-btn" id="heroCta">
                 <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
                 Generate Report
               </a>
@@ -352,6 +358,23 @@
         const rc = document.getElementById('repayCard');
         if (rc) rc.style.display = 'none';
       }
+
+      // Make registering low-friction: a button in the top bar for anyone who
+      // can register, and the hero's main button registers for Profilers.
+      if (_acc.canWrite) {
+        const reg = document.getElementById('dashRegBtn');
+        if (reg) reg.style.display = '';
+      }
+      (function () {
+        const cta = document.getElementById('heroCta');
+        if (!cta) return;
+        if (_acc.canWrite && !_acc.isAdmin) {
+          cta.href = 'members.html?action=add';
+          cta.innerHTML = '<svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.8 2-5 4.5-5s4.5 2.2 4.5 5"/><path d="M12.5 6v4M10.5 8h4"/></svg> Register Beneficiary';
+        } else if (_acc.isRDC) {
+          cta.innerHTML = '<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg> View Reports';
+        }
+      })();
 
       // Greet by the given name only (names are stored surname-first, so the
       // second word is the given name): "Nankya Viola" -> "Viola".
