@@ -29,6 +29,14 @@
 .dt-stat .v{font-family:var(--font);font-size:1.35rem;color:var(--text);line-height:1}
 .dt-stat .v.green{color:var(--green)}
 .dt-stat .l{font-family:var(--font2);font-size:.59rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:5px}
+/* Gamification: rank badge + depot coverage progress */
+.dt-rank{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:.72rem;color:var(--muted);flex-shrink:0}
+.dt-rank.top{background:linear-gradient(135deg,#f7d774,#e0a800);border-color:#e0a800;color:#5a4500;box-shadow:0 3px 8px rgba(224,168,0,.4)}
+.dt-cover{padding:11px 16px 14px}
+.dt-cover-top{display:flex;justify-content:space-between;font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:5px}
+.dt-cover-top b{color:var(--text);font-weight:900}
+.dt-cover-bar{height:6px;background:var(--bg);border-radius:100px;overflow:hidden;border:1px solid var(--border)}
+.dt-cover-fill{height:100%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:100px;transition:width .9s var(--ease)}
 
 /* Depots within a district */
 .back-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
@@ -203,7 +211,13 @@ function render() {
   else { selected = null; renderDistricts(); }
   if (!dpIntro) {
     dpIntro = true;
-    requestAnimationFrame(() => document.querySelectorAll('.cup').forEach(animateUp));
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.cup').forEach(animateUp);
+      document.querySelectorAll('.dt-cover-fill').forEach(f => {
+        const w = f.style.width; f.style.width = '0';
+        requestAnimationFrame(() => { f.style.width = w; });
+      });
+    });
   }
 }
 
@@ -246,20 +260,28 @@ function renderDistricts() {
   // New Depot belongs to a district, so hide it on the all-districts view.
   const nb = document.getElementById('newDepotBtn');
   if (nb) nb.style.display = 'none';
-  const tiles = DISTS.map((d, i) => {
-    const c  = GREEN;
-    const dc = depotsForDistrict(d.code).length;
-    const mc = membersIn(d.code);
+  // Octalysis: rank districts by members profiled — a profiling leaderboard.
+  const ranked = DISTS.map(d => ({ d, dc: depotsForDistrict(d.code).length, mc: membersIn(d.code) }))
+    .sort((a, b) => b.mc - a.mc || b.dc - a.dc);
+  const tiles = ranked.map((r, i) => {
+    const { d, dc, mc } = r;
+    const target = d.max || 10;
+    const coverPct = target ? Math.min(100, Math.round((dc / target) * 100)) : 0;
     return `
-      <div class="dist-tile" style="border-top:3px solid ${c}" onclick="select('${d.code}')">
+      <div class="dist-tile" style="border-top:3px solid ${GREEN}" onclick="select('${d.code}')">
         <div class="dt-head">
-          <div class="dt-ic" style="background:${c}"><svg viewBox="0 0 16 16"><path d="M8 1.5C5.2 1.5 3 3.6 3 6.3 3 9.8 8 14.5 8 14.5s5-4.7 5-8.2C13 3.6 10.8 1.5 8 1.5z"/><circle cx="8" cy="6.2" r="1.7"/></svg></div>
+          <span class="dt-rank${i === 0 ? ' top' : ''}">${i + 1}</span>
+          <div class="dt-ic" style="background:${GREEN}"><svg viewBox="0 0 16 16"><path d="M8 1.5C5.2 1.5 3 3.6 3 6.3 3 9.8 8 14.5 8 14.5s5-4.7 5-8.2C13 3.6 10.8 1.5 8 1.5z"/><circle cx="8" cy="6.2" r="1.7"/></svg></div>
           <div class="dt-id"><div class="dt-name">${d.name}</div><div class="dt-code">${d.code}</div></div>
           <div class="dt-go"><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5"/></svg></div>
         </div>
         <div class="dt-stats">
           <div class="dt-stat"><div class="v cup" data-to="${dc}">${dc}</div><div class="l">Depots</div></div>
-          <div class="dt-stat"><div class="v cup" data-to="${mc}" style="color:${c}">${fmt(mc)}</div><div class="l">Members</div></div>
+          <div class="dt-stat"><div class="v cup" data-to="${mc}" style="color:${GREEN}">${fmt(mc)}</div><div class="l">Members</div></div>
+        </div>
+        <div class="dt-cover">
+          <div class="dt-cover-top"><span>Depot coverage</span><span><b>${dc}</b> / ${target}</span></div>
+          <div class="dt-cover-bar"><div class="dt-cover-fill" style="width:${coverPct}%"></div></div>
         </div>
       </div>`;
   }).join('');
