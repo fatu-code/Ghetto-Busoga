@@ -82,7 +82,12 @@
 .dist-tile:nth-child(1){animation-delay:.03s}.dist-tile:nth-child(2){animation-delay:.06s}.dist-tile:nth-child(3){animation-delay:.09s}.dist-tile:nth-child(4){animation-delay:.12s}.dist-tile:nth-child(5){animation-delay:.15s}.dist-tile:nth-child(6){animation-delay:.18s}
 .depot-card{animation:dpRise .4s var(--ease) backwards}
 .depot-card:nth-child(1){animation-delay:.03s}.depot-card:nth-child(2){animation-delay:.06s}.depot-card:nth-child(3){animation-delay:.09s}.depot-card:nth-child(4){animation-delay:.12s}
-@media (prefers-reduced-motion:reduce){.dp-hero::before{animation:none}.dist-tile,.depot-card{animation:none}}
+/* Hover micro-interactions */
+.dt-ic,.depot-ic{transition:transform .22s var(--ease)}
+.dist-tile:hover .dt-ic,.depot-card:hover .depot-ic{transform:scale(1.08) rotate(-3deg)}
+.dt-go svg{transition:transform .2s var(--ease),stroke .15s}
+.dist-tile:hover .dt-go svg{transform:translateX(2px)}
+@media (prefers-reduced-motion:reduce){.dp-hero::before{animation:none}.dist-tile,.depot-card{animation:none}.dist-tile:hover .dt-ic,.depot-card:hover .depot-ic,.dist-tile:hover .dt-go svg{transform:none}}
 </style>
 </head>
 <body>
@@ -303,7 +308,7 @@ function renderDepots(code) {
           <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
           <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
         </div>
-        <div class="depot-count"><span class="num" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
+        <div class="depot-count"><span class="num cup-d" data-to="${cnt}" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
       </div>`;
   }).join('');
 
@@ -316,6 +321,9 @@ function renderDepots(code) {
 
   document.getElementById('countLabel').textContent =
     `${d.name} · ${depots.length} depots · ${fmt(mc)} members`;
+
+  // Count the depot member numbers up each time you drill into a district.
+  requestAnimationFrame(() => document.querySelectorAll('.cup-d').forEach(animateUp));
 }
 
 // ── DEPOT MANAGEMENT (admin) ───────────────────────────────────────
