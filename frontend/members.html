@@ -42,6 +42,20 @@
 .depot-menu button.danger{color:#c0392b}
 .depot-menu button.danger:hover{background:#fdecec}
 .depot-menu svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+/* Gentle one-time entrance for the beneficiary cards */
+@keyframes bRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.bgrid-intro .member-card{animation:bRise .42s var(--ease) backwards}
+.bgrid-intro .member-card:nth-child(1){animation-delay:.02s}
+.bgrid-intro .member-card:nth-child(2){animation-delay:.05s}
+.bgrid-intro .member-card:nth-child(3){animation-delay:.08s}
+.bgrid-intro .member-card:nth-child(4){animation-delay:.11s}
+.bgrid-intro .member-card:nth-child(5){animation-delay:.14s}
+.bgrid-intro .member-card:nth-child(6){animation-delay:.17s}
+.bgrid-intro .member-card:nth-child(7){animation-delay:.2s}
+.bgrid-intro .member-card:nth-child(8){animation-delay:.23s}
+.member-card-photo img{transition:transform .35s var(--ease)}
+.member-card:hover .member-card-photo img{transform:scale(1.05)}
+@media (prefers-reduced-motion:reduce){.bgrid-intro .member-card{animation:none}.member-card:hover .member-card-photo img{transform:none}}
 </style>
 </head>
 <body>
@@ -240,6 +254,19 @@ const _acc = accessOf(Auth.get());
 if (!_acc.canWrite) { const rb = document.getElementById('registerBtn'); if (rb) rb.style.display = 'none'; }
 
 let allMembers = [], currentPage = 1, totalPages = 1, totalCount = 0;
+let introDone = false;
+
+// A consistent, colourful gradient per person, so initials-only cards have life.
+const AV_GRADIENTS = [
+  'linear-gradient(135deg,#0ea5e9,#0369a1)', 'linear-gradient(135deg,#10b981,#047857)',
+  'linear-gradient(135deg,#f59e0b,#b45309)', 'linear-gradient(135deg,#8b5cf6,#6d28d9)',
+  'linear-gradient(135deg,#ec4899,#be185d)', 'linear-gradient(135deg,#14b8a6,#0f766e)',
+  'linear-gradient(135deg,#f97316,#c2410c)', 'linear-gradient(135deg,#6366f1,#4338ca)',
+];
+function gradFor(name) {
+  let h = 0; for (const c of String(name || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return AV_GRADIENTS[h % AV_GRADIENTS.length];
+}
 // Show every beneficiary on one page — no pagination, just scroll.
 const LIMIT = 100000;
 
@@ -344,7 +371,7 @@ function renderMembers() {
         ${allMembers.map(m => `
           <tr class="clickable" onclick="location.href='member.html?id=${m.id}'">
             <td>
-              <div class="m-avatar" style="width:32px;height:32px;border-radius:8px;font-size:.7rem">
+              <div class="m-avatar" style="width:32px;height:32px;border-radius:8px;font-size:.7rem${m.photo_url ? '' : ';background:' + gradFor(m.name)}">
                 ${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : initials(m.name)}
               </div>
             </td>
@@ -359,9 +386,11 @@ function renderMembers() {
       </tbody>
     </table></div></div>`;
   } else {
-    container.innerHTML = lead + `<div class="members-grid">${allMembers.map(m => `
+    const introClass = introDone ? '' : ' bgrid-intro';
+    introDone = true;
+    container.innerHTML = lead + `<div class="members-grid${introClass}">${allMembers.map(m => `
       <div class="member-card" onclick="location.href='member.html?id=${m.id}'">
-        <div class="member-card-photo">
+        <div class="member-card-photo"${m.photo_url ? '' : ` style="background:${gradFor(m.name)};color:rgba(255,255,255,.95)"`}>
           ${m.photo_url
             ? `<img src="${m.photo_url}" alt="${m.name}">`
             : initials(m.name)}
