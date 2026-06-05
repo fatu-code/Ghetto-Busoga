@@ -255,18 +255,6 @@ if (!_acc.canWrite) { const rb = document.getElementById('registerBtn'); if (rb)
 
 let allMembers = [], currentPage = 1, totalPages = 1, totalCount = 0;
 let introDone = false;
-
-// A consistent, colourful gradient per person, so initials-only cards have life.
-const AV_GRADIENTS = [
-  'linear-gradient(135deg,#0ea5e9,#0369a1)', 'linear-gradient(135deg,#10b981,#047857)',
-  'linear-gradient(135deg,#f59e0b,#b45309)', 'linear-gradient(135deg,#8b5cf6,#6d28d9)',
-  'linear-gradient(135deg,#ec4899,#be185d)', 'linear-gradient(135deg,#14b8a6,#0f766e)',
-  'linear-gradient(135deg,#f97316,#c2410c)', 'linear-gradient(135deg,#6366f1,#4338ca)',
-];
-function gradFor(name) {
-  let h = 0; for (const c of String(name || '')) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return AV_GRADIENTS[h % AV_GRADIENTS.length];
-}
 // Show every beneficiary on one page — no pagination, just scroll.
 const LIMIT = 100000;
 
@@ -371,7 +359,7 @@ function renderMembers() {
         ${allMembers.map(m => `
           <tr class="clickable" onclick="location.href='member.html?id=${m.id}'">
             <td>
-              <div class="m-avatar" style="width:32px;height:32px;border-radius:8px;font-size:.7rem${m.photo_url ? '' : ';background:' + gradFor(m.name)}">
+              <div class="m-avatar" style="width:32px;height:32px;border-radius:8px;font-size:.7rem">
                 ${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : initials(m.name)}
               </div>
             </td>
@@ -390,7 +378,7 @@ function renderMembers() {
     introDone = true;
     container.innerHTML = lead + `<div class="members-grid${introClass}">${allMembers.map(m => `
       <div class="member-card" onclick="location.href='member.html?id=${m.id}'">
-        <div class="member-card-photo"${m.photo_url ? '' : ` style="background:${gradFor(m.name)};color:rgba(255,255,255,.95)"`}>
+        <div class="member-card-photo">
           ${m.photo_url
             ? `<img src="${m.photo_url}" alt="${m.name}">`
             : initials(m.name)}
