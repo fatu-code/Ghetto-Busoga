@@ -495,9 +495,10 @@ async function saveMember() {
   const depot    = document.getElementById('mDepot').value.trim();
   const photo    = document.getElementById('photoInput').files[0];
 
-  if (!name || !nin || !district || !depot) {
-    showToast('Name, NIN, district and depot are required', 'error'); return;
-  }
+  if (!name)     { showToast('Full name is required', 'error'); return; }
+  if (!nin)      { showToast('NIN is required', 'error'); return; }
+  if (!district) { showToast('District is required', 'error'); return; }
+  if (!depot)    { showToast('Please choose a depot', 'error'); return; }
   if (!/^[A-Z0-9]{10,14}$/.test(nin)) {
     showToast('NIN should be 10–14 letters/numbers (e.g. CM91...)', 'error'); return;
   }

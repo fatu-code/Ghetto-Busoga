@@ -112,13 +112,13 @@ async function loadDepotsDB() {
   }
   return DEPOTS_DB;
 }
-// Depot names for a district: the real depots you created in the system.
-// (The old hardcoded list is no longer merged in, so deleted depots stay gone.)
+// Depot names for a district. Uses the real depots you created once any exist
+// for that district; until then it falls back to the built-in list so the
+// dropdown is never empty and registration is never blocked.
 function depotNamesFor(code) {
-  return DEPOTS_DB.filter((x) => x.district === code)
-    .map((x) => x.name)
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b));
+  const dbNames = DEPOTS_DB.filter((x) => x.district === code).map((x) => x.name).filter(Boolean);
+  const names = dbNames.length ? dbNames : ((typeof DEPOTS !== "undefined" && DEPOTS[code]) || []);
+  return [...new Set(names)].filter(Boolean).sort((a, b) => a.localeCompare(b));
 }
 // Full DB record for a depot, so we can auto-fill its sub-county / parish.
 function depotRecord(code, name) {
