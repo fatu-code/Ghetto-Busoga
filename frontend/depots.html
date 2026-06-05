@@ -265,8 +265,6 @@ function renderDistricts() {
     .sort((a, b) => b.mc - a.mc || b.dc - a.dc);
   const tiles = ranked.map((r, i) => {
     const { d, dc, mc } = r;
-    const target = d.max || 10;
-    const coverPct = target ? Math.min(100, Math.round((dc / target) * 100)) : 0;
     return `
       <div class="dist-tile" style="border-top:3px solid ${GREEN}" onclick="select('${d.code}')">
         <div class="dt-head">
@@ -278,10 +276,6 @@ function renderDistricts() {
         <div class="dt-stats">
           <div class="dt-stat"><div class="v cup" data-to="${dc}">${dc}</div><div class="l">Depots</div></div>
           <div class="dt-stat"><div class="v cup" data-to="${mc}" style="color:${GREEN}">${fmt(mc)}</div><div class="l">Members</div></div>
-        </div>
-        <div class="dt-cover">
-          <div class="dt-cover-top"><span>Depot coverage</span><span><b>${dc}</b> / ${target}</span></div>
-          <div class="dt-cover-bar"><div class="dt-cover-fill" style="width:${coverPct}%"></div></div>
         </div>
       </div>`;
   }).join('');
