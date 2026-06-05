@@ -10,12 +10,35 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
 .u-av{width:34px;height:34px;border-radius:9px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:.75rem;color:var(--green-dark);flex-shrink:0}
+/* Team hero */
+.mu-hero{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);border-radius:18px;padding:20px 24px;margin-bottom:16px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;overflow:hidden;flex-wrap:wrap}
+.mu-hero::after{content:"";position:absolute;right:-50px;top:-70px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.05)}
+.mu-hero::before{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);transform:skewX(-18deg);pointer-events:none;animation:muShimmer 6.5s ease-in-out infinite}
+@keyframes muShimmer{0%{left:-60%}60%{left:135%}100%{left:135%}}
+.mu-hero-l{display:flex;align-items:center;gap:14px;position:relative;min-width:0}
+.mu-hero-ic{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mu-hero-ic svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.mu-hero-t{font-family:var(--font);font-size:1.3rem;color:#fff;line-height:1.1}
+.mu-hero-s{font-family:var(--font2);font-size:.74rem;font-weight:600;color:rgba(255,255,255,.6);margin-top:3px}
+.mu-hero-fig{text-align:right;position:relative}
+.mu-hero-fig .n{font-family:var(--font);font-size:2rem;line-height:1}
+.mu-hero-fig span{font-family:var(--font2);font-size:.68rem;font-weight:700;color:rgba(255,255,255,.55)}
+
+/* Role tiles */
 .mu-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
-.mu-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:16px 18px}
-.mu-ic{width:40px;height:40px;border-radius:11px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-.mu-ic svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.mu-v{font-family:var(--font);font-size:1.6rem;color:var(--text);line-height:1}
-.mu-l{font-family:var(--font2);font-size:.68rem;font-weight:700;color:var(--muted);margin-top:5px}
+.mu-card{position:relative;overflow:hidden;background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:15px 16px 15px 19px;display:flex;align-items:center;gap:13px;transition:all .16s;animation:muRise .5s var(--ease) backwards}
+.mu-card:hover{border-color:var(--green-mid);box-shadow:0 10px 24px rgba(0,0,0,.06);transform:translateY(-2px)}
+.mu-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
+.mu-card.amb::before{background:var(--amber)}.mu-card.blue::before{background:#3b82f6}
+.mu-card:nth-child(2){animation-delay:.07s}.mu-card:nth-child(3){animation-delay:.14s}
+@keyframes muRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.mu-ic{width:40px;height:40px;border-radius:11px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mu-ic svg{width:18px;height:18px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.mu-card.amb .mu-ic{background:var(--amber-pale);border-color:var(--amber-mid)}.mu-card.amb .mu-ic svg{stroke:var(--amber)}
+.mu-card.blue .mu-ic{background:var(--blue-pale);border-color:var(--blue-mid)}.mu-card.blue .mu-ic svg{stroke:#3b82f6}
+.mu-v{font-family:var(--font);font-size:1.5rem;color:var(--text);line-height:1}
+.mu-l{font-family:var(--font2);font-size:.64rem;font-weight:800;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+@media (prefers-reduced-motion:reduce){.mu-hero::before{animation:none}.mu-card{animation:none}}
 </style>
 </head>
 <body>
@@ -93,7 +116,7 @@
 Auth.guard(['admin'], 'depots.html');
 buildSidebar('staff');
 const me = Auth.get() || {};
-let users = [], editId = null;
+let users = [], editId = null, muIntro = false;
 
 // Fill the assigned-district dropdown.
 DISTRICTS.forEach(d => {
@@ -129,14 +152,24 @@ async function loadUsers() {
 }
 
 function render() {
-  const total = users.length;
+  const total  = users.length;
   const admins = users.filter(u => u.role === 'admin').length;
+  const rdcs   = users.filter(u => u.role === 'rdc').length;
+  const profs  = users.filter(u => u.role === 'profiler').length;
   document.getElementById('countLabel').textContent = `${total} user${total === 1 ? '' : 's'}`;
-  const stats = `<div class="mu-stats">
-    <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><circle cx="5.5" cy="5" r="2.3"/><path d="M1.5 13c0-2.4 1.8-4 4-4s4 1.6 4 4"/><circle cx="11.5" cy="5.5" r="1.8"/><path d="M10 9.2c2 .1 3.4 1.5 3.4 3.8"/></svg></div><div class="mu-v">${total}</div><div class="mu-l">Total users</div></div>
-    <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5l5 2v4c0 3.5-2.5 5.6-5 6.5-2.5-.9-5-3-5-6.5v-4z"/><path d="M5.8 8l1.6 1.6L10.4 6.6"/></svg></div><div class="mu-v">${admins}</div><div class="mu-l">Administrators</div></div>
-    <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div><div class="mu-v">${total - admins}</div><div class="mu-l">Staff</div></div>
-  </div>`;
+  const stats = `
+    <div class="mu-hero">
+      <div class="mu-hero-l">
+        <div class="mu-hero-ic"><svg viewBox="0 0 16 16"><circle cx="5.5" cy="5" r="2.3"/><path d="M1.5 13.5c0-2.4 1.8-4 4-4s4 1.6 4 4"/><circle cx="11.5" cy="5.5" r="1.8"/><path d="M10 9.7c2 .1 3.4 1.5 3.4 3.8"/></svg></div>
+        <div><div class="mu-hero-t">Team &amp; Access</div><div class="mu-hero-s">Everyone who can sign in to Busoga Ghetto Structure</div></div>
+      </div>
+      <div class="mu-hero-fig"><div class="n cup" data-to="${total}">${total}</div><span>${total === 1 ? 'person' : 'people'} with access</span></div>
+    </div>
+    <div class="mu-stats">
+      <div class="mu-card"><div class="mu-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5l5 2v4c0 3.5-2.5 5.6-5 6.5-2.5-.9-5-3-5-6.5v-4z"/><path d="M5.8 8l1.6 1.6L10.4 6.6"/></svg></div><div><div class="mu-v cup" data-to="${admins}">${admins}</div><div class="mu-l">Administrators</div></div></div>
+      <div class="mu-card amb"><div class="mu-ic"><svg viewBox="0 0 16 16"><path d="M1 8s2.5-4.5 7-4.5S15 8 15 8s-2.5 4.5-7 4.5S1 8 1 8z"/><circle cx="8" cy="8" r="1.8"/></svg></div><div><div class="mu-v cup" data-to="${rdcs}">${rdcs}</div><div class="mu-l">RDCs</div></div></div>
+      <div class="mu-card blue"><div class="mu-ic"><svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.8 2-5 4.5-5s4.5 2.2 4.5 5"/><path d="M12.5 6v4M10.5 8h4"/></svg></div><div><div class="mu-v cup" data-to="${profs}">${profs}</div><div class="mu-l">Profilers</div></div></div>
+    </div>`;
   document.getElementById('usersContainer').innerHTML = stats + `<div class="card"><div class="table-wrap"><table>
     <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Added</th><th></th></tr></thead>
     <tbody>${users.map(u => `
@@ -154,6 +187,25 @@ function render() {
         </td>
       </tr>`).join('')}</tbody>
   </table></div></div>`;
+
+  // Count the figures up once on first load (not on every re-render).
+  if (!muIntro) {
+    muIntro = true;
+    requestAnimationFrame(() => document.querySelectorAll('.cup').forEach(animateUp));
+  }
+}
+
+// Count a number up from zero, honouring reduced-motion.
+function animateUp(el) {
+  const to = Number(el.dataset.to) || 0;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = to; return; }
+  const dur = 800, start = performance.now();
+  function tick(now) {
+    const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(to * e);
+    if (p < 1) requestAnimationFrame(tick); else el.textContent = to;
+  }
+  requestAnimationFrame(tick);
 }
 
 function openAdd() {
