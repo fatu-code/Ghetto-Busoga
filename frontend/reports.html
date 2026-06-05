@@ -9,14 +9,45 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
 <style>
-.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
-.sum-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px}
-.sum-l{font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.sum-v{font-family:var(--font);font-size:1.45rem;color:var(--text);margin-top:6px;line-height:1}
+/* Fund overview hero */
+.rep-hero{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);border-radius:18px;padding:20px 24px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden}
+.rep-hero::after{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.05)}
+.rep-hero-top{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;position:relative}
+.rep-hero-l{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.6)}
+.rep-hero-v{font-family:var(--font);font-size:2rem;line-height:1;margin-top:7px}
+.rep-hero-fig{display:flex;gap:22px;text-align:right}
+.rep-hero-fig span{display:block;font-family:var(--font2);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5);margin-bottom:3px}
+.rep-hero-fig b{font-family:var(--font);font-size:1.05rem;font-weight:400}
+.rep-hero-bar{height:9px;background:rgba(255,255,255,.16);border-radius:100px;margin-top:16px;overflow:hidden}
+.rep-hero-fill{height:100%;background:linear-gradient(90deg,#b3e6c8,#5fd99a);border-radius:100px;transition:width 1s var(--ease)}
+
+/* Stat tiles with icon + accent bar */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin-bottom:20px}
+.sum-card{position:relative;overflow:hidden;background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:14px 15px 14px 18px;display:flex;align-items:center;gap:12px;transition:all .16s}
+.sum-card:hover{border-color:var(--green-mid);box-shadow:0 10px 24px rgba(0,0,0,.06);transform:translateY(-2px)}
+.sum-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
+.sum-card.blue::before{background:#3b82f6}.sum-card.red::before{background:#c0392b}.sum-card.amb::before{background:var(--amber)}
+.sum-ic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--green-pale);border:1.5px solid var(--green-mid)}
+.sum-ic svg{width:17px;height:17px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sum-card.blue .sum-ic{background:var(--blue-pale);border-color:var(--blue-mid)}.sum-card.blue .sum-ic svg{stroke:#3b82f6}
+.sum-card.red .sum-ic{background:#fdecec;border-color:#f5b7b1}.sum-card.red .sum-ic svg{stroke:#c0392b}
+.sum-card.amb .sum-ic{background:var(--amber-pale);border-color:var(--amber-mid)}.sum-card.amb .sum-ic svg{stroke:var(--amber)}
+.sum-l{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.sum-v{font-family:var(--font);font-size:1.2rem;color:var(--text);margin-top:3px;line-height:1}
 .sum-v.green{color:var(--green)} .sum-v.red{color:#c0392b} .sum-v.amber{color:#b06a00}
-.rep-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+
+/* Section card + header with icon */
+.rep-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:18px;box-shadow:var(--shadow)}
 .rep-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-bottom:1.5px solid var(--border)}
+.rep-head-l{display:flex;align-items:center;gap:11px}
+.rep-head-ic{width:34px;height:34px;border-radius:10px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rep-head-ic svg{width:16px;height:16px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .rep-title{font-family:var(--font2);font-weight:900;color:var(--text);font-size:.92rem}
+.rep-sub{font-family:var(--font2);font-size:.66rem;font-weight:700;color:var(--muted);margin-top:1px}
+
+/* Share-of-fund mini bar under the district name */
+.share{height:5px;background:var(--bg);border-radius:100px;overflow:hidden;margin-top:7px;max-width:170px}
+.share-fill{height:100%;border-radius:100px;transition:width .9s var(--ease)}
 .money{font-family:var(--font);font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
 /* Clean financial-report table */
 .rep-card table{width:100%;border-collapse:collapse}
@@ -53,7 +84,8 @@
 /* Print letterhead (screen-hidden) */
 .print-head{display:none}
 @media print{
-  .sidebar,.topbar,.filter-bar,.no-print{display:none !important}
+  .sidebar,.topbar,.filter-bar,.no-print,.rep-hero{display:none !important}
+  .sum-card::before,.share{display:none}
   .main-area,.content{margin:0;padding:0}
   body{background:#fff}
   .print-head{display:block;margin-bottom:14px}
@@ -120,6 +152,8 @@ DISTRICTS.forEach(d => {
 
 let members = [];
 let districtRows = [];
+let repIntro = false;
+const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
 
 function isOverdue(m, outstanding) {
   if (!(outstanding > 0) || !m.disbursement_date) return false;
@@ -157,9 +191,10 @@ async function load() {
   }
 }
 
-function moneyRow(label, a) {
+function moneyRow(label, a, bar) {
+  const barHtml = bar ? `<div class="share"><div class="share-fill" style="width:${bar.pct}%;background:${bar.color}"></div></div>` : '';
   return `<tr>
-    <td style="font-weight:800">${label}</td>
+    <td style="font-weight:800">${label}${barHtml}</td>
     <td class="num" data-label="Members">${fmt(a.count)}</td>
     <td class="num" data-label="Disbursed">${fmt(a.disbursedCount)}</td>
     <td class="money" data-label="Amount (UGX)">${fmt(a.disbursed)}</td>
@@ -174,7 +209,8 @@ function render() {
 
   // by district
   districtRows = DISTRICTS.map(d => ({ d, a: agg(members.filter(m => m.district === d.code)) }))
-    .filter(r => r.a.count > 0);
+    .filter(r => r.a.count > 0)
+    .sort((x, y) => y.a.disbursed - x.a.disbursed || y.a.count - x.a.count);
 
   // by depot (optionally narrowed to a district)
   const dsel = document.getElementById('filterDistrict').value;
@@ -191,6 +227,8 @@ function render() {
   }).sort((x, y) => y.a.disbursed - x.a.disbursed || y.a.count - x.a.count);
 
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const totalDue = Math.round(fund.disbursed * 1.06);
+  const cpct = totalDue ? Math.round((fund.repaid / totalDue) * 100) : 0;
   document.getElementById('countLabel').textContent =
     `${fmt(fund.count)} profiled · ${fmt(fund.disbursedCount)} disbursed`;
 
@@ -205,25 +243,40 @@ function render() {
       <div style="font-weight:800;color:#0a7a3a;text-transform:uppercase;letter-spacing:.1em;font-size:11px;margin-top:3px">Fund Report &middot; Generated ${issued}</div>
     </div>
 
+    <div class="rep-hero">
+      <div class="rep-hero-top">
+        <div>
+          <div class="rep-hero-l">Total Fund Disbursed</div>
+          <div class="rep-hero-v">UGX ${fmt(fund.disbursed)}</div>
+        </div>
+        <div class="rep-hero-fig">
+          <div><span>Beneficiaries</span><b>${fmt(fund.count)}</b></div>
+          <div><span>Funded</span><b>${fmt(fund.disbursedCount)}</b></div>
+          <div><span>Collected</span><b style="color:#b3e6c8">${cpct}%</b></div>
+        </div>
+      </div>
+      <div class="rep-hero-bar"><div class="rep-hero-fill" style="width:${cpct}%"></div></div>
+    </div>
+
     <div class="sum-grid">
-      <div class="sum-card"><div class="sum-l">Members Profiled</div><div class="sum-v">${fmt(fund.count)}</div></div>
-      <div class="sum-card"><div class="sum-l">Disbursed (UGX)</div><div class="sum-v">${fmt(fund.disbursed)}</div></div>
-      <div class="sum-card"><div class="sum-l">Repaid (UGX)</div><div class="sum-v green">${fmt(fund.repaid)}</div></div>
-      <div class="sum-card"><div class="sum-l">Outstanding (UGX)</div><div class="sum-v red">${fmt(fund.outstanding)}</div></div>
-      <div class="sum-card"><div class="sum-l">Overdue Loans</div><div class="sum-v amber">${fmt(fund.overdue)}</div></div>
+      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div><div><div class="sum-l">Members Profiled</div><div class="sum-v">${fmt(fund.count)}</div></div></div>
+      <div class="sum-card blue"><div class="sum-ic"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.8"/></svg></div><div><div class="sum-l">Disbursed (UGX)</div><div class="sum-v">${fmt(fund.disbursed)}</div></div></div>
+      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid (UGX)</div><div class="sum-v green">${fmt(fund.repaid)}</div></div></div>
+      <div class="sum-card red"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding (UGX)</div><div class="sum-v red">${fmt(fund.outstanding)}</div></div></div>
+      <div class="sum-card amb"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.7l6.3 11.1a.6.6 0 01-.5.9H2.2a.6.6 0 01-.5-.9z"/><path d="M8 6.3v3.1M8 11.4v.2"/></svg></div><div><div class="sum-l">Overdue Loans</div><div class="sum-v amber">${fmt(fund.overdue)}</div></div></div>
     </div>
 
     <div class="rep-card">
-      <div class="rep-head"><span class="rep-title">By District</span></div>
+      <div class="rep-head"><div class="rep-head-l"><div class="rep-head-ic"><svg viewBox="0 0 16 16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/></svg></div><div><span class="rep-title">By District</span><div class="rep-sub">${districtRows.length} district${districtRows.length === 1 ? '' : 's'}, ranked by amount</div></div></div></div>
       <div class="table-wrap"><table>
         <thead>${head}</thead>
-        <tbody>${districtRows.map(r => moneyRow(r.d.name, r.a)).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
+        <tbody>${districtRows.map(r => moneyRow(r.d.name, r.a, { pct: fund.disbursed ? Math.round((r.a.disbursed / fund.disbursed) * 100) : 0, color: COLORS[DISTRICTS.findIndex(x => x.code === r.d.code) % COLORS.length] })).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
         <tfoot>${moneyRow('TOTAL', fund)}</tfoot>
       </table></div>
     </div>
 
     <div class="rep-card">
-      <div class="rep-head"><span class="rep-title">By Depot${dsel ? ' — ' + ((DISTRICTS.find(x => x.code === dsel) || {}).name || '') : ''}</span></div>
+      <div class="rep-head"><div class="rep-head-l"><div class="rep-head-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div><div><span class="rep-title">By Depot${dsel ? ' — ' + ((DISTRICTS.find(x => x.code === dsel) || {}).name || '') : ''}</span><div class="rep-sub">${depotRows.length} depot${depotRows.length === 1 ? '' : 's'}</div></div></div></div>
       <div class="table-wrap"><table>
         <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid (UGX)</th><th class="num">Outstanding (UGX)</th></tr></thead>
         <tbody>${depotRows.map(r => `<tr>
@@ -237,6 +290,17 @@ function render() {
           </tr>`).join('') || `<tr><td colspan="7" style="color:var(--muted);padding:14px">No data</td></tr>`}</tbody>
       </table></div>
     </div>`;
+
+  // Grow the bars once on first load (skipped on live filtering).
+  if (!repIntro) {
+    repIntro = true;
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.rep-hero-fill, .share-fill').forEach(f => {
+        const w = f.style.width; f.style.width = '0';
+        requestAnimationFrame(() => { f.style.width = w; });
+      });
+    });
+  }
 }
 
 function downloadCSV() {
