@@ -158,8 +158,8 @@ buildSidebar('depots');
 
 let allMembers = [], counts = {}, selected = null, dpIntro = false;
 
-// A distinct accent colour per district, to give the grid colour and life.
-const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
+// One consistent brand green across every district (no rainbow).
+const GREEN = '#009c41';
 
 // Scoped users (RDC / Profiler) only ever see their own district's depots.
 const _acc = accessOf(Auth.get());
@@ -247,7 +247,7 @@ function renderDistricts() {
   const nb = document.getElementById('newDepotBtn');
   if (nb) nb.style.display = 'none';
   const tiles = DISTS.map((d, i) => {
-    const c  = COLORS[i % COLORS.length];
+    const c  = GREEN;
     const dc = depotsForDistrict(d.code).length;
     const mc = membersIn(d.code);
     return `
@@ -274,8 +274,7 @@ function renderDepots(code) {
   const nb = document.getElementById('newDepotBtn');
   if (nb) nb.style.display = _acc.isAdmin ? '' : 'none';
   const d   = DISTRICTS.find(x => x.code === code);
-  const idx = DISTRICTS.findIndex(x => x.code === code);
-  const col = COLORS[idx % COLORS.length];
+  const col = GREEN;
   const depots = depotsForDistrict(code);
   const mc = membersIn(code);
 
