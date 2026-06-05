@@ -120,7 +120,7 @@
           <svg viewBox="0 0 16 16"><path d="M8 1v9M5 7l3 3 3-3"/><path d="M2 12v2h12v-2"/></svg>
           <span class="mob-hide">CSV</span>
         </button>
-        <button class="btn btn-green" onclick="window.print()">
+        <button class="btn btn-green" onclick="printReport()">
           <svg viewBox="0 0 16 16"><path d="M4 6V2h8v4"/><rect x="2" y="6" width="12" height="6" rx="1"/><path d="M4 12h8v3H4z"/></svg>
           <span class="mob-hide">Print / PDF</span>
         </button>
@@ -159,6 +159,7 @@ DISTRICTS.forEach(d => {
 let members = [];
 let districtRows = [];
 let repIntro = false;
+let lastReport = null;
 const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
 
 function isOverdue(m, outstanding) {
@@ -235,6 +236,7 @@ function render() {
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const totalDue = Math.round(fund.disbursed * 1.06);
   const cpct = totalDue ? Math.round((fund.repaid / totalDue) * 100) : 0;
+  lastReport = { fund, districtRows: districtRows.slice(), depotRows, dsel, issued, cpct };
   document.getElementById('countLabel').textContent =
     `${fmt(fund.count)} profiled · ${fmt(fund.disbursedCount)} disbursed`;
 
@@ -325,6 +327,105 @@ function animateUp(el) {
     if (p < 1) requestAnimationFrame(tick); else el.textContent = pre + fmt(to) + suf;
   }
   requestAnimationFrame(tick);
+}
+
+// Clean, dedicated A4 landscape fund report (not the live page).
+function printReport() {
+  if (!lastReport) { showToast('Nothing to print yet', 'error'); return; }
+  const { fund, districtRows, depotRows, dsel, issued, cpct } = lastReport;
+  const distName = dsel ? ((DISTRICTS.find(d => d.code === dsel) || {}).name || 'District') : 'All 12 Districts';
+  const emblem = `${location.origin}/images/coat-of-arms.png`;
+
+  const dRow = (label, a, bold) => `<tr${bold ? ' class="tot"' : ''}>
+    <td>${bold ? '<b>' + label + '</b>' : label}</td>
+    <td class="c">${fmt(a.count)}</td>
+    <td class="c">${fmt(a.disbursedCount)}</td>
+    <td class="n">${fmt(a.disbursed)}</td>
+    <td class="n g">${fmt(a.repaid)}</td>
+    <td class="n r">${fmt(a.outstanding)}</td>
+    <td class="c">${fmt(a.overdue)}</td>
+  </tr>`;
+  const districtHtml = districtRows.map(r => dRow(r.d.name, r.a)).join('') + dRow('TOTAL', fund, true);
+  const depotHtml = depotRows.map(r => `<tr>
+    <td>${r.depot}</td>
+    <td>${r.dn}</td>
+    <td class="c">${fmt(r.a.count)}</td>
+    <td class="c">${fmt(r.a.disbursedCount)}</td>
+    <td class="n">${fmt(r.a.disbursed)}</td>
+    <td class="n g">${fmt(r.a.repaid)}</td>
+    <td class="n r">${fmt(r.a.outstanding)}</td>
+  </tr>`).join('') || `<tr><td colspan="7" style="color:#9aa8a0;padding:10px">No data</td></tr>`;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Fund Report - ${distName}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    @page{size:A4 landscape;margin:0}
+    body{font-family:'Nunito',sans-serif;color:#1c3326;background:#e9efeb;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .sheet{width:297mm;min-height:210mm;margin:0 auto;background:#fff;display:flex;flex-direction:column}
+    .hd{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);color:#fff;padding:9mm 14mm 8mm;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+    .hd::after{content:"";position:absolute;right:-60px;top:-90px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.05)}
+    .hd .emblem{width:52px;height:52px;object-fit:contain;position:relative;flex-shrink:0}
+    .hd .ht{position:relative;flex:1}
+    .hd .prog{font-family:'Varela Round',sans-serif;font-size:19px;line-height:1.14}
+    .hd .off{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:rgba(255,255,255,.66);margin-top:6px}
+    .titlebar{display:flex;justify-content:space-between;align-items:center;padding:6mm 14mm 0}
+    .titlebar .t{font-family:'Varela Round',sans-serif;font-size:14px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.13em}
+    .titlebar .dist{font-family:'Varela Round',sans-serif;font-size:12px;color:#142a1d;background:#eaf7f0;border:1.5px solid #b3e6c8;border-radius:8px;padding:5px 14px}
+    .meta{padding:2mm 14mm 0;font-size:10px;font-weight:700;color:#7a8e83}
+    .body{padding:5mm 14mm 0;flex:1}
+    .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:5mm}
+    .cd{border:1.5px solid #e3ece7;border-radius:10px;padding:9px 12px}
+    .cd .l{font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#7a8e83}
+    .cd .v{font-family:'Varela Round',sans-serif;font-size:14px;color:#142a1d;margin-top:3px}
+    .cd .v.g{color:#0a7a3a}.cd .v.r{color:#c0392b}
+    .sect{font-family:'Varela Round',sans-serif;font-size:12px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.12em;margin:0 0 6px}
+    table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6mm}
+    thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:7px 9px;border-bottom:1.5px solid #d8ece1}
+    thead th.c,thead th.n{text-align:right}
+    tbody td{padding:7px 9px;border-bottom:1px solid #eef2f0}
+    td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
+    td.c{text-align:right;font-variant-numeric:tabular-nums}
+    td.n.g{color:#0a7a3a}td.n.r{color:#c0392b}
+    tr.tot td{font-weight:900;border-top:2px solid #0a7a3a;background:#f4f9f6;color:#142a1d}
+    .ft{margin-top:auto;padding:6mm 14mm 8mm;border-top:1.5px solid #eef2f0;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#9aa8a0;font-weight:700}
+    .ft .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
+    @media print{body{background:#fff}.sheet{margin:0}}
+  </style></head><body>
+  <div class="sheet">
+    <div class="hd">
+      <img class="emblem" src="${emblem}" alt="" onerror="this.style.display='none'">
+      <div class="ht"><div class="prog">Busoga Ghetto Presidential Empowerment Fund</div><div class="off">Office of the President, State House Uganda</div></div>
+    </div>
+    <div class="titlebar"><div class="t">Fund Report</div><div class="dist">${distName}</div></div>
+    <div class="meta">Generated ${issued}</div>
+    <div class="body">
+      <div class="cards">
+        <div class="cd"><div class="l">Members</div><div class="v">${fmt(fund.count)}</div></div>
+        <div class="cd"><div class="l">Disbursed (UGX)</div><div class="v">${fmt(fund.disbursed)}</div></div>
+        <div class="cd"><div class="l">Repaid (UGX)</div><div class="v g">${fmt(fund.repaid)}</div></div>
+        <div class="cd"><div class="l">Outstanding (UGX)</div><div class="v r">${fmt(fund.outstanding)}</div></div>
+        <div class="cd"><div class="l">Collected</div><div class="v">${cpct}%</div></div>
+        <div class="cd"><div class="l">Overdue Loans</div><div class="v r">${fmt(fund.overdue)}</div></div>
+      </div>
+      <div class="sect">By District</div>
+      <table>
+        <thead><tr><th>District</th><th class="c">Members</th><th class="c">Disbursed</th><th class="n">Amount (UGX)</th><th class="n">Repaid (UGX)</th><th class="n">Outstanding (UGX)</th><th class="c">Overdue</th></tr></thead>
+        <tbody>${districtHtml}</tbody>
+      </table>
+      <div class="sect">By Depot${dsel ? ' — ' + distName : ''}</div>
+      <table>
+        <thead><tr><th>Depot</th><th>District</th><th class="c">Members</th><th class="c">Disbursed</th><th class="n">Amount (UGX)</th><th class="n">Repaid (UGX)</th><th class="n">Outstanding (UGX)</th></tr></thead>
+        <tbody>${depotHtml}</tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="bar">Together We Can</span><span>Busoga Ghetto Structure &middot; Presidential Empowerment Fund (Busoga Pilot)</span></div>
+  </div>
+  ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},420)}</scr' + 'ipt>'}
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 function downloadCSV() {
