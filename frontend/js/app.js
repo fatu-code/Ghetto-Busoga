@@ -91,7 +91,10 @@ function accessOf(user) {
 // Friendly label for a role, e.g. "RDC · Jinja City".
 function roleLabel(user) {
   const acc = accessOf(user);
-  if (acc.isAdmin) return "Administrator";
+  if (acc.isAdmin) {
+    // Al-Hajj Faruk Kirunda is the Chief Coordinator, not an "Administrator".
+    return /kirunda|faruk/i.test((user && user.name) || "") ? "Chief Coordinator" : "Administrator";
+  }
   const d = DISTRICTS.find((x) => x.code === acc.district);
   const dn = d ? d.name : acc.district || "";
   const base = acc.isRDC ? "RDC" : "Profiler";

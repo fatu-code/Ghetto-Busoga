@@ -103,6 +103,11 @@ DISTRICTS.forEach(d => {
 });
 
 function roleName(r) { return r === 'admin' ? 'Administrator' : r === 'rdc' ? 'RDC' : 'Profiler'; }
+// Al-Hajj Faruk Kirunda shows as Chief Coordinator rather than Administrator.
+function displayRole(u) {
+  if (u.role === 'admin' && /kirunda|faruk/i.test(u.name || '')) return 'Chief Coordinator';
+  return roleName(u.role);
+}
 function districtName(code) { const d = DISTRICTS.find(x => x.code === code); return d ? d.name : (code || ''); }
 // Admins have no district; show the picker only for RDC / Profiler.
 function toggleDistrict() {
@@ -139,7 +144,7 @@ function render() {
         <td><div style="display:flex;align-items:center;gap:10px"><div class="u-av">${initials(u.name)}</div><div style="font-weight:800">${u.name}${u.id === me.id ? ' <span style="color:var(--muted);font-weight:600">(you)</span>' : ''}</div></div></td>
         <td style="color:var(--muted)">@${u.username}</td>
         <td>
-          <span class="pill ${u.role === 'admin' ? 'pill-green' : u.role === 'rdc' ? 'pill-amber' : 'pill-gray'}">${roleName(u.role)}</span>
+          <span class="pill ${u.role === 'admin' ? 'pill-green' : u.role === 'rdc' ? 'pill-amber' : 'pill-gray'}">${displayRole(u)}</span>
           ${u.district ? `<div style="font-size:.68rem;color:var(--muted);margin-top:4px;font-weight:700">${districtName(u.district)}</div>` : ''}
         </td>
         <td style="color:var(--muted)">${formatDate(u.created_at)}</td>
