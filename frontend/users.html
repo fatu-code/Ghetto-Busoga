@@ -39,6 +39,11 @@
 .mu-v{font-family:var(--font);font-size:1.5rem;color:var(--text);line-height:1}
 .mu-l{font-family:var(--font2);font-size:.64rem;font-weight:800;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
 @media (prefers-reduced-motion:reduce){.mu-hero::before{animation:none}.mu-card{animation:none}}
+/* Subtle delete link (tucked in the edit modal, pushed to the far left) */
+.u-del-link{margin-right:auto;border-color:transparent;background:none;color:var(--muted);padding-left:0}
+.u-del-link:hover{border-color:#f5b7b1;background:#fdecec;color:#c0392b}
+.del-warn{width:40px;height:40px;border-radius:11px;background:#fdecec;border:1.5px solid #f5b7b1;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.del-warn svg{width:19px;height:19px;fill:none;stroke:#c0392b;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 </style>
 </head>
 <body>
@@ -100,10 +105,37 @@
       </div>
     </div>
     <div class="modal-foot">
+      <button class="btn btn-sm u-del-link" id="uDeleteBtn" style="display:none" onclick="askDelete()">
+        <svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg>
+        Delete account
+      </button>
       <button class="btn" onclick="closeModal('userModal')">Cancel</button>
       <button class="btn btn-green" id="uSaveBtn" onclick="saveUser()">
         <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg>
         Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal-bg" id="delConfirmModal">
+  <div class="modal-card" style="max-width:420px">
+    <div class="modal-head">
+      <div class="modal-title">Delete account</div>
+      <button class="modal-close" onclick="closeModal('delConfirmModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="del-warn"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg></div>
+        <div id="delMsg" style="font-family:var(--font2);font-size:.84rem;color:var(--text);line-height:1.6"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('delConfirmModal')">Cancel</button>
+      <button class="btn btn-red" id="delConfirmBtn" onclick="confirmDelete()">
+        <svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg>
+        Delete
       </button>
     </div>
   </div>
@@ -183,7 +215,6 @@ function render() {
         <td style="color:var(--muted)">${formatDate(u.created_at)}</td>
         <td style="text-align:right;white-space:nowrap">
           <button class="btn btn-sm" onclick="openEdit(${u.id})">Edit</button>
-          ${u.id === me.id ? '' : `<button class="btn btn-sm btn-red" onclick="delUser(${u.id})">Delete</button>`}
         </td>
       </tr>`).join('')}</tbody>
   </table></div></div>`;
@@ -219,6 +250,7 @@ function openAdd() {
   document.getElementById('uPwLabel').textContent = 'Password *';
   document.getElementById('uRole').value = 'profiler';
   document.getElementById('uDistrict').value = '';
+  document.getElementById('uDeleteBtn').style.display = 'none';
   toggleDistrict();
   openModal('userModal');
 }
@@ -234,6 +266,8 @@ function openEdit(id) {
   document.getElementById('uPwLabel').textContent = 'New Password';
   document.getElementById('uRole').value = ['admin', 'rdc', 'profiler'].includes(u.role) ? u.role : 'profiler';
   document.getElementById('uDistrict').value = u.district || '';
+  // You can't delete your own account; hide the option when editing yourself.
+  document.getElementById('uDeleteBtn').style.display = (id === me.id) ? 'none' : '';
   toggleDistrict();
   openModal('userModal');
 }
@@ -270,15 +304,32 @@ async function saveUser() {
   }
 }
 
-async function delUser(id) {
-  const u = users.find(x => x.id === id); if (!u) return;
-  if (!confirm(`Delete the account "${u.name}" (@${u.username})? They will no longer be able to log in.`)) return;
+// Open the confirmation modal for the account currently being edited.
+let pendingDelete = null;
+function askDelete() {
+  const u = users.find(x => x.id === editId); if (!u) return;
+  pendingDelete = u;
+  closeModal('userModal');
+  document.getElementById('delMsg').innerHTML =
+    `Delete the account for <b>${u.name}</b> (@${u.username})?<br><br>They will no longer be able to sign in. This cannot be undone. Records they created stay in the system.`;
+  openModal('delConfirmModal');
+}
+
+async function confirmDelete() {
+  if (!pendingDelete) return;
+  const btn = document.getElementById('delConfirmBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Deleting...';
   try {
-    await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
+    await apiFetch(`/api/users/${pendingDelete.id}`, { method: 'DELETE' });
+    closeModal('delConfirmModal');
     showToast('User deleted');
+    pendingDelete = null;
     loadUsers();
   } catch (e) {
     showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete';
   }
 }
 
