@@ -799,149 +799,154 @@ function exportCard() {
 // ── PRINT LOAN AGREEMENT ───────────────────────────────────────────
 // Pre-fills the official 2-page Busoga Ghetto Presidential Empowerment
 // Fund loan agreement. "Ghetto Cell" on the form is filled from the depot.
+// Print the SAME carded agreement shown on screen, so what you see is what you print.
 function printAgreement() {
   const m = member;
   const origin = window.location.origin;
+  const emblem = `${origin}/images/coat-of-arms.png`;
+  const disb = isDisbursed(m);
+  const s = disb ? loanSummary() : null;
+  const made = m.disbursement_date ? new Date(m.disbursement_date) : new Date();
+  const madeStr = made.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const dueStr = (s && s.due) ? formatDate(s.due) : '-';
+  const monthly = s ? Math.ceil(s.totalDue / 12) : 0;
+  const words = disb ? (numberToWords(m.amount) + ' Shillings Only') : '';
+  const dr = (k, v) => `<div class="drow"><span class="k">${k}</span><span class="v">${v}</span></div>`;
 
-  // Date the agreement is "made": use disbursement date, else today
-  const d = m.disbursement_date ? new Date(m.disbursement_date) : new Date();
-  const day = d.getDate();
-  const ord = (day % 10 === 1 && day !== 11) ? 'st'
-            : (day % 10 === 2 && day !== 12) ? 'nd'
-            : (day % 10 === 3 && day !== 13) ? 'rd' : 'th';
-  const monthName = d.toLocaleDateString('en-UG', { month: 'long' });
-  const year = d.getFullYear();
-
-  const amountWords = numberToWords(m.amount) + ' Shillings Only';
-  const amountFigures = fmt(m.amount);
-
-  // a filled blank (value sits on an underline); empty -> blank line to hand-write
-  const fill  = (v, w = 'auto') => `<span class="fill" style="min-width:${w}">${v || ''}</span>`;
-
-  const html = `<!DOCTYPE html><html><head><title>Loan Agreement - ${m.name} (${m.id})</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Loan Agreement - ${m.name} (${m.id})</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Nunito',sans-serif;color:#111;font-size:11.5pt;line-height:1.5}
-    .page{width:210mm;min-height:297mm;padding:18mm 20mm;margin:0 auto;background:#fff;position:relative;display:flex;flex-direction:column}
-    .page + .page{page-break-before:always}
-    .head{display:flex;align-items:center;gap:14px;border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:8px}
-    .emblem{width:64px;height:64px;object-fit:contain;flex-shrink:0}
-    .emblem-txt{font-size:7pt;font-weight:700;text-align:center;width:64px;flex-shrink:0;text-transform:uppercase;letter-spacing:.02em;color:#333}
-    .head-title{font-size:17pt;font-weight:900;letter-spacing:-.01em;line-height:1.1}
-    .head-pill{display:inline-block;background:#111;color:#fff;font-weight:800;font-size:11pt;letter-spacing:.06em;padding:4px 16px;border-radius:100px;margin-top:6px}
-    .made{text-align:left;margin:18px 0 6px}
-    .center{text-align:center;font-weight:800;margin:10px 0}
-    p{margin:7px 0}
-    .clause-h{font-weight:900;margin:16px 0 4px}
-    .sub{display:flex;gap:10px;margin:5px 0}
-    .sub .n{font-weight:800;flex-shrink:0;width:26px}
-    .fill{display:inline-block;border-bottom:1px solid #111;padding:0 6px 1px;font-weight:800;text-align:center;min-width:60px}
-    .line{display:inline-block;border-bottom:1px dotted #111;min-width:90px;height:1em;vertical-align:bottom}
-    .sig-block{margin-top:10px}
-    .sig-role{font-weight:800;margin-top:14px;margin-bottom:6px}
-    .sig-row{display:flex;gap:26px;margin-top:4px;font-size:10.5pt}
-    .sig-row .seg{flex:1}
-    .sig-seg-line{border-bottom:1px solid #111;height:18px;margin-top:2px}
-    .foot{margin-top:auto;border-top:2px solid #111;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-weight:900}
-    .foot .bar{background:#111;color:#fff;padding:4px 14px;border-radius:4px;font-size:10pt;letter-spacing:.04em}
-    .foot .pg{font-weight:800;font-size:10pt}
-    @page{size:A4;margin:0}
-    @media print{body{background:#fff}.page{margin:0}}
+    :root{--disp:'Varela Round',sans-serif;--ui:'Nunito',sans-serif;--serif:'Source Serif 4',Georgia,serif}
+    @page{size:A4;margin:13mm}
+    body{font-family:var(--ui);color:#1c3326;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .sheet{max-width:184mm;margin:0 auto}
+    .band{background:linear-gradient(125deg,#16271d,#0c4a2b 55%,#0a7a3a);color:#fff;border-radius:13px;padding:18px 22px;display:flex;align-items:center;gap:14px;overflow:hidden}
+    .band img{width:44px;height:44px;object-fit:contain;flex-shrink:0}
+    .band .mid{flex:1;min-width:0}
+    .band .prog{font-family:var(--disp);font-size:16px;line-height:1.18}
+    .band .doc{font-family:var(--ui);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.3em;color:rgba(255,255,255,.62);margin-top:7px}
+    .band .serial{text-align:right;flex-shrink:0;font-family:var(--ui);font-size:7.5px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.55)}
+    .band .serial b{display:block;font-family:var(--disp);font-size:13px;letter-spacing:.04em;color:#fff;margin-top:4px;text-transform:none}
+    .made{font-family:var(--serif);font-size:12.5px;line-height:1.6;margin:18px 2px 16px}
+    .made b{font-weight:600}
+    .amount{background:#eaf7f0;border:1px solid #b3e6c8;border-radius:13px;padding:18px 22px;text-align:center;margin-bottom:18px}
+    .amount .l{font-family:var(--ui);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#0a7a3a}
+    .amount .v{font-family:var(--disp);font-size:30px;color:#0a7a3a;line-height:1.05;margin:7px 0 4px}
+    .amount .w{font-family:var(--serif);font-style:italic;font-size:12px;color:#5b6b62}
+    .twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .card{border:1px solid #c4ccc6;border-radius:13px;overflow:hidden;margin-top:14px;break-inside:avoid}
+    .twocol .card{margin-top:0}
+    .card-h{padding:11px 16px;border-bottom:1px solid #c4ccc6;background:#f3f6f4;font-family:var(--ui);font-weight:900;font-size:9.5px;text-transform:uppercase;letter-spacing:.13em;color:#1c3326}
+    .card-b{padding:15px 16px}
+    .pname{font-family:var(--disp);font-size:14.5px;color:#1c3326;text-transform:uppercase;line-height:1.18;margin-bottom:8px}
+    .pmeta{font-family:var(--serif);font-size:11.5px;color:#54625a;line-height:1.7}
+    .pmeta em{font-style:italic;color:#8a978f}
+    .drow{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:9px 0;border-bottom:1px solid #e6ebe8}
+    .drow:first-child{padding-top:0}
+    .drow:last-child{border-bottom:none}
+    .drow .k{font-family:var(--serif);font-size:12px;color:#54625a}
+    .drow .v{font-family:var(--disp);font-size:13px;color:#1c3326}
+    .dtotal{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-top:8px;padding-top:13px;border-top:2px solid #1c3326}
+    .dtotal .k{font-family:var(--ui);font-weight:900;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#1c3326}
+    .dtotal .v{font-family:var(--disp);font-size:18px;color:#1c3326}
+    .tlist{margin:0;padding:0;list-style:none;counter-reset:tl;display:grid;gap:13px}
+    .tlist li{position:relative;padding-left:32px;font-family:var(--serif);font-size:12px;color:#1c3326;line-height:1.6;counter-increment:tl}
+    .tlist li::before{content:counter(tl);position:absolute;left:0;top:0;width:21px;height:21px;border-radius:50%;border:1.5px solid #93a39a;color:#1c3326;font-family:var(--disp);font-size:11px;display:flex;align-items:center;justify-content:center}
+    .siglines{display:grid;grid-template-columns:1fr 1fr;gap:22px 34px}
+    .sigl-line{border-bottom:1.4px solid #8c9a92;height:38px;display:flex;align-items:flex-end;padding-bottom:5px;font-family:var(--serif);font-size:12.5px;color:#1c3326}
+    .sigl-cap{font-family:var(--ui);font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#54625a;margin-top:7px}
+    .signote{font-family:var(--serif);font-style:italic;font-size:11.5px;color:#54625a;line-height:1.6;margin-top:14px}
+    .foot{margin-top:18px;padding-top:12px;border-top:1px solid #c4ccc6;display:flex;justify-content:space-between;align-items:center;font-family:var(--ui);font-size:9px;font-weight:700;color:#9aa8a0}
+    .foot .bar{font-family:var(--disp);color:#0a7a3a;font-size:12px}
+    @media print{.card,.twocol,.amount{break-inside:avoid}}
   </style></head><body>
+  <div class="sheet">
+    <div class="band">
+      <img src="${emblem}" alt="" onerror="this.style.display='none'">
+      <div class="mid"><div class="prog">Busoga Ghetto Presidential Empowerment Fund</div><div class="doc">Loan Agreement</div></div>
+      <div class="serial">Serial No.<b>${m.id}</b></div>
+    </div>
 
-  <div class="page">
-    <div class="head">
-      <div style="display:flex;flex-direction:column;align-items:center">
-        <img class="emblem" src="${origin}/images/coat-of-arms.png" alt="" onerror="this.style.display='none'">
-        <div class="emblem-txt">The Republic<br>of Uganda</div>
+    <p class="made">This Loan Agreement is made on <b>${madeStr}</b>, between the Borrower named below and the Busoga Ghetto Presidential Empowerment Fund (the Lender).</p>
+
+    <div class="amount">
+      <div class="l">Loan advanced to ${titleCase(m.name)}</div>
+      <div class="v">${disb ? 'UGX ' + fmt(m.amount) : 'Pending disbursement'}</div>
+      ${disb ? `<div class="w">${words}</div>` : ''}
+    </div>
+
+    <div class="twocol">
+      <div class="card">
+        <div class="card-h">Borrower</div>
+        <div class="card-b">
+          <div class="pname">${m.name}</div>
+          <div class="pmeta">
+            NIN ${m.nin || '-'}${m.phone ? '<br>Tel ' + m.phone : ''}<br>
+            ${m.depot} (Ghetto Cell)<br>
+            ${m.sub_county || '-'} Sub-County, ${m.parish || '-'} Parish<br>
+            ${m.district_name} District<br>
+            <em>hereinafter the "Borrower"</em>
+          </div>
+        </div>
       </div>
-      <div>
-        <div class="head-title">BUSOGA GHETTO PRESIDENTIAL<br>EMPOWERMENT FUND</div>
-        <div class="head-pill">LOAN AGREEMENT</div>
+      <div class="card">
+        <div class="card-h">Lender</div>
+        <div class="card-b">
+          <div class="pname">The Fund</div>
+          <div class="pmeta">
+            Busoga Ghetto Presidential Empowerment Fund<br>
+            Office of the President,<br>State House Uganda<br>
+            SACCO facility at 6% per annum<br>
+            <em>hereinafter the "Lender"</em>
+          </div>
+        </div>
       </div>
     </div>
 
-    <p class="made">This Loan Agreement is made this ${fill(day + ord, '52px')} day of ${fill(monthName, '110px')}, ${fill(year, '64px')}</p>
+    <div class="card">
+      <div class="card-h">Loan Particulars</div>
+      <div class="card-b">
+        ${dr('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
+        ${dr('Interest (6% per annum)', disb ? 'UGX ' + fmt(s.interest) : '-')}
+        ${dr('Repayment period', '12 months')}
+        ${dr('Indicative monthly instalment', disb ? 'UGX ' + fmt(monthly) : '-')}
+        ${dr('Disbursed on', disb ? formatDate(m.disbursement_date) : 'Not yet')}
+        ${dr('Repay in full by', dueStr)}
+        <div class="dtotal"><span class="k">Total repayable</span><span class="v">${disb ? 'UGX ' + fmt(s.totalDue) : '-'}</span></div>
+      </div>
+    </div>
 
-    <p class="center">BETWEEN</p>
-    <p>${fill(m.name, '230px')} of ${fill(m.district_name, '150px')} District, ${fill(m.sub_county, '140px')} Sub-County, ${fill(m.parish, '140px')} Parish, ${fill(m.depot, '150px')} Ghetto Cell,</p>
-    <p>(hereinafter referred to as the "Borrower," which expression shall, where the context admits, include his/her personal representatives, successors, and assigns)</p>
+    <div class="card">
+      <div class="card-h">Terms of the Agreement</div>
+      <div class="card-b">
+        <ol class="tlist">
+          <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
+          <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
+          <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
+          <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
+          <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
+        </ol>
+      </div>
+    </div>
 
-    <p class="center">AND</p>
-    <p>The Busoga Ghetto Presidential Empowerment Fund, (hereinafter referred to as the "Lender.")</p>
+    <div class="card">
+      <div class="card-h">Execution &amp; Signatures</div>
+      <div class="card-b">
+        <div class="siglines">
+          <div><div class="sigl-line">${titleCase(m.name)}</div><div class="sigl-cap">Borrower</div></div>
+          <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">Chairperson, Ghetto Cell</div></div>
+          <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">District Ghetto President</div></div>
+          <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">RDC / RCC</div></div>
+        </div>
+        <div class="signote">By signing, the parties accept the terms set out in this Agreement.</div>
+      </div>
+    </div>
 
-    <p class="clause-h">1. Loan Advance</p>
-    <div class="sub"><span class="n">1.1</span><span>The Borrower hereby acknowledges receiving from the Lender a loan in the sum of: ${fill(amountWords, '200px')} Uganda Shillings (UGX ${fill(amountFigures, '120px')}) (the "Loan Amount"), which the Borrower confirms as accurate.</span></div>
-    <div class="sub"><span class="n">1.2</span><span>The loan shall accrue interest at the rate of six percent (6%) per annum for the entire duration of this Agreement.</span></div>
-
-    <p class="clause-h">2. Purpose of the Loan</p>
-    <p>The Borrower undertakes and agrees that the Loan Amount shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</p>
-
-    <p class="clause-h">3. Repayment Terms</p>
-    <div class="sub"><span class="n">3.1</span><span>The Borrower shall repay the full Loan Amount together with the applicable interest within twelve (12) months from the date of execution of this Agreement.</span></div>
-    <div class="sub"><span class="n">3.2</span><span>All repayments shall be made in accordance with the schedule, mode, and instructions prescribed by the Lender at the time of disbursement.</span></div>
-
-    <p class="clause-h">4. Acknowledgment of Terms and Conditions</p>
-    <div class="sub"><span class="n">4.1</span><span>The Borrower confirms that he/she has carefully read and understood all terms, conditions, obligations, and declarations contained in the Loan Application Form.</span></div>
-    <div class="sub"><span class="n">4.2</span><span>The Borrower affirms that the information provided therein is true, complete, and accurate, and that the said conditions bind the Borrower.</span></div>
-
-    <div class="foot"><span class="bar">Together We Can</span><span class="pg">1 of 2</span></div>
+    <div class="foot"><span class="bar">Together We Can</span><span>Busoga Ghetto Presidential Empowerment Fund &middot; ${m.id}</span></div>
   </div>
-
-  <div class="page">
-    <div class="head" style="border-bottom:1.5px solid #111;padding-bottom:8px">
-      <img class="emblem" style="width:40px;height:40px" src="${origin}/images/coat-of-arms.png" alt="" onerror="this.style.display='none'">
-      <div>
-        <div style="font-size:12pt;font-weight:900">BUSOGA GHETTO PRESIDENTIAL EMPOWERMENT FUND</div>
-        <div style="font-weight:800;letter-spacing:.04em">LOAN AGREEMENT</div>
-      </div>
-    </div>
-
-    <p class="clause-h">5. Default and Consequences</p>
-    <p>In the event that the Borrower fails, neglects, or refuses to repay the loan in accordance with Clause 3 above, the Borrower acknowledges and agrees that he/she shall be liable to legal action and prosecution in accordance with applicable laws and directives governing the Empowerment Fund.</p>
-
-    <p class="clause-h">6. Execution and Attestation</p>
-    <p>IN WITNESS WHEREOF, the Borrower has executed this Agreement on the date first above written, in the presence of the following witnesses:</p>
-
-    <div class="sig-block">
-      <div class="sig-role">A. Borrower</div>
-      <div class="sig-row">
-        <div class="seg">Name: ${fill(m.name, '170px')}</div>
-        <div class="seg">Signature:<div class="sig-seg-line"></div></div>
-        <div class="seg">Date:<div class="sig-seg-line"></div></div>
-      </div>
-    </div>
-
-    <div class="sig-block" style="margin-top:18px">
-      <div style="font-weight:900">B. Witnesses</div>
-
-      <div class="sig-role">1. Chairperson, Ghetto Cell</div>
-      <div class="sig-row">
-        <div class="seg">Name:<div class="sig-seg-line"></div></div>
-        <div class="seg">Signature:<div class="sig-seg-line"></div></div>
-        <div class="seg">Date:<div class="sig-seg-line"></div></div>
-      </div>
-
-      <div class="sig-role">2. District Ghetto President / Representative</div>
-      <div class="sig-row">
-        <div class="seg">Name:<div class="sig-seg-line"></div></div>
-        <div class="seg">Signature:<div class="sig-seg-line"></div></div>
-        <div class="seg">Date:<div class="sig-seg-line"></div></div>
-      </div>
-
-      <div class="sig-role">3. RDC/RCC (Representative of the District/City Security Committee)</div>
-      <div class="sig-row">
-        <div class="seg">Name:<div class="sig-seg-line"></div></div>
-        <div class="seg">Signature:<div class="sig-seg-line"></div></div>
-        <div class="seg">Date:<div class="sig-seg-line"></div></div>
-      </div>
-    </div>
-
-    <div class="foot"><span class="bar">Together We Can</span><span class="pg">2 of 2</span></div>
-  </div>
-
-  ${'<scr' + 'ipt>window.onload=function(){window.print()}</scr' + 'ipt>'}
+  ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},350)}</scr' + 'ipt>'}
   </body></html>`;
 
   const w = window.open('', '_blank');
