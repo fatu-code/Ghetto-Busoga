@@ -252,7 +252,7 @@ function buildSidebar(active) {
     <div class="sb-user">
       <div class="sb-avatar">${initials(user?.name || "HK")}</div>
       <div style="flex:1;min-width:0">
-        <div class="sb-user-name">${user?.name || "Al-Hajj Faruk Kirunda"}</div>
+        <div class="sb-user-name">${titleCase(user?.name || "Al-Hajj Faruk Kirunda")}</div>
         <div class="sb-user-role">${roleLabel(user)}</div>
       </div>
     </div>
