@@ -44,6 +44,31 @@
 .rp-row:last-child{border-bottom:none}
 .rp-row span:last-child{font-family:var(--font);font-weight:800;color:var(--green)}
 .rp-empty{font-family:var(--font2);font-size:.74rem;color:var(--muted);padding:6px 0}
+/* Loan Agreement generator tab */
+.agr-wrap{max-width:840px;margin:0 auto}
+.agr-actionbar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;flex-wrap:wrap}
+.aa-title{font-family:var(--font);font-size:1rem;color:var(--text)}
+.aa-sub{font-family:var(--font2);font-size:.76rem;font-weight:600;color:var(--muted);margin-top:2px}
+.agr-doc{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.agr-banner{background:linear-gradient(125deg,#16271d,#0c4a2b 55%,#0a7a3a);color:#fff;padding:22px 26px;display:flex;align-items:center;gap:14px}
+.agr-banner img{width:46px;height:46px;object-fit:contain;flex-shrink:0}
+.agr-prog{font-family:var(--font);font-size:1.05rem;line-height:1.15}
+.agr-doctype{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.6);margin-top:6px}
+.agr-content{padding:24px 26px}
+.agr-intro{font-family:var(--font2);font-size:.84rem;color:var(--text);line-height:1.7;margin-bottom:18px}
+.agr-parties{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px}
+.agr-party{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:15px 17px}
+.agr-party-role{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--green-dark)}
+.agr-party-name{font-family:var(--font);font-size:1.02rem;color:var(--text);margin:5px 0 8px;text-transform:uppercase;line-height:1.15}
+.agr-party-meta{font-family:var(--font2);font-size:.74rem;font-weight:600;color:var(--muted);line-height:1.7}
+.agr-block{margin-top:22px}
+.agr-block-h{font-family:var(--font2);font-weight:900;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.agr-block-h::before{content:"";width:3px;height:14px;background:var(--green);border-radius:2px}
+.agr-terms{margin:0;padding-left:20px;display:grid;gap:9px}
+.agr-terms li{font-family:var(--font2);font-size:.8rem;font-weight:600;color:var(--text);line-height:1.6}
+.agr-pending{margin-top:12px;background:#fff5e6;border:1px solid #ffd699;border-radius:10px;padding:11px 14px;font-family:var(--font2);font-size:.74rem;font-weight:700;color:#b06a00;line-height:1.5}
+.agr-sign-note{font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);line-height:1.6}
+@media(max-width:680px){.agr-parties{grid-template-columns:1fr}}
 </style>
 </head>
 <body>

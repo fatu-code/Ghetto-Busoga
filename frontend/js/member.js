@@ -105,6 +105,10 @@ function renderProfile() {
         <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="11" y="11" width="1" height="1"/><rect x="13" y="11" width="2" height="1"/><rect x="11" y="13" width="4" height="2"/></svg>
         QR Code & Verification
       </button>
+      <button class="tab" onclick="showTab('loan',this)">
+        <svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M9.5 1.5V5h3.5M5.5 8h5M5.5 10.5h5"/></svg>
+        Loan Agreement
+      </button>
     </div>
 
     <div class="tab-content active" id="tab-profile">
@@ -180,7 +184,9 @@ function renderProfile() {
           </div>
         </div>
       </div>
-    </div>`;
+    </div>
+
+    <div class="tab-content" id="tab-loan">${loanAgreementTab()}</div>`;
 
   // Set verify link
   const link = verifyUrl(m.id);
@@ -305,6 +311,101 @@ function loanCard() {
       <div class="rp-list">${history}</div>
     </div>`;
 }
+// On-screen, pre-filled preview of the loan agreement (the "Loan Agreement" tab).
+// The actual printable 2-page document is produced by printAgreement().
+function loanAgreementTab() {
+  const m = member;
+  const emblem = `${window.location.origin}/images/coat-of-arms.png`;
+  const disb = isDisbursed(m);
+  const s = disb ? loanSummary() : null;
+  const made = m.disbursement_date ? new Date(m.disbursement_date) : new Date();
+  const madeStr = made.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const dueStr = (s && s.due) ? formatDate(s.due) : '-';
+  const monthly = s ? Math.ceil(s.totalDue / 12) : 0;
+  const words = disb ? (numberToWords(m.amount) + ' Shillings Only') : '';
+
+  const cell = (l, v) => `<div class="lg"><div class="lg-l">${l}</div><div class="lg-v">${v}</div></div>`;
+
+  return `
+  <div class="agr-wrap">
+    <div class="agr-actionbar">
+      <div class="agr-actionbar-txt">
+        <div class="aa-title">Loan Agreement</div>
+        <div class="aa-sub">Pre-filled for ${m.name}. Review below, then print the official copy for signing.</div>
+      </div>
+      <button class="btn btn-green" onclick="printAgreement()">
+        <svg viewBox="0 0 16 16"><rect x="3" y="6" width="10" height="6" rx="1"/><path d="M4.5 6V2.5h7V6M5 9.5h6"/></svg>
+        Print Loan Agreement
+      </button>
+    </div>
+
+    <div class="agr-doc">
+      <div class="agr-banner">
+        <img src="${emblem}" alt="" onerror="this.style.display='none'">
+        <div>
+          <div class="agr-prog">Busoga Ghetto Presidential Empowerment Fund</div>
+          <div class="agr-doctype">Loan Agreement</div>
+        </div>
+      </div>
+      <div class="agr-content">
+        <p class="agr-intro">This Loan Agreement is made this <b>${madeStr}</b> between the Borrower named below and the Busoga Ghetto Presidential Empowerment Fund (the Lender).</p>
+
+        <div class="agr-parties">
+          <div class="agr-party">
+            <div class="agr-party-role">Borrower</div>
+            <div class="agr-party-name">${m.name}</div>
+            <div class="agr-party-meta">
+              NIN: ${m.nin || '-'}<br>
+              Serial: ${m.id}<br>
+              ${m.phone ? 'Phone: ' + m.phone + '<br>' : ''}
+              ${m.district_name} District &middot; ${m.depot} (Ghetto Cell)<br>
+              ${m.sub_county || '-'} Sub-County &middot; ${m.parish || '-'} Parish
+            </div>
+          </div>
+          <div class="agr-party">
+            <div class="agr-party-role">Lender</div>
+            <div class="agr-party-name">The Fund</div>
+            <div class="agr-party-meta">
+              Busoga Ghetto Presidential Empowerment Fund<br>
+              Office of the President, State House Uganda<br>
+              SACCO loan facility at 6% interest per annum
+            </div>
+          </div>
+        </div>
+
+        <div class="agr-block">
+          <div class="agr-block-h">Loan Particulars</div>
+          <div class="loan-grid">
+            ${cell('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
+            ${cell('Interest (6%)', disb ? 'UGX ' + fmt(s.interest) : '-')}
+            ${cell('Total Repayable', disb ? 'UGX ' + fmt(s.totalDue) : '-')}
+            ${cell('Per Month (12)', disb ? 'UGX ' + fmt(monthly) : '-')}
+            ${cell('Disbursed On', disb ? formatDate(m.disbursement_date) : 'Not yet')}
+            ${cell('Repay By', dueStr)}
+          </div>
+          ${disb ? '' : '<div class="agr-pending">The loan amount fills in automatically once this member is disbursed. You can still print a blank agreement to complete by hand.</div>'}
+        </div>
+
+        <div class="agr-block">
+          <div class="agr-block-h">Key Terms</div>
+          <ol class="agr-terms">
+            <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender.</li>
+            <li>The loan accrues interest at six percent (6%) per annum for the duration of the Agreement.</li>
+            <li>The funds shall be used strictly for empowerment activities under the Programme.</li>
+            <li>The full amount plus interest is repayable within twelve (12) months from execution.</li>
+            <li>On default, the Borrower is liable to legal action under the laws governing the Fund.</li>
+          </ol>
+        </div>
+
+        <div class="agr-block">
+          <div class="agr-block-h">Signatures on the printed copy</div>
+          <div class="agr-sign-note">The printed agreement is signed by the Borrower and witnessed by the Chairperson (Ghetto Cell), the District Ghetto President / Representative, and the RDC/RCC.</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function openRepay() {
   const s = loanSummary();
   document.getElementById('repayInfo').innerHTML =
