@@ -41,6 +41,10 @@
 .depot-menu button:hover{background:var(--green-pale)}
 .depot-menu button.danger{color:#c0392b}
 .depot-menu button.danger:hover{background:#fdecec}
+.del-warn{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.del-warn svg{width:19px;height:19px;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.del-warn.red{background:#fdecec;border:1.5px solid #f5b7b1}.del-warn.red svg{stroke:#c0392b}
+.del-warn.amber{background:#fff4e0;border:1.5px solid #f3d28a}.del-warn.amber svg{stroke:#b9770e}
 .depot-menu svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 /* Gentle one-time entrance for the beneficiary cards */
 @keyframes bRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -256,6 +260,25 @@
       <button class="btn btn-green" id="mvSaveBtn" onclick="moveDepotMembers()">
         <svg viewBox="0 0 16 16"><path d="M3 8h9M9 5l3 3-3 3"/></svg> Move
       </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="delDepotModal">
+  <div class="modal-card" style="max-width:430px">
+    <div class="modal-head">
+      <div class="modal-title">Delete Depot</div>
+      <button class="modal-close" onclick="closeModal('delDepotModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="del-warn" id="delDepotIcon"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg></div>
+        <div id="delDepotMsg" style="font-family:var(--font2);font-size:.84rem;color:var(--text);line-height:1.6"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('delDepotModal')">Cancel</button>
+      <button class="btn" id="delDepotActBtn"></button>
     </div>
   </div>
 </div>
@@ -672,21 +695,43 @@ async function moveDepotMembers() {
   }
 }
 
-async function deleteDepotRoster() {
+function deleteDepotRoster() {
   closeDepotMenu();
   const count = allMembers.length;
   const dn = (DISTRICTS.find(d => d.code === districtParam) || {}).name || districtParam;
+  const icon = document.getElementById('delDepotIcon');
+  const msg  = document.getElementById('delDepotMsg');
+  const btn  = document.getElementById('delDepotActBtn');
+
   if (count > 0) {
-    showToast(`This depot has ${count} beneficiar${count === 1 ? 'y' : 'ies'}. Use "Move beneficiaries" first, then delete the empty depot.`, 'error');
-    return;
+    // Protect beneficiaries: redirect the admin to "Move beneficiaries" instead of deleting.
+    icon.className = 'del-warn amber';
+    msg.innerHTML = `<b>${titleCase(depotFilter)}</b> still has <b>${count} beneficiar${count === 1 ? 'y' : 'ies'}</b>. To protect them, this depot cannot be deleted yet. Move them to another depot first, then delete the empty depot.`;
+    btn.className = 'btn btn-green';
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 8h9M9 5l3 3-3 3"/></svg> Move beneficiaries';
+    btn.onclick = () => { closeModal('delDepotModal'); openMoveDepot(); };
+  } else {
+    icon.className = 'del-warn red';
+    msg.innerHTML = `Delete the empty depot <b>${titleCase(depotFilter)}</b> in ${dn}? This cannot be undone.`;
+    btn.className = 'btn btn-red';
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot';
+    btn.onclick = confirmDeleteDepot;
   }
-  if (!confirm(`Delete the empty depot "${titleCase(depotFilter)}" in ${dn}?`)) return;
+  openModal('delDepotModal');
+}
+
+async function confirmDeleteDepot() {
+  const btn = document.getElementById('delDepotActBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Deleting...';
   try {
     await apiFetch('/api/depots/clear', { method: 'POST', body: { district: districtParam, name: depotFilter } });
+    closeModal('delDepotModal');
     showToast('Depot deleted');
     setTimeout(() => location.href = `depots.html?district=${districtParam}`, 700);
   } catch (e) {
     showToast(e.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot';
   }
 }
 
