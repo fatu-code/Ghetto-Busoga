@@ -324,83 +324,87 @@ function loanAgreementTab() {
   const monthly = s ? Math.ceil(s.totalDue / 12) : 0;
   const words = disb ? (numberToWords(m.amount) + ' Shillings Only') : '';
 
-  const cell = (l, v) => `<div class="lg"><div class="lg-l">${l}</div><div class="lg-v">${v}</div></div>`;
+  const row = (l, v, hot) => `<div class="agr-row${hot ? ' hot' : ''}"><span class="k">${l}</span><span class="v">${v}</span></div>`;
 
   return `
   <div class="agr-wrap">
-    <div class="agr-actionbar">
-      <div class="agr-actionbar-txt">
-        <div class="aa-title">Loan Agreement</div>
-        <div class="aa-sub">Pre-filled for ${m.name}. Review below, then print the official copy for signing.</div>
+    <div class="agr-top">
+      <div>
+        <div class="agr-top-eyebrow">Document &middot; pre-filled</div>
+        <div class="agr-top-title">Loan Agreement</div>
       </div>
-      <button class="btn btn-green" onclick="printAgreement()">
+      <button class="btn btn-green agr-print" onclick="printAgreement()">
         <svg viewBox="0 0 16 16"><rect x="3" y="6" width="10" height="6" rx="1"/><path d="M4.5 6V2.5h7V6M5 9.5h6"/></svg>
         Print Loan Agreement
       </button>
     </div>
 
-    <div class="agr-doc">
-      <div class="agr-banner">
+    <div class="agr-sheet">
+      <div class="agr-band">
         <img src="${emblem}" alt="" onerror="this.style.display='none'">
-        <div>
-          <div class="agr-prog">Busoga Ghetto Presidential Empowerment Fund</div>
-          <div class="agr-doctype">Loan Agreement</div>
+        <div class="mid">
+          <div class="prog">Busoga Ghetto Presidential Empowerment Fund</div>
+          <div class="doc">Loan Agreement</div>
         </div>
+        <div class="serial">Serial No.<b>${m.id}</b></div>
       </div>
-      <div class="agr-content">
-        <p class="agr-intro">This Loan Agreement is made this <b>${madeStr}</b> between the Borrower named below and the Busoga Ghetto Presidential Empowerment Fund (the Lender).</p>
 
-        <div class="agr-parties">
-          <div class="agr-party">
-            <div class="agr-party-role">Borrower</div>
-            <div class="agr-party-name">${m.name}</div>
-            <div class="agr-party-meta">
-              NIN: ${m.nin || '-'}<br>
-              Serial: ${m.id}<br>
-              ${m.phone ? 'Phone: ' + m.phone + '<br>' : ''}
-              ${m.district_name} District &middot; ${m.depot} (Ghetto Cell)<br>
-              ${m.sub_county || '-'} Sub-County &middot; ${m.parish || '-'} Parish
+      <div class="agr-body">
+        <p class="agr-made">This Loan Agreement is made on <b>${madeStr}</b>, between the Borrower named below and the Busoga Ghetto Presidential Empowerment Fund (the Lender).</p>
+
+        <div class="agr-amount${disb ? '' : ' pending'}">
+          <div class="l">Loan advanced to ${titleCase(m.name)}</div>
+          <div class="v">${disb ? 'UGX ' + fmt(m.amount) : 'Pending disbursement'}</div>
+          ${disb ? `<div class="w">${words}</div>` : ''}
+        </div>
+
+        <div class="agr-parties2">
+          <div class="pty">
+            <div class="pty-role">The Borrower</div>
+            <div class="pty-name">${m.name}</div>
+            <div class="pty-lines">
+              NIN ${m.nin || '-'}<br>
+              ${m.phone ? m.phone + '<br>' : ''}
+              ${m.depot} (Ghetto Cell)<br>
+              ${m.sub_county || '-'} Sub-County, ${m.parish || '-'} Parish<br>
+              ${m.district_name} District
             </div>
           </div>
-          <div class="agr-party">
-            <div class="agr-party-role">Lender</div>
-            <div class="agr-party-name">The Fund</div>
-            <div class="agr-party-meta">
-              Busoga Ghetto Presidential Empowerment Fund<br>
-              Office of the President, State House Uganda<br>
-              SACCO loan facility at 6% interest per annum
+          <div class="vline"></div>
+          <div class="pty">
+            <div class="pty-role">The Lender</div>
+            <div class="pty-name">The Fund</div>
+            <div class="pty-lines">
+              Busoga Ghetto Presidential<br>Empowerment Fund<br>
+              Office of the President,<br>State House Uganda<br>
+              SACCO facility &middot; 6% per annum
             </div>
           </div>
         </div>
 
-        <div class="agr-block">
-          <div class="agr-block-h">Loan Particulars</div>
-          <div class="loan-grid">
-            ${cell('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
-            ${cell('Interest (6%)', disb ? 'UGX ' + fmt(s.interest) : '-')}
-            ${cell('Total Repayable', disb ? 'UGX ' + fmt(s.totalDue) : '-')}
-            ${cell('Per Month (12)', disb ? 'UGX ' + fmt(monthly) : '-')}
-            ${cell('Disbursed On', disb ? formatDate(m.disbursement_date) : 'Not yet')}
-            ${cell('Repay By', dueStr)}
-          </div>
-          ${disb ? '' : '<div class="agr-pending">The loan amount fills in automatically once this member is disbursed. You can still print a blank agreement to complete by hand.</div>'}
+        <div class="agr-h">Loan Particulars</div>
+        <div class="agr-rows">
+          ${row('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
+          ${row('Interest (6% per annum)', disb ? 'UGX ' + fmt(s.interest) : '-')}
+          ${row('Repayment period', '12 months')}
+          ${row('Indicative monthly', disb ? 'UGX ' + fmt(monthly) : '-')}
+          ${row('Disbursed on', disb ? formatDate(m.disbursement_date) : 'Not yet')}
+          ${row('Repay in full by', dueStr)}
+          ${row('Total repayable', disb ? 'UGX ' + fmt(s.totalDue) : '-', true)}
         </div>
+        ${disb ? '' : '<div class="agr-pending-note">The figures fill in automatically once this member is disbursed. You can still print a blank agreement to complete by hand.</div>'}
 
-        <div class="agr-block">
-          <div class="agr-block-h">Key Terms</div>
-          <ol class="agr-terms">
-            <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender.</li>
-            <li>The loan accrues interest at six percent (6%) per annum for the duration of the Agreement.</li>
-            <li>The funds shall be used strictly for empowerment activities under the Programme.</li>
-            <li>The full amount plus interest is repayable within twelve (12) months from execution.</li>
-            <li>On default, the Borrower is liable to legal action under the laws governing the Fund.</li>
-          </ol>
-        </div>
+        <div class="agr-h">Terms of the Agreement</div>
+        <ol class="agr-terms">
+          <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
+          <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
+          <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
+          <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
+          <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
+        </ol>
 
-        <div class="agr-block">
-          <div class="agr-block-h">Signatures on the printed copy</div>
-          <div class="agr-sign-note">The printed agreement is signed by the Borrower and witnessed by the Chairperson (Ghetto Cell), the District Ghetto President / Representative, and the RDC/RCC.</div>
-        </div>
+        <div class="agr-h">Execution</div>
+        <div class="agr-sign-note">The printed agreement is signed by the Borrower and witnessed by the Chairperson (Ghetto Cell), the District Ghetto President or Representative, and the RDC/RCC. Use <b>Print Loan Agreement</b> above to produce the official copy for signing.</div>
       </div>
     </div>
   </div>`;

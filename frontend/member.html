@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
 .qr-card{
   background:#1a2e22;
@@ -45,30 +46,58 @@
 .rp-row span:last-child{font-family:var(--font);font-weight:800;color:var(--green)}
 .rp-empty{font-family:var(--font2);font-size:.74rem;color:var(--muted);padding:6px 0}
 /* Loan Agreement generator tab */
-.agr-wrap{max-width:840px;margin:0 auto}
-.agr-actionbar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;flex-wrap:wrap}
-.aa-title{font-family:var(--font);font-size:1rem;color:var(--text)}
-.aa-sub{font-family:var(--font2);font-size:.76rem;font-weight:600;color:var(--muted);margin-top:2px}
-.agr-doc{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.agr-banner{background:linear-gradient(125deg,#16271d,#0c4a2b 55%,#0a7a3a);color:#fff;padding:22px 26px;display:flex;align-items:center;gap:14px}
-.agr-banner img{width:46px;height:46px;object-fit:contain;flex-shrink:0}
-.agr-prog{font-family:var(--font);font-size:1.05rem;line-height:1.15}
-.agr-doctype{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.22em;color:rgba(255,255,255,.6);margin-top:6px}
-.agr-content{padding:24px 26px}
-.agr-intro{font-family:var(--font2);font-size:.84rem;color:var(--text);line-height:1.7;margin-bottom:18px}
-.agr-parties{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:4px}
-.agr-party{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:15px 17px}
-.agr-party-role{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--green-dark)}
-.agr-party-name{font-family:var(--font);font-size:1.02rem;color:var(--text);margin:5px 0 8px;text-transform:uppercase;line-height:1.15}
-.agr-party-meta{font-family:var(--font2);font-size:.74rem;font-weight:600;color:var(--muted);line-height:1.7}
-.agr-block{margin-top:22px}
-.agr-block-h{font-family:var(--font2);font-weight:900;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.agr-block-h::before{content:"";width:3px;height:14px;background:var(--green);border-radius:2px}
-.agr-terms{margin:0;padding-left:20px;display:grid;gap:9px}
-.agr-terms li{font-family:var(--font2);font-size:.8rem;font-weight:600;color:var(--text);line-height:1.6}
-.agr-pending{margin-top:12px;background:#fff5e6;border:1px solid #ffd699;border-radius:10px;padding:11px 14px;font-family:var(--font2);font-size:.74rem;font-weight:700;color:#b06a00;line-height:1.5}
-.agr-sign-note{font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);line-height:1.6}
-@media(max-width:680px){.agr-parties{grid-template-columns:1fr}}
+.agr-wrap{--serif:'Source Serif 4',Georgia,serif;max-width:800px;margin:0 auto}
+.agr-top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.agr-top-eyebrow{font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.18em;color:var(--green);margin-bottom:4px}
+.agr-top-title{font-family:var(--font);font-size:1.45rem;color:var(--text);line-height:1}
+.agr-print{box-shadow:0 8px 20px -6px rgba(0,156,65,.45)}
+
+.agr-sheet{background:#fff;border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 24px 60px -28px rgba(16,40,28,.45)}
+.agr-band{position:relative;background:linear-gradient(125deg,#16271d,#0c4a2b 55%,#0a7a3a);color:#fff;padding:26px 32px;display:flex;align-items:center;gap:16px;overflow:hidden}
+.agr-band::after{content:"";position:absolute;right:-60px;top:-80px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05)}
+.agr-band img{width:48px;height:48px;object-fit:contain;flex-shrink:0;position:relative}
+.agr-band .mid{flex:1;position:relative;min-width:0}
+.agr-band .prog{font-family:var(--font);font-size:1.06rem;line-height:1.18}
+.agr-band .doc{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.3em;color:rgba(255,255,255,.6);margin-top:8px}
+.agr-band .serial{position:relative;text-align:right;flex-shrink:0;font-family:var(--font2);font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.55)}
+.agr-band .serial b{display:block;font-family:var(--font);font-size:.9rem;letter-spacing:.04em;color:#fff;margin-top:5px;text-transform:none}
+
+.agr-body{padding:30px 36px 36px}
+.agr-made{font-family:var(--serif);font-size:.96rem;color:var(--text);line-height:1.65;margin-bottom:22px}
+.agr-made b{font-weight:600}
+
+.agr-amount{background:linear-gradient(180deg,#f5fbf8,#eaf7f0);border:1px solid var(--green-mid);border-radius:15px;padding:22px 24px;text-align:center;margin-bottom:26px}
+.agr-amount .l{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--green-dark)}
+.agr-amount .v{font-family:var(--font);font-size:2.15rem;color:#0a7a3a;line-height:1.04;margin:8px 0 5px}
+.agr-amount .w{font-family:var(--serif);font-style:italic;font-size:.84rem;color:#5b6b62}
+.agr-amount.pending .v{color:#b06a00;font-size:1.5rem}
+
+.agr-parties2{display:grid;grid-template-columns:1fr 1px 1fr;gap:26px;padding-bottom:6px}
+.agr-parties2 .vline{background:var(--border)}
+.pty-role{font-family:var(--font2);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--green)}
+.pty-name{font-family:var(--font);font-size:1.05rem;color:var(--text);margin:7px 0 10px;text-transform:uppercase;line-height:1.12}
+.pty-lines{font-family:var(--serif);font-size:.83rem;color:var(--muted);line-height:1.9}
+
+.agr-h{font-family:var(--font2);font-weight:900;font-size:.64rem;text-transform:uppercase;letter-spacing:.16em;color:var(--text);margin:28px 0 13px;display:flex;align-items:center;gap:10px}
+.agr-h::before{content:"";width:14px;height:2px;background:var(--green);border-radius:2px;flex-shrink:0}
+.agr-h::after{content:"";flex:1;height:1px;background:var(--border)}
+
+.agr-rows{display:grid}
+.agr-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 2px;border-bottom:1px solid var(--border)}
+.agr-row:last-child{border-bottom:none}
+.agr-row .k{font-family:var(--font2);font-size:.8rem;font-weight:600;color:var(--muted)}
+.agr-row .v{font-family:var(--font);font-size:.94rem;color:var(--text);font-variant-numeric:tabular-nums}
+.agr-row.hot{border-bottom:none;margin-top:4px;padding-top:14px;border-top:1.5px solid var(--green-mid)}
+.agr-row.hot .k{color:var(--text);font-weight:800}
+.agr-row.hot .v{color:#0a7a3a;font-size:1.08rem}
+
+.agr-terms{margin:0;padding:0;list-style:none;counter-reset:agt;display:grid;gap:14px}
+.agr-terms li{position:relative;padding-left:36px;font-family:var(--serif);font-size:.87rem;color:var(--text);line-height:1.6;counter-increment:agt}
+.agr-terms li::before{content:counter(agt);position:absolute;left:0;top:-1px;width:23px;height:23px;border-radius:50%;background:var(--green-pale);border:1.5px solid var(--green-mid);color:var(--green-dark);font-family:var(--font);font-size:.72rem;display:flex;align-items:center;justify-content:center}
+
+.agr-pending-note{margin-top:14px;background:#fff5e6;border:1px solid #ffd699;border-radius:10px;padding:12px 15px;font-family:var(--font2);font-size:.76rem;font-weight:700;color:#b06a00;line-height:1.5}
+.agr-sign-note{font-family:var(--serif);font-size:.85rem;color:var(--muted);line-height:1.7}
+@media(max-width:680px){.agr-parties2{grid-template-columns:1fr;gap:18px}.agr-parties2 .vline{display:none}.agr-body{padding:24px 20px}}
 </style>
 </head>
 <body>
