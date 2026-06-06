@@ -347,7 +347,12 @@ if (depotFilter) {
         <button class="danger" onclick="deleteDepotRoster()"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot</button>
       </div>
     </div>` : '';
-  banner.innerHTML = `<div><div style="font-weight:800;color:var(--text)">Depot roster: <span style="color:var(--green)">${titleCase(depotFilter)}</span></div><div style="font-weight:600;color:var(--muted);font-size:.76rem;margin-top:2px">Members profiled under this depot. New registrations are added here.</div></div><div style="display:flex;align-items:center;gap:8px">${moreActions}<a href="members.html" class="btn btn-sm">View all</a></div>`;
+  const registerHere = _acc.canWrite ? `
+    <button class="btn btn-green btn-sm" onclick="openModal('addModal')">
+      <svg viewBox="0 0 16 16" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
+      Register member
+    </button>` : '';
+  banner.innerHTML = `<div><div style="font-weight:800;color:var(--text)">Depot roster: <span style="color:var(--green)">${titleCase(depotFilter)}</span></div><div style="font-weight:600;color:var(--muted);font-size:.76rem;margin-top:2px">Members profiled under this depot. New registrations are added here.</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">${registerHere}${moreActions}<a href="members.html" class="btn btn-sm">View all</a></div>`;
   const c = document.getElementById('membersContainer');
   c.parentNode.insertBefore(banner, c);
 }
