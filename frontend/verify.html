@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BGS — Beneficiary Verification</title>
+<title>BGS - Beneficiary Verification</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://backend-ghetto-busoga-production.up.railway.app" crossorigin>
@@ -125,7 +125,7 @@ const memberId = new URLSearchParams(window.location.search).get('id');
 
 function initials(n) { return (n||'?').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase(); }
 function fmtDate(d) {
-  if (!d) return '—';
+  if (!d) return '-';
   try { return new Date(d).toLocaleDateString('en-UG',{day:'numeric',month:'long',year:'numeric'}); }
   catch { return d; }
 }
@@ -165,7 +165,7 @@ if (!memberId) {
 }
 
 function render(m) {
-  document.title = m.name + ' — BGS Verification';
+  document.title = m.name + ' - BGS Verification';
   document.getElementById('main').innerHTML = `
     <div class="card">
       <div class="verified-banner">
@@ -205,9 +205,9 @@ function render(m) {
         ${[
           ['District',    m.district_name],
           ['Depot',       m.depot],
-          ['NIN',         m.nin_masked || '—'],
-          ['Village',     m.village || '—'],
-          ['Gender',      m.gender  || '—'],
+          ['NIN',         m.nin_masked || '-'],
+          ['Village',     m.village || '-'],
+          ['Gender',      m.gender  || '-'],
           ['Programme',   'Busoga Ghetto SACCO Fund'],
           ['Coordinator', 'Al-Hajj Faruk Kirunda'],
         ].map(([k,v]) => `

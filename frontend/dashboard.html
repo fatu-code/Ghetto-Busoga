@@ -8,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Dashboard — BGS</title>
+    <title>Dashboard - BGS</title>
     <link rel="stylesheet" href="css/style.css" />
     <style>
       .btn-outline{border-color:var(--border);background:var(--white);color:var(--text);box-shadow:none}
@@ -21,7 +21,7 @@
       .hero-btn:hover{background:rgba(255,255,255,.22)}
       .hero-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-      /* METRIC cards — icon left, number as hero, no dead space */
+      /* METRIC cards - icon left, number as hero, no dead space */
       .metrics-section{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}
       .metric-tile{position:relative;overflow:hidden;background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:18px 20px 18px 22px;transition:all .18s;display:flex;align-items:center;gap:15px}
       /* Coloured accent bar so each tile has its own identity */
@@ -176,7 +176,7 @@
                   <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
                 </div>
                 <div class="metric-body">
-                  <div class="metric-value" id="mtBeneficiaries">—</div>
+                  <div class="metric-value" id="mtBeneficiaries">-</div>
                   <div class="metric-label">Beneficiaries</div>
                   <div class="metric-sub" id="mtBeneficiariesSub">&nbsp;</div>
                 </div>
@@ -187,7 +187,7 @@
                   <svg viewBox="0 0 16 16"><path d="M1 6l7-5 7 5v8H1z"/><rect x="5" y="9" width="6" height="6"/></svg>
                 </div>
                 <div class="metric-body">
-                  <div class="metric-value" id="mtDepots">—</div>
+                  <div class="metric-value" id="mtDepots">-</div>
                   <div class="metric-label">Active Depots</div>
                   <div class="metric-sub" id="mtDepotsSub">&nbsp;</div>
                 </div>
@@ -198,7 +198,7 @@
                   <svg viewBox="0 0 16 16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/></svg>
                 </div>
                 <div class="metric-body">
-                  <div class="metric-value" id="mtDistricts">—</div>
+                  <div class="metric-value" id="mtDistricts">-</div>
                   <div class="metric-label">Districts</div>
                   <div class="metric-sub" id="mtDistrictsSub">&nbsp;</div>
                 </div>
@@ -209,7 +209,7 @@
                   <svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>
                 </div>
                 <div class="metric-body">
-                  <div class="metric-value" id="mtDisbursed">—</div>
+                  <div class="metric-value" id="mtDisbursed">-</div>
                   <div class="metric-label">Disbursed (UGX)</div>
                   <div class="metric-sub" id="mtDisbursedSub">&nbsp;</div>
                 </div>
@@ -220,7 +220,7 @@
                   <svg viewBox="0 0 16 16"><path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5"/></svg>
                 </div>
                 <div class="metric-body">
-                  <div class="metric-value" id="mtRepaid">—</div>
+                  <div class="metric-value" id="mtRepaid">-</div>
                   <div class="metric-label">Repaid (UGX)</div>
                   <div class="metric-sub" id="mtRepaidSub">&nbsp;</div>
                 </div>
@@ -231,7 +231,7 @@
                   <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg>
                 </div>
                 <div class="metric-body">
-                  <div class="metric-value" id="mtOutstanding">—</div>
+                  <div class="metric-value" id="mtOutstanding">-</div>
                   <div class="metric-label">Outstanding (UGX)</div>
                   <div class="metric-sub" id="mtOutstandingSub">&nbsp;</div>
                 </div>
@@ -279,8 +279,8 @@
                     </div>
                   </div>
                   <div class="ring-foot">
-                    <div><span class="dot green"></span>Repaid <b id="ringRepaid">—</b></div>
-                    <div><span class="dot grey"></span>Due <b id="ringDue">—</b></div>
+                    <div><span class="dot green"></span>Repaid <b id="ringRepaid">-</b></div>
+                    <div><span class="dot grey"></span>Due <b id="ringDue">-</b></div>
                   </div>
                 </div>
 
@@ -293,11 +293,11 @@
                   <div class="alert-list">
                     <div class="alert-item">
                       <div class="alert-icon"></div>
-                      <div class="alert-text"><strong>All depots operational</strong> — Every depot is actively receiving and processing beneficiaries across all 12 districts.</div>
+                      <div class="alert-text"><strong>All depots operational</strong> - Every depot is actively receiving and processing beneficiaries across all 12 districts.</div>
                     </div>
                     <div class="alert-item">
                       <div class="alert-icon"></div>
-                      <div class="alert-text"><strong>Disbursements on schedule</strong> — All scheduled disbursements have been completed. Next round: 15 June 2026.</div>
+                      <div class="alert-text"><strong>Disbursements on schedule</strong> - All scheduled disbursements have been completed. Next round: 15 June 2026.</div>
                     </div>
                   </div>
                 </div>
@@ -522,8 +522,8 @@
               </a>`).join('');
           }
         } catch {
-          document.getElementById('districtList').innerHTML = `<div style="${muted}">Couldn't load stats — check the connection.</div>`;
-          document.getElementById('recentList').innerHTML   = `<div style="${muted}">—</div>`;
+          document.getElementById('districtList').innerHTML = `<div style="${muted}">Couldn't load stats - check the connection.</div>`;
+          document.getElementById('recentList').innerHTML   = `<div style="${muted}">-</div>`;
         }
       }
 

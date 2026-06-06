@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Reports — BGS</title>
+<title>Reports - BGS</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -430,7 +430,7 @@ function render() {
     </div>
 
     <div class="rep-card">
-      <div class="rep-head"><div class="rep-head-l"><div class="rep-head-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div><div><span class="rep-title">By Depot${dsel ? ' — ' + ((DISTRICTS.find(x => x.code === dsel) || {}).name || '') : ''}</span><div class="rep-sub">${depotRows.length} depot${depotRows.length === 1 ? '' : 's'}</div></div></div></div>
+      <div class="rep-head"><div class="rep-head-l"><div class="rep-head-ic"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div><div><span class="rep-title">By Depot${dsel ? ' - ' + ((DISTRICTS.find(x => x.code === dsel) || {}).name || '') : ''}</span><div class="rep-sub">${depotRows.length} depot${depotRows.length === 1 ? '' : 's'}</div></div></div></div>
       <div class="table-wrap"><table>
         <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid (UGX)</th><th class="num">Outstanding (UGX)</th></tr></thead>
         <tbody>${depotRows.map(r => `<tr>
@@ -670,7 +670,7 @@ function printReport() {
         <thead><tr><th>District</th><th class="c">Members</th><th class="c">Disbursed</th><th class="n">Amount (UGX)</th><th class="n">Repaid (UGX)</th><th class="n">Outstanding (UGX)</th><th class="c">Overdue</th></tr></thead>
         <tbody>${districtHtml}</tbody>
       </table>
-      <div class="sect">By Depot${dsel ? ' — ' + distName : ''}</div>
+      <div class="sect">By Depot${dsel ? ' - ' + distName : ''}</div>
       <table>
         <thead><tr><th>Depot</th><th>District</th><th class="c">Members</th><th class="c">Disbursed</th><th class="n">Amount (UGX)</th><th class="n">Repaid (UGX)</th><th class="n">Outstanding (UGX)</th></tr></thead>
         <tbody>${depotHtml}</tbody>

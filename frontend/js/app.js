@@ -1,4 +1,4 @@
-/* ── BGS app.js — Shared JS ─────────────────────────────────────── */
+/* ── BGS app.js - Shared JS ─────────────────────────────────────── */
 
 const API_BASE = "https://backend-ghetto-busoga-production.up.railway.app";
 
@@ -148,7 +148,7 @@ async function apiFetch(path, options = {}) {
     throw new Error(data.error || `Request failed (${res.status})`);
   }
   // Any change (register, disburse, repayment, delete, depot, user) makes the
-  // cached member list stale — drop it so the next read refetches fresh data.
+  // cached member list stale - drop it so the next read refetches fresh data.
   if ((options.method || "GET").toUpperCase() !== "GET") {
     try { sessionStorage.removeItem("bgs_members_cache"); } catch {}
   }
@@ -309,7 +309,7 @@ function imgThumb(url, size) {
   return url.replace("/upload/", `/upload/c_fill,g_face,w_${size},h_${size},f_auto,q_auto/`);
 }
 function formatDate(d) {
-  if (!d) return "—";
+  if (!d) return "-";
   try {
     return new Date(d).toLocaleDateString("en-UG", {
       day: "numeric",
@@ -321,7 +321,7 @@ function formatDate(d) {
   }
 }
 function formatDateShort(d) {
-  if (!d) return "—";
+  if (!d) return "-";
   try {
     return new Date(d).toLocaleDateString("en-UG", {
       day: "numeric",

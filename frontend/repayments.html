@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Repayments — BGS</title>
+<title>Repayments - BGS</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,7 +163,7 @@ let lastView = null;
 // A distinct accent colour per district, to match the rest of the app.
 const COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
 
-// Octalysis: Development & Accomplishment — a collection tier per performance.
+// Octalysis: Development & Accomplishment - a collection tier per performance.
 function tierFor(pct) {
   if (pct >= 80) return { label: 'Excellent', cls: 'exc' };
   if (pct >= 50) return { label: 'Strong', cls: 'str' };
@@ -263,7 +263,7 @@ function render() {
       <td data-label="Status"><span class="lp ${L.status === 'Overdue' ? 'over' : L.status === 'Cleared' ? 'clr' : 'rep'}">${L.status}</span></td>
     </tr>`;
 
-  // Octalysis: Social Influence — rank districts by collection (a leaderboard),
+  // Octalysis: Social Influence - rank districts by collection (a leaderboard),
   // best performer on top with a gold rank badge.
   const dstats = DISTRICTS.map(d => {
     const dr = rows.filter(L => L.m.district === d.code);

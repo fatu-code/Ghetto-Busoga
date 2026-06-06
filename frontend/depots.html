@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Depots — BGS</title>
+<title>Depots - BGS</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -275,7 +275,7 @@ function renderDistricts() {
   // New Depot belongs to a district, so hide it on the all-districts view.
   const nb = document.getElementById('newDepotBtn');
   if (nb) nb.style.display = 'none';
-  // Octalysis: rank districts by members profiled — a profiling leaderboard.
+  // Octalysis: rank districts by members profiled - a profiling leaderboard.
   const ranked = DISTS.map(d => ({ d, dc: depotsForDistrict(d.code).length, mc: membersIn(d.code) }))
     .sort((a, b) => b.mc - a.mc || b.dc - a.dc);
   const tiles = ranked.map((r, i) => {

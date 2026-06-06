@@ -191,7 +191,7 @@
     }
   }
 
-  // openRegister({ district, depot, onDone }) — open the form in place.
+  // openRegister({ district, depot, onDone }) - open the form in place.
   window.openRegister = function (opts) {
     opts = opts || {};
     inject();
