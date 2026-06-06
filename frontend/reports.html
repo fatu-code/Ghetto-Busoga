@@ -268,10 +268,10 @@ function render() {
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const totalDue = Math.round(fund.disbursed * 1.06);
   const cpct = totalDue ? Math.round((fund.repaid / totalDue) * 100) : 0;
-  lastReport = { fund, districtRows: districtRows.slice(), depotRows, dsel, issued, cpct };
+  const cleared = members.filter(m => Number(m.amount) > 0 && (Number(m.repaid) || 0) >= Math.round(Number(m.amount) * 1.06)).length;
+  lastReport = { fund, districtRows: districtRows.slice(), depotRows, dsel, issued, cpct, cleared };
 
   // Visuals: donut (collection), funnel (pipeline), bar chart (by district)
-  const cleared = members.filter(m => Number(m.amount) > 0 && (Number(m.repaid) || 0) >= Math.round(Number(m.amount) * 1.06)).length;
   const DC = 2 * Math.PI * 52;
   const dashOff = DC * (1 - Math.min(100, cpct) / 100);
   const disbPct = fund.count ? Math.round((fund.disbursedCount / fund.count) * 100) : 0;
@@ -408,9 +408,46 @@ function animateUp(el) {
 // Clean, dedicated A4 landscape fund report (not the live page).
 function printReport() {
   if (!lastReport) { showToast('Nothing to print yet', 'error'); return; }
-  const { fund, districtRows, depotRows, dsel, issued, cpct } = lastReport;
+  const { fund, districtRows, depotRows, dsel, issued, cpct, cleared } = lastReport;
   const distName = dsel ? ((DISTRICTS.find(d => d.code === dsel) || {}).name || 'District') : 'All 12 Districts';
   const emblem = `${location.origin}/images/coat-of-arms.png`;
+
+  // Chart figures (printed versions of the on-screen visuals)
+  const PC = 2 * Math.PI * 42;
+  const pDash = PC * (1 - Math.min(100, cpct) / 100);
+  const pDisb = fund.count ? Math.round((fund.disbursedCount / fund.count) * 100) : 0;
+  const pClear = fund.count ? Math.round((cleared / fund.count) * 100) : 0;
+  const pMax = Math.max(1, ...districtRows.map(r => r.a.disbursed), 1);
+  const vizHtml = `
+    <div class="viz">
+      <div class="vcard">
+        <div class="vh">Collection</div>
+        <div class="dwrap">
+          <div class="dbox">
+            <svg class="donut" viewBox="0 0 96 96"><circle class="bg" cx="48" cy="48" r="42"></circle><circle class="fg" cx="48" cy="48" r="42" style="stroke-dasharray:${PC};stroke-dashoffset:${pDash}"></circle></svg>
+            <div class="dctr"><div class="dpct">${cpct}%</div><div class="dsub">Collected</div></div>
+          </div>
+          <div class="dleg">
+            <div class="lrow"><span class="ldot" style="background:#009c41"></span>Repaid<span class="v">UGX ${fmt(fund.repaid)}</span></div>
+            <div class="lrow"><span class="ldot" style="background:#dce6e0"></span>Outstanding<span class="v">UGX ${fmt(fund.outstanding)}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="vcard">
+        <div class="vh">Pipeline</div>
+        <div class="fn">
+          <div><div class="fnbar" style="width:100%;background:#0c4a2b">${fmt(fund.count)}</div><div class="fnlbl">Profiled</div></div>
+          <div><div class="fnbar" style="width:${Math.max(30, pDisb)}%;background:#009c41">${fmt(fund.disbursedCount)}</div><div class="fnlbl">Disbursed ${pDisb}%</div></div>
+          <div><div class="fnbar" style="width:${Math.max(24, pClear)}%;background:#7fd6a0;color:#0c4a2b">${fmt(cleared)}</div><div class="fnlbl">Cleared ${pClear}%</div></div>
+        </div>
+      </div>
+      <div class="vcard wide">
+        <div class="vh">Disbursed by district</div>
+        <div class="bars">
+          ${districtRows.map(r => `<div class="brow"><div class="bname">${r.d.name}</div><div class="btrack"><div class="bfill" style="width:${Math.round((r.a.disbursed / pMax) * 100)}%"></div></div><div class="bval">${fmt(r.a.disbursed)}</div></div>`).join('') || '<div style="color:#9aa8a0;font-size:9px">No data</div>'}
+        </div>
+      </div>
+    </div>`;
 
   const dRow = (label, a, bold) => `<tr${bold ? ' class="tot"' : ''}>
     <td>${bold ? '<b>' + label + '</b>' : label}</td>
@@ -456,6 +493,32 @@ function printReport() {
     .cd .v{font-family:'Varela Round',sans-serif;font-size:14px;color:#142a1d;margin-top:3px}
     .cd .v.g{color:#0a7a3a}.cd .v.r{color:#c0392b}
     .sect{font-family:'Varela Round',sans-serif;font-size:12px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.12em;margin:0 0 6px}
+    /* Visual overview (charts) */
+    .viz{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:5mm}
+    .vcard{border:1.5px solid #e3ece7;border-radius:11px;padding:11px 14px;break-inside:avoid}
+    .vcard.wide{grid-column:1 / -1}
+    .vh{font-family:'Varela Round',sans-serif;font-size:11px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:9px}
+    .dwrap{display:flex;align-items:center;gap:18px}
+    .dbox{position:relative;width:96px;height:96px;flex-shrink:0}
+    .donut{width:96px;height:96px;transform:rotate(-90deg)}
+    .donut .bg{fill:none;stroke:#eef2f0;stroke-width:12}
+    .donut .fg{fill:none;stroke:#009c41;stroke-width:12;stroke-linecap:round}
+    .dctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .dpct{font-family:'Varela Round',sans-serif;font-size:18px;color:#142a1d}
+    .dsub{font-size:7px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#7a8e83;margin-top:2px}
+    .dleg{display:grid;gap:8px;flex:1}
+    .lrow{display:flex;align-items:center;gap:7px;font-size:9.5px;font-weight:700;color:#5b6b62}
+    .ldot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+    .lrow .v{margin-left:auto;font-weight:800;color:#142a1d}
+    .fn{display:grid;gap:8px}
+    .fnbar{height:24px;margin:0 auto;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Varela Round',sans-serif;font-size:11px;min-width:34px}
+    .fnlbl{font-size:7.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#7a8e83;text-align:center;margin-top:2px}
+    .bars{display:grid;gap:6px}
+    .brow{display:grid;grid-template-columns:92px 1fr 92px;align-items:center;gap:8px;font-size:9px}
+    .bname{font-weight:800;color:#142a1d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .btrack{height:10px;background:#eef2f0;border-radius:100px;overflow:hidden}
+    .bfill{height:100%;background:#009c41;border-radius:100px}
+    .bval{text-align:right;font-weight:800;font-variant-numeric:tabular-nums;color:#142a1d}
     table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:6mm}
     thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:7px 9px;border-bottom:1.5px solid #d8ece1}
     thead th.c,thead th.n{text-align:right}
@@ -484,6 +547,7 @@ function printReport() {
         <div class="cd"><div class="l">Collected</div><div class="v">${cpct}%</div></div>
         <div class="cd"><div class="l">Overdue Loans</div><div class="v r">${fmt(fund.overdue)}</div></div>
       </div>
+      ${vizHtml}
       <div class="sect">By District</div>
       <table>
         <thead><tr><th>District</th><th class="c">Members</th><th class="c">Disbursed</th><th class="n">Amount (UGX)</th><th class="n">Repaid (UGX)</th><th class="n">Outstanding (UGX)</th><th class="c">Overdue</th></tr></thead>
