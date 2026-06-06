@@ -237,6 +237,29 @@
   </div>
 </div>
 
+<div class="modal-bg" id="moveDepotModal">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-head">
+      <div class="modal-title">Move Beneficiaries</div>
+      <button class="modal-close" onclick="closeModal('moveDepotModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-family:var(--font2);font-size:.8rem;color:var(--text);line-height:1.5;margin-bottom:14px">
+        Move everyone in <b id="mvFrom" style="color:var(--green)"></b> to another depot. Nobody is deleted, only their depot changes.
+      </div>
+      <div class="form-group"><label class="form-label">Move to depot *</label>
+        <select class="form-select" id="mvTo"><option value="">Select destination depot</option></select></div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">After moving, the old depot will be empty and you can safely delete it.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('moveDepotModal')">Cancel</button>
+      <button class="btn btn-green" id="mvSaveBtn" onclick="moveDepotMembers()">
+        <svg viewBox="0 0 16 16"><path d="M3 8h9M9 5l3 3-3 3"/></svg> Move
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="js/app.js"></script>
@@ -296,6 +319,7 @@ if (depotFilter) {
       </button>
       <div class="depot-menu" id="depotMenu" style="display:none">
         <button onclick="openDepotEdit()"><svg viewBox="0 0 16 16"><path d="M11 2l3 3-9 9H2v-3L11 2z"/></svg> Edit depot</button>
+        <button onclick="openMoveDepot()"><svg viewBox="0 0 16 16"><path d="M3 8h9M9 5l3 3-3 3M13 3v10"/></svg> Move beneficiaries</button>
         <button class="danger" onclick="deleteDepotRoster()"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot</button>
       </div>
     </div>` : '';
@@ -619,14 +643,44 @@ async function saveDepotEdit() {
   }
 }
 
+// Open the "move beneficiaries" modal, listing every OTHER depot in this district.
+function openMoveDepot() {
+  closeDepotMenu();
+  document.getElementById('mvFrom').textContent = titleCase(depotFilter);
+  const others = depotNamesFor(districtParam).filter(n => n.toLowerCase() !== depotFilter.toLowerCase());
+  document.getElementById('mvTo').innerHTML =
+    '<option value="">Select destination depot</option>' +
+    others.map(n => `<option value="${n}">${titleCase(n)}</option>`).join('');
+  openModal('moveDepotModal');
+}
+
+async function moveDepotMembers() {
+  const to = document.getElementById('mvTo').value.trim();
+  if (!to) { showToast('Choose a destination depot', 'error'); return; }
+  const btn = document.getElementById('mvSaveBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Moving...';
+  try {
+    const r = await apiFetch('/api/depots/move', { method: 'POST', body: { district: districtParam, from: depotFilter, to } });
+    closeModal('moveDepotModal');
+    showToast(`Moved ${r.moved} beneficiar${r.moved === 1 ? 'y' : 'ies'} to ${titleCase(to)}`);
+    setTimeout(() => location.href = `members.html?district=${districtParam}&depot=${encodeURIComponent(to)}`, 800);
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M3 8h9M9 5l3 3-3 3"/></svg> Move';
+  }
+}
+
 async function deleteDepotRoster() {
   closeDepotMenu();
   const count = allMembers.length;
   const dn = (DISTRICTS.find(d => d.code === districtParam) || {}).name || districtParam;
-  const msg = count > 0
-    ? `Delete depot "${titleCase(depotFilter)}" in ${dn}?\n\nThis permanently removes the depot AND its ${count} beneficiar${count === 1 ? 'y' : 'ies'}. This cannot be undone.`
-    : `Delete depot "${titleCase(depotFilter)}" in ${dn}?`;
-  if (!confirm(msg)) return;
+  if (count > 0) {
+    showToast(`This depot has ${count} beneficiar${count === 1 ? 'y' : 'ies'}. Use "Move beneficiaries" first, then delete the empty depot.`, 'error');
+    return;
+  }
+  if (!confirm(`Delete the empty depot "${titleCase(depotFilter)}" in ${dn}?`)) return;
   try {
     await apiFetch('/api/depots/clear', { method: 'POST', body: { district: districtParam, name: depotFilter } });
     showToast('Depot deleted');
