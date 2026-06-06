@@ -53,9 +53,6 @@
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
 .depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
 .depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
-.depot-reg{margin-top:13px;width:100%;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--green-pale);color:var(--green-dark);border:1px solid var(--green-mid);border-radius:9px;padding:8px;font-family:var(--font2);font-size:.76rem;font-weight:800;cursor:pointer;transition:all .15s}
-.depot-reg:hover{background:var(--green);color:#fff}
-.depot-reg svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dp-edit,.dp-del{position:absolute;top:10px;width:27px;height:27px;border-radius:8px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .dp-edit svg,.dp-del svg{width:12px;height:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dp-edit{right:43px}
@@ -109,7 +106,11 @@
         </div>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-green" id="newDepotBtn" style="display:none" onclick="openDepotForm()">
+        <button class="btn btn-green" id="depotRegBtn" style="display:none" onclick="goRegister()">
+          <svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4.3 4.5-4.3s4.5 1.8 4.5 4.3"/><path d="M12.5 4.5v4M14.5 6.5h-4"/></svg>
+          <span class="mob-hide">Register member</span>
+        </button>
+        <button class="btn" id="newDepotBtn" style="display:none" onclick="openDepotForm()">
           <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
           <span class="mob-hide">New Depot</span>
         </button>
@@ -180,6 +181,13 @@ const GREEN = '#009c41';
 // Scoped users (RDC / Profiler) only ever see their own district's depots.
 const _acc = accessOf(Auth.get());
 const DISTS = _acc.scoped ? DISTRICTS.filter(d => d.code === _acc.district) : DISTRICTS;
+
+// People who can register get a top-right "Register member" button.
+if (_acc.canWrite) { const rb = document.getElementById('depotRegBtn'); if (rb) rb.style.display = ''; }
+// Open the register form, pre-filling the district when inside one.
+function goRegister() {
+  location.href = selected ? `members.html?district=${selected}&action=add` : 'members.html?action=add';
+}
 
 // Deep-link straight to a district: depots.html?district=JJA
 // Scoped users land straight inside their own district.
@@ -304,10 +312,6 @@ function renderDepots(code) {
     const cnt = counts[code + '||' + dep] || 0;
     const rec = depotRecord(code, dep);
     const loc = (rec && rec.sub_county) ? rec.sub_county : d.name;
-    const reg = _acc.canWrite ? `
-        <button class="depot-reg" onclick="event.stopPropagation();location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}&action=add'">
-          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg> Register member
-        </button>` : '';
     return `
       <div class="depot-card" style="border-top:3px solid ${col}" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
         <div class="depot-top">
@@ -315,7 +319,6 @@ function renderDepots(code) {
           <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
         </div>
         <div class="depot-count"><span class="num cup-d" data-to="${cnt}" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
-        ${reg}
       </div>`;
   }).join('');
 
