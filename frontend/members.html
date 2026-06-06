@@ -161,21 +161,22 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Depot (Ghetto Cell) *</label>
-          <select class="form-select" id="mDepot" onchange="onDepotPicked()">
+          <label class="form-label">Depot (serving base) *</label>
+          <select class="form-select" id="mDepot">
             <option value="">Select district first</option>
           </select>
         </div>
       </div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5;margin:-4px 0 12px">The depot is the serving base. The sub-county, parish and village below are where the beneficiary actually lives, which may be different.</div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Sub-County</label>
+          <label class="form-label">Sub-County (beneficiary's home)</label>
           <select class="form-select" id="mSubCounty" onchange="updateParishOptions()">
             <option value="">Select district first</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Parish</label>
+          <label class="form-label">Parish (beneficiary's home)</label>
           <select class="form-select" id="mParish">
             <option value="">Select sub-county first</option>
           </select>
@@ -512,21 +513,6 @@ function updateDepotOptions() {
   document.getElementById('mDepot').innerHTML =
     '<option value="">' + (code ? 'Select depot' : 'Select district first') + '</option>' +
     depots.map(d => `<option>${d}</option>`).join('');
-}
-// Add a value to a select (inserting the option if missing) and select it.
-function setSelectValue(sel, val) {
-  if (!sel || !val) return;
-  if (![...sel.options].some(o => o.value === val || o.textContent === val)) {
-    sel.insertAdjacentHTML('beforeend', `<option>${val}</option>`);
-  }
-  sel.value = val;
-}
-// When a real (DB) depot is picked, auto-fill its sub-county and parish.
-function onDepotPicked() {
-  const rec = depotRecord(document.getElementById('mDistrict').value, document.getElementById('mDepot').value);
-  if (!rec) return;
-  setSelectValue(document.getElementById('mSubCounty'), rec.sub_county);
-  setSelectValue(document.getElementById('mParish'), rec.parish);
 }
 function updateParishOptions() {
   const code = document.getElementById('mDistrict').value;
