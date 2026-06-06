@@ -324,7 +324,7 @@ function loanAgreementTab() {
   const monthly = s ? Math.ceil(s.totalDue / 12) : 0;
   const words = disb ? (numberToWords(m.amount) + ' Shillings Only') : '';
 
-  const row = (l, v, hot) => `<div class="agr-row${hot ? ' hot' : ''}"><span class="k">${l}</span><span class="v">${v}</span></div>`;
+  const dr = (k, v) => `<div class="drow"><span class="k">${k}</span><span class="v">${v}</span></div>`;
 
   return `
   <div class="agr-wrap">
@@ -358,54 +358,73 @@ function loanAgreementTab() {
           ${disb ? `<div class="w">${words}</div>` : ''}
         </div>
 
-        <div class="agr-parties">
-          <div>
-            <div class="plabel">Between</div>
-            <div class="pname">${m.name}</div>
-            <div class="pdesc">
-              NIN ${m.nin || '-'}${m.phone ? ', Tel ' + m.phone : ''}, of ${m.depot} (Ghetto Cell), ${m.sub_county || '-'} Sub-County, ${m.parish || '-'} Parish, ${m.district_name} District<br>
-              <em>hereinafter the "Borrower"</em>
+        <div class="agr-twocol">
+          <div class="dcard">
+            <div class="dcard-h"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.6"/><path d="M3 13.5c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> Borrower</div>
+            <div class="dcard-b">
+              <div class="pname">${m.name}</div>
+              <div class="pmeta">
+                NIN ${m.nin || '-'}${m.phone ? '<br>Tel ' + m.phone : ''}<br>
+                ${m.depot} (Ghetto Cell)<br>
+                ${m.sub_county || '-'} Sub-County, ${m.parish || '-'} Parish<br>
+                ${m.district_name} District<br>
+                <em>hereinafter the "Borrower"</em>
+              </div>
             </div>
           </div>
-          <div>
-            <div class="plabel">And</div>
-            <div class="pname">The Busoga Ghetto Presidential Empowerment Fund</div>
-            <div class="pdesc">
-              Office of the President, State House Uganda. A SACCO loan facility advanced at 6% interest per annum<br>
-              <em>hereinafter the "Lender"</em>
+          <div class="dcard">
+            <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M2.5 14V6l5.5-3.5L13.5 6v8"/><path d="M6 14v-4h4v4"/><path d="M1.5 14h13"/></svg> Lender</div>
+            <div class="dcard-b">
+              <div class="pname">The Fund</div>
+              <div class="pmeta">
+                Busoga Ghetto Presidential Empowerment Fund<br>
+                Office of the President,<br>State House Uganda<br>
+                SACCO facility at 6% per annum<br>
+                <em>hereinafter the "Lender"</em>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="agr-sec-h">Loan Particulars</div>
-        <div class="plist">
-          ${row('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
-          ${row('Interest (6% per annum)', disb ? 'UGX ' + fmt(s.interest) : '-')}
-          ${row('Repayment period', '12 months')}
-          ${row('Indicative monthly instalment', disb ? 'UGX ' + fmt(monthly) : '-')}
-          ${row('Disbursed on', disb ? formatDate(m.disbursement_date) : 'Not yet')}
-          ${row('Repay in full by', dueStr)}
-          ${row('Total repayable', disb ? 'UGX ' + fmt(s.totalDue) : '-', true)}
+        <div class="dcard">
+          <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M9.5 1.5V5h3.5M5.5 8.5h5M5.5 11h4"/></svg> Loan Particulars</div>
+          <div class="dcard-b">
+            ${dr('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
+            ${dr('Interest (6% per annum)', disb ? 'UGX ' + fmt(s.interest) : '-')}
+            ${dr('Repayment period', '12 months')}
+            ${dr('Indicative monthly instalment', disb ? 'UGX ' + fmt(monthly) : '-')}
+            ${dr('Disbursed on', disb ? formatDate(m.disbursement_date) : 'Not yet')}
+            ${dr('Repay in full by', dueStr)}
+            <div class="dtotal"><span class="k">Total repayable</span><span class="v">${disb ? 'UGX ' + fmt(s.totalDue) : '-'}</span></div>
+          </div>
         </div>
         ${disb ? '' : '<div class="agr-pending-note">The figures fill in automatically once this member is disbursed. You can still print a blank agreement to complete by hand.</div>'}
 
-        <div class="agr-sec-h">Terms of the Agreement</div>
-        <ol class="tlist">
-          <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
-          <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
-          <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
-          <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
-          <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
-        </ol>
-
-        <div class="agr-sec-h">Execution &amp; Signatures</div>
-        <div class="siglines">
-          <div><div class="sigl-line">${titleCase(m.name)}</div><div class="sigl-cap">Borrower</div></div>
-          <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">Chairperson, Ghetto Cell</div></div>
-          <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">District Ghetto President</div></div>
-          <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">RDC / RCC</div></div>
+        <div class="dcard">
+          <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h5"/><circle cx="2.6" cy="4" r="1"/><circle cx="2.6" cy="8" r="1"/><circle cx="2.6" cy="12" r="1"/></svg> Terms of the Agreement</div>
+          <div class="dcard-b">
+            <ol class="tlist">
+              <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
+              <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
+              <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
+              <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
+              <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
+            </ol>
+          </div>
         </div>
-        <div class="signote">Signatures are completed on the printed copy. Use <b>Print Loan Agreement</b> above to produce the official document for signing.</div>
+
+        <div class="dcard">
+          <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M2 13.5c2-0.5 3-2 5-2s2 1 4 .5"/><path d="M10.5 3.5l2 2-6 6-2.5.5.5-2.5z"/></svg> Execution &amp; Signatures</div>
+          <div class="dcard-b">
+            <div class="siglines">
+              <div><div class="sigl-line">${titleCase(m.name)}</div><div class="sigl-cap">Borrower</div></div>
+              <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">Chairperson, Ghetto Cell</div></div>
+              <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">District Ghetto President</div></div>
+              <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">RDC / RCC</div></div>
+            </div>
+            <div class="signote">Signatures are completed on the printed copy. Use <b>Print Loan Agreement</b> above to produce the official document for signing.</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>`;
