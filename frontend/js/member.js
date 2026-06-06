@@ -815,6 +815,7 @@ function printAgreement() {
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Loan Agreement - ${m.name} (${m.id})</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{--disp:'Varela Round',sans-serif;--ui:'Nunito',sans-serif;--serif:'Source Serif 4',Georgia,serif}
