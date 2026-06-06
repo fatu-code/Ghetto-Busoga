@@ -518,7 +518,6 @@
                   <div class="recent-name">${titleCase(m.name)}</div>
                   <div class="recent-detail">${m.depot} • ${m.district_name}</div>
                 </div>
-                <div class="recent-amount">${isDisbursed(m) ? 'UGX ' + compact(m.amount) : '<span style="color:var(--amber-text);font-weight:700">Pending</span>'}</div>
               </a>`).join('');
           }
         } catch {
