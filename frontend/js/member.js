@@ -358,32 +358,36 @@ function loanAgreementTab() {
           ${disb ? `<div class="w">${words}</div>` : ''}
         </div>
 
-        <div class="agr-parties2">
-          <div class="pty">
-            <div class="pty-role">The Borrower</div>
-            <div class="pty-name">${m.name}</div>
-            <div class="pty-lines">
-              NIN ${m.nin || '-'}<br>
-              ${m.phone ? m.phone + '<br>' : ''}
+        <div class="agr-between">Between</div>
+        <div class="party">
+          <div class="party-mono">${initials(m.name)}</div>
+          <div>
+            <div class="party-role">The Borrower</div>
+            <div class="party-name">${m.name}</div>
+            <div class="party-lines">
+              NIN ${m.nin || '-'}${m.phone ? ' &middot; ' + m.phone : ''}<br>
               ${m.depot} (Ghetto Cell)<br>
               ${m.sub_county || '-'} Sub-County, ${m.parish || '-'} Parish<br>
               ${m.district_name} District
             </div>
           </div>
-          <div class="vline"></div>
-          <div class="pty">
-            <div class="pty-role">The Lender</div>
-            <div class="pty-name">The Fund</div>
-            <div class="pty-lines">
-              Busoga Ghetto Presidential<br>Empowerment Fund<br>
-              Office of the President,<br>State House Uganda<br>
-              SACCO facility &middot; 6% per annum
+        </div>
+        <div class="agr-between and">And</div>
+        <div class="party">
+          <div class="party-mono lender"><img src="${emblem}" alt="" onerror="this.parentElement.textContent='F'"></div>
+          <div>
+            <div class="party-role">The Lender</div>
+            <div class="party-name">The Fund</div>
+            <div class="party-lines">
+              Busoga Ghetto Presidential Empowerment Fund<br>
+              Office of the President, State House Uganda<br>
+              SACCO facility at 6% per annum
             </div>
           </div>
         </div>
 
         <div class="agr-h">Loan Particulars</div>
-        <div class="agr-rows">
+        <div class="agr-particulars">
           ${row('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
           ${row('Interest (6% per annum)', disb ? 'UGX ' + fmt(s.interest) : '-')}
           ${row('Repayment period', '12 months')}
@@ -395,16 +399,24 @@ function loanAgreementTab() {
         ${disb ? '' : '<div class="agr-pending-note">The figures fill in automatically once this member is disbursed. You can still print a blank agreement to complete by hand.</div>'}
 
         <div class="agr-h">Terms of the Agreement</div>
-        <ol class="agr-terms">
-          <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
-          <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
-          <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
-          <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
-          <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
-        </ol>
+        <div class="agr-termsbox">
+          <ol class="agr-terms">
+            <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
+            <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
+            <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
+            <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
+            <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
+          </ol>
+        </div>
 
-        <div class="agr-h">Execution</div>
-        <div class="agr-sign-note">The printed agreement is signed by the Borrower and witnessed by the Chairperson (Ghetto Cell), the District Ghetto President or Representative, and the RDC/RCC. Use <b>Print Loan Agreement</b> above to produce the official copy for signing.</div>
+        <div class="agr-h">Execution &amp; Signatures</div>
+        <div class="agr-signgrid">
+          <div class="sigblk"><div class="ln">${titleCase(m.name)}</div><div class="role">Borrower</div></div>
+          <div class="sigblk"><div class="ln"></div><div class="role">Chairperson, Ghetto Cell</div></div>
+          <div class="sigblk"><div class="ln"></div><div class="role">District Ghetto President</div></div>
+          <div class="sigblk"><div class="ln"></div><div class="role">RDC / RCC</div></div>
+        </div>
+        <div class="agr-sign-note">Signatures are completed on the printed copy. Use <b>Print Loan Agreement</b> above to produce the official document for signing.</div>
       </div>
     </div>
   </div>`;
