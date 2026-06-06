@@ -150,14 +150,6 @@ img {
   font-weight: 700;
   color: var(--muted);
 }
-.sb-online {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-  margin-left: auto;
-}
 .sb-nav {
   padding: 10px;
   flex: 1;

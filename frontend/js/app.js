@@ -255,7 +255,6 @@ function buildSidebar(active) {
         <div class="sb-user-name">${user?.name || "Al-Hajj Faruk Kirunda"}</div>
         <div class="sb-user-role">${roleLabel(user)}</div>
       </div>
-      <div class="sb-online"></div>
     </div>
     <div class="sb-nav">
       ${(() => {
