@@ -190,8 +190,7 @@ function agg(list) {
 
 async function load() {
   try {
-    const data = await apiFetch('/api/members?limit=100000');
-    members = data.members || [];
+    members = await loadAllMembers();
     render();
   } catch (e) {
     showToast('Failed to load report', 'error');

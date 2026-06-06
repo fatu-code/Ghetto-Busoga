@@ -179,8 +179,7 @@ function dueDate(d) {
 
 async function loadRepayments() {
   try {
-    const data = await apiFetch('/api/members?limit=100000');
-    const members = (data.members || []).filter(m => Number(m.amount) > 0); // only disbursed
+    const members = (await loadAllMembers()).filter(m => Number(m.amount) > 0); // only disbursed
     loans = members.map(m => {
       const principal   = Number(m.amount) || 0;
       const totalDue     = Math.round(principal * 1.06);

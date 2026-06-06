@@ -310,15 +310,17 @@ function debounceLoad() { clearTimeout(_dbt); _dbt = setTimeout(loadMembers, 320
 
 async function loadMembers(page = 1) {
   currentPage = page;
-  const q        = document.getElementById('searchInput').value;
+  const q        = document.getElementById('searchInput').value.trim().toLowerCase();
   const district = document.getElementById('filterDistrict').value;
-  const params   = new URLSearchParams({ page, limit: LIMIT });
-  if (q)        params.append('q', q);
-  if (district) params.append('district', district);
 
   try {
-    const data = await apiFetch('/api/members?' + params);
-    let list = data.members || [];
+    let list = await loadAllMembers(); // cached full list, filtered client-side (instant search)
+    if (district) list = list.filter(x => x.district === district);
+    if (q) list = list.filter(x =>
+      (x.name || '').toLowerCase().includes(q) ||
+      (x.id || '').toLowerCase().includes(q) ||
+      (x.phone || '').toLowerCase().includes(q) ||
+      (x.nin || '').toLowerCase().includes(q));
     // A depot roster shows everyone profiled; the Beneficiaries list shows only those who received money.
     list = depotFilter ? list.filter(x => x.depot === depotFilter) : list.filter(x => Number(x.amount) > 0);
     allMembers = list;

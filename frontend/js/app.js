@@ -147,7 +147,28 @@ async function apiFetch(path, options = {}) {
     }
     throw new Error(data.error || `Request failed (${res.status})`);
   }
+  // Any change (register, disburse, repayment, delete, depot, user) makes the
+  // cached member list stale — drop it so the next read refetches fresh data.
+  if ((options.method || "GET").toUpperCase() !== "GET") {
+    try { sessionStorage.removeItem("bgs_members_cache"); } catch {}
+  }
   return data;
+}
+
+// Cached fetch of the full member list, reused across pages within the session
+// so navigating Depots -> Repayments -> Reports doesn't refetch every time.
+async function loadAllMembers(maxAgeMs = 60000) {
+  try {
+    const raw = sessionStorage.getItem("bgs_members_cache");
+    if (raw) {
+      const c = JSON.parse(raw);
+      if (c && Date.now() - c.t < maxAgeMs) return c.members;
+    }
+  } catch {}
+  const data = await apiFetch("/api/members?limit=100000");
+  const members = data.members || [];
+  try { sessionStorage.setItem("bgs_members_cache", JSON.stringify({ t: Date.now(), members })); } catch {}
+  return members;
 }
 
 // ── SIDEBAR BUILDER ──────────────────────────────────────────────────

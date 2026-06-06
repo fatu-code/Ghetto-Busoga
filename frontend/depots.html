@@ -184,8 +184,7 @@ selected = new URLSearchParams(location.search).get('district') || (_acc.scoped 
 
 async function loadDepots() {
   try {
-    const data = await apiFetch('/api/members?limit=100000');
-    allMembers = data.members || [];
+    allMembers = await loadAllMembers();
     counts = {};
     allMembers.forEach(m => {
       const k = m.district + '||' + m.depot;
