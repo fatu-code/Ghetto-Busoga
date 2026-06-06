@@ -2,7 +2,8 @@
    Disbursement Verification System — Shared Stylesheet
 ────────────────────────────────────────────────────────────────── */
 
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap");
+/* Fonts are loaded via <link rel="stylesheet"> in each page <head> (parallel,
+   non-blocking). No @import here - @import would re-fetch them and block rendering. */
 
 *,
 *::before,

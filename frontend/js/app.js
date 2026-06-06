@@ -302,6 +302,12 @@ function initials(name) {
     .slice(0, 2)
     .toUpperCase();
 }
+// Request a small, web-optimised version of a Cloudinary photo instead of the
+// full 600x600 upload. Cuts list/grid image bytes massively (faster loading).
+function imgThumb(url, size) {
+  if (!url || url.indexOf("/upload/") === -1) return url;
+  return url.replace("/upload/", `/upload/c_fill,g_face,w_${size},h_${size},f_auto,q_auto/`);
+}
 function formatDate(d) {
   if (!d) return "—";
   try {

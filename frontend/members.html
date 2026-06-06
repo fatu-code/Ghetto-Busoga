@@ -410,7 +410,7 @@ function renderMembers() {
           <tr class="clickable" onclick="location.href='member.html?id=${m.id}'">
             <td>
               <div class="m-avatar" style="width:32px;height:32px;border-radius:8px;font-size:.7rem">
-                ${m.photo_url ? `<img src="${m.photo_url}" alt="${m.name}">` : initials(m.name)}
+                ${m.photo_url ? `<img src="${imgThumb(m.photo_url, 96)}" alt="${m.name}" loading="lazy">` : initials(m.name)}
               </div>
             </td>
             <td style="font-weight:800;text-transform:uppercase">${m.name}</td>
@@ -430,7 +430,7 @@ function renderMembers() {
       <div class="member-card" onclick="location.href='member.html?id=${m.id}'">
         <div class="member-card-photo">
           ${m.photo_url
-            ? `<img src="${m.photo_url}" alt="${m.name}">`
+            ? `<img src="${imgThumb(m.photo_url, 300)}" alt="${m.name}" loading="lazy">`
             : initials(m.name)}
         </div>
         <div class="member-card-body">
@@ -465,7 +465,7 @@ function changePage(delta) {
 function leadershipPanel() {
   const slots = DEPOT_ROLES.map(role => {
     const L  = allMembers.find(m => m.depot_role === role);
-    const av = L ? (L.photo_url ? `<img src="${L.photo_url}" alt="">` : initials(L.name)) : '?';
+    const av = L ? (L.photo_url ? `<img src="${imgThumb(L.photo_url, 120)}" alt="" loading="lazy">` : initials(L.name)) : '?';
     return `<div class="lead-card${L ? ' filled' : ''}" ${L ? `onclick="location.href='member.html?id=${L.id}'"` : ''}>
         <div class="lead-av">${av}</div>
         <div class="lead-info"><div class="lead-name">${L ? L.name : 'Vacant'}</div><div class="lead-role">${role}</div></div>
