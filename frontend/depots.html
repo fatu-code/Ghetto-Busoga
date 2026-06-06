@@ -165,6 +165,7 @@
 <script src="js/app.js"></script>
 <script src="js/depots.js"></script>
 <script src="js/locations.js"></script>
+<script src="js/register.js"></script>
 <script>
 Auth.require();
 buildSidebar('depots');
@@ -180,9 +181,10 @@ const DISTS = _acc.scoped ? DISTRICTS.filter(d => d.code === _acc.district) : DI
 
 // People who can register get a top-right "Register member" button.
 if (_acc.canWrite) { const rb = document.getElementById('depotRegBtn'); if (rb) rb.style.display = ''; }
-// Open the register form, pre-filling the district when inside one.
+// Register a MEMBER in place (no navigating to the Beneficiaries list).
+// Pre-fills the district when you are inside one; refreshes counts on success.
 function goRegister() {
-  location.href = selected ? `members.html?district=${selected}&action=add` : 'members.html?action=add';
+  openRegister({ district: selected || '', onDone: () => loadDepots() });
 }
 
 // Deep-link straight to a district: depots.html?district=JJA
