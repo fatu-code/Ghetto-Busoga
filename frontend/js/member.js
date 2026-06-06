@@ -298,7 +298,7 @@ function loanCard() {
       </div>
       <div class="loan-bar"><div class="loan-bar-fill" style="width:${s.pct}%"></div></div>
       <div class="loan-bar-lbl">${s.pct}% repaid</div>
-      ${acc.canDisburse ? `<button class="btn btn-green" style="margin-top:14px" onclick="openRepay()">
+      ${(acc.canDisburse && !s.cleared) ? `<button class="btn btn-green" style="margin-top:14px" onclick="openRepay()">
         <svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg> Record Repayment
       </button>` : ''}
       <div class="rp-head">Repayment history</div>

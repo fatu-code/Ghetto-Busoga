@@ -57,6 +57,15 @@
 .viz-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
 .viz-h{font-family:var(--font2);font-weight:900;font-size:.78rem;color:var(--text);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;display:flex;align-items:center;gap:9px}
 .viz-h svg{width:16px;height:16px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* One-at-a-time chart switcher */
+.viz-panel{margin-bottom:18px}
+.viz-tabs{display:flex;gap:5px;background:var(--bg);border:1.5px solid var(--border);border-radius:11px;padding:4px;margin-bottom:20px;width:fit-content;max-width:100%;overflow:auto}
+.viz-tab{font-family:var(--font2);font-size:.74rem;font-weight:800;color:var(--muted);background:none;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.viz-tab:hover{color:var(--text)}
+.viz-tab.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.viz-pane{display:none}
+.viz-pane.active{display:block}
+.viz-pane .bars,.viz-pane .funnel{max-width:660px}
 /* Donut */
 .donut-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
 .donut-box{position:relative;width:132px;height:132px;flex-shrink:0}
@@ -277,10 +286,22 @@ function render() {
   const disbPct = fund.count ? Math.round((fund.disbursedCount / fund.count) * 100) : 0;
   const clearPct = fund.count ? Math.round((cleared / fund.count) * 100) : 0;
   const maxDisb = Math.max(1, ...districtRows.map(r => r.a.disbursed), 1);
+  // One visual at a time via a tab switcher, so it never feels crowded.
   const viz = `
-    <div class="viz-grid">
-      <div class="viz-card">
-        <div class="viz-h"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 2v6l4 2.3"/></svg> Collection</div>
+    <div class="viz-card viz-panel">
+      <div class="viz-tabs">
+        <button class="viz-tab active" onclick="showViz(this,'bars')">By District</button>
+        <button class="viz-tab" onclick="showViz(this,'collection')">Collection</button>
+        <button class="viz-tab" onclick="showViz(this,'pipeline')">Pipeline</button>
+      </div>
+
+      <div class="viz-pane active" id="vp-bars">
+        <div class="bars">
+          ${districtRows.map(r => `<div class="bar-row"><div class="bar-name">${r.d.name}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((r.a.disbursed / maxDisb) * 100)}%"></div></div><div class="bar-val">${fmt(r.a.disbursed)}</div></div>`).join('') || '<div style="color:var(--muted);font-size:.8rem">No data yet</div>'}
+        </div>
+      </div>
+
+      <div class="viz-pane" id="vp-collection">
         <div class="donut-wrap">
           <div class="donut-box">
             <svg class="donut" viewBox="0 0 120 120">
@@ -295,19 +316,13 @@ function render() {
           </div>
         </div>
       </div>
-      <div class="viz-card">
-        <div class="viz-h"><svg viewBox="0 0 16 16"><path d="M2 3h12l-4.5 5v4l-3 1.5V8z"/></svg> Pipeline</div>
+
+      <div class="viz-pane" id="vp-pipeline">
         <div class="funnel">
           <div><div class="fn-bar" style="width:100%;background:#0c4a2b">${fmt(fund.count)}</div><div class="fn-lbl">Profiled</div></div>
           <div><div class="fn-bar" style="width:${Math.max(30, disbPct)}%;background:#009c41">${fmt(fund.disbursedCount)}</div><div class="fn-lbl">Disbursed <b>${disbPct}%</b></div></div>
           <div><div class="fn-bar" style="width:${Math.max(24, clearPct)}%;background:#7fd6a0;color:#0c4a2b">${fmt(cleared)}</div><div class="fn-lbl">Cleared <b>${clearPct}%</b></div></div>
         </div>
-      </div>
-    </div>
-    <div class="viz-card" style="margin-bottom:18px">
-      <div class="viz-h"><svg viewBox="0 0 16 16"><path d="M2 2v12h12M5 14V7M8.5 14V4M12 14V9"/></svg> Disbursed by district</div>
-      <div class="bars">
-        ${districtRows.map(r => `<div class="bar-row"><div class="bar-name">${r.d.name}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round((r.a.disbursed / maxDisb) * 100)}%"></div></div><div class="bar-val">${fmt(r.a.disbursed)}</div></div>`).join('') || '<div style="color:var(--muted);font-size:.8rem">No data yet</div>'}
       </div>
     </div>`;
   document.getElementById('countLabel').textContent =
@@ -386,6 +401,27 @@ function render() {
       document.querySelectorAll('.cup').forEach(animateUp);
     });
   }
+}
+
+// Switch which single chart is shown (one at a time, less overwhelming).
+function showViz(btn, name) {
+  btn.parentElement.querySelectorAll('.viz-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.viz-pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('vp-' + name);
+  if (!pane) return;
+  pane.classList.add('active');
+  // Re-play the chart's grow/sweep so the selected one feels alive.
+  requestAnimationFrame(() => {
+    pane.querySelectorAll('.bar-fill, .fn-bar').forEach(f => {
+      const w = f.style.width; f.style.width = '0';
+      requestAnimationFrame(() => { f.style.width = w; });
+    });
+    pane.querySelectorAll('.d-fg').forEach(f => {
+      const c = f.style.strokeDasharray; f.style.strokeDashoffset = c;
+      requestAnimationFrame(() => { f.style.strokeDashoffset = f.dataset.off; });
+    });
+  });
 }
 
 // Count a number up from zero, formatted, honouring reduced-motion.
