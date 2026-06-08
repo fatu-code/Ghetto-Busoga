@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Disbursement - BGS</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://backend-ghetto-busoga-production.up.railway.app" crossorigin>
+<link rel="preconnect" href="https://res.cloudinary.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+.db-controls{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.db-field{display:flex;flex-direction:column;gap:6px}
+.db-field label{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.db-field .form-select,.db-field .form-input{min-width:180px}
+.db-apply{display:flex;align-items:flex-end;gap:8px}
+.db-hint{font-family:var(--font2);font-size:.74rem;font-weight:600;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.db-wrap{overflow-x:auto;border:1.5px solid var(--border);border-radius:var(--radius);background:#fff}
+.db-table{width:100%;border-collapse:collapse;min-width:560px}
+.db-table th{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:12px 14px;border-bottom:1.5px solid var(--border);background:var(--bg);white-space:nowrap}
+.db-table td{padding:9px 14px;border-bottom:1px solid var(--border);font-family:var(--font2);font-size:.82rem;color:var(--text)}
+.db-table tbody tr:last-child td{border-bottom:none}
+.db-table tbody tr.picked{background:var(--green-pale)}
+.db-chk{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
+.db-serial{font-family:var(--font);color:var(--green);font-size:.8rem;white-space:nowrap}
+.db-name{font-weight:800;text-transform:uppercase}
+.db-muted{color:var(--muted)}
+.db-amt{width:130px;padding:7px 10px;border:1.5px solid var(--border);border-radius:9px;font-family:var(--font);font-size:.84rem;color:var(--text);text-align:right}
+.db-amt:focus{outline:none;border-color:var(--green-mid);box-shadow:0 0 0 3px var(--green-pale)}
+.db-bar{position:sticky;bottom:0;margin-top:14px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);box-shadow:0 -6px 20px rgba(0,0,0,.06);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.db-bar-info{font-family:var(--font2);font-size:.82rem;font-weight:700;color:var(--text)}
+.db-bar-info b{font-family:var(--font);color:var(--green-dark)}
+.db-empty{padding:40px;text-align:center}
+.del-warn{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--green-pale);border:1.5px solid var(--green-mid)}
+.del-warn svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main-area">
+
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0">
+        <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+          <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12"/></svg>
+        </button>
+        <div>
+          <div class="topbar-title">Disbursement</div>
+          <div class="topbar-sub">Disburse a whole district at once</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="card" style="margin-bottom:16px">
+        <div class="db-controls">
+          <div class="db-field">
+            <label>District</label>
+            <select class="form-select" id="dDistrict" onchange="onDistrict()"><option value="">Select a district</option></select>
+          </div>
+          <div class="db-field">
+            <label>Disbursement date</label>
+            <input class="form-input" id="dDate" type="date">
+          </div>
+          <div class="db-field">
+            <label>Set amount for all (UGX)</label>
+            <input class="form-input" id="dAll" type="text" inputmode="numeric" placeholder="e.g. 300,000" oninput="fmtMoney(this)">
+          </div>
+          <div class="db-apply">
+            <button class="btn" onclick="applyAll()">
+              <svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M2 8l4 4 8-8"/></svg>
+              Apply to all pending
+            </button>
+          </div>
+        </div>
+        <div class="db-hint">Only members who are <b>not yet disbursed</b> appear here. Tick the ones to pay, set each amount (or use "Apply to all"), then disburse them together. Already-disbursed members are left out so no one is paid twice.</div>
+        <div class="search-wrap" style="max-width:420px;margin:0">
+          <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
+          <input class="search-input" id="dSearch" type="text" placeholder="Search by name, serial or depot..." oninput="render()">
+        </div>
+      </div>
+
+      <div id="dBody"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal-card" style="max-width:440px">
+    <div class="modal-head">
+      <div class="modal-title">Confirm Disbursement</div>
+      <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:13px;align-items:flex-start">
+        <div class="del-warn"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/></svg></div>
+        <div id="confirmMsg" style="font-family:var(--font2);font-size:.84rem;color:var(--text);line-height:1.6"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-green" id="confirmBtn" onclick="doDisburse()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Disburse
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+<script>
+Auth.guard(['admin']);
+buildSidebar('disburse');
+
+let all = [];
+const picked = new Set();   // member ids selected for disbursement
+const amounts = {};         // id -> amount (number)
+
+DISTRICTS.forEach(d => {
+  const o = document.createElement('option');
+  o.value = d.code; o.textContent = d.name;
+  document.getElementById('dDistrict').appendChild(o);
+});
+document.getElementById('dDate').value = new Date().toISOString().split('T')[0];
+
+(async () => { all = await loadAllMembers(); render(); })();
+
+function district() { return document.getElementById('dDistrict').value; }
+function pendingFor(code) { return all.filter(m => m.district === code && !isDisbursed(m)); }
+
+// Live thousands separators
+function fmtMoney(el) {
+  const digits = el.value.replace(/[^\d]/g, '');
+  el.value = digits ? Number(digits).toLocaleString('en-US') : '';
+}
+function digits(v) { return parseInt(String(v || '').replace(/[^\d]/g, '')) || 0; }
+
+function onDistrict() { picked.clear(); render(); }
+
+function render() {
+  const code = district();
+  const body = document.getElementById('dBody');
+  if (!code) {
+    body.innerHTML = '<div class="card"><div class="db-empty"><div class="empty-title">Choose a district to begin</div></div></div>';
+    return;
+  }
+  const q = document.getElementById('dSearch').value.trim().toLowerCase();
+  let list = pendingFor(code).sort((a, b) => serialNo(a.id) - serialNo(b.id));
+  const totalPending = pendingFor(code).length;
+  if (q) list = list.filter(m =>
+    (m.name || '').toLowerCase().includes(q) ||
+    (m.id || '').toLowerCase().includes(q) ||
+    (m.depot || '').toLowerCase().includes(q));
+
+  if (!totalPending) {
+    body.innerHTML = '<div class="card"><div class="db-empty"><div class="empty-title">Everyone in this district is already disbursed</div><div class="empty-sub" style="font-family:var(--font2);color:var(--muted);font-size:.8rem;margin-top:6px">Nothing pending here.</div></div></div>';
+    updateBar();
+    return;
+  }
+
+  const rows = list.map(m => `
+    <tr class="${picked.has(m.id) ? 'picked' : ''}" id="row-${m.id}">
+      <td><input type="checkbox" class="db-chk" ${picked.has(m.id) ? 'checked' : ''} onchange="toggleRow('${m.id}', this.checked)"></td>
+      <td class="db-serial">${m.id}</td>
+      <td class="db-name">${m.name}</td>
+      <td class="db-muted">${titleCase(m.depot)}</td>
+      <td><input class="db-amt" inputmode="numeric" placeholder="0" value="${amounts[m.id] ? Number(amounts[m.id]).toLocaleString('en-US') : ''}" oninput="setAmt('${m.id}', this)"></td>
+    </tr>`).join('');
+
+  body.innerHTML = `
+    <div class="db-wrap">
+      <table class="db-table">
+        <thead><tr>
+          <th><input type="checkbox" class="db-chk" id="dAllChk" onchange="toggleAllShown(this.checked)"></th>
+          <th>Serial</th><th>Name</th><th>Depot</th><th>Amount (UGX)</th>
+        </tr></thead>
+        <tbody>${rows || '<tr><td colspan="5" style="padding:24px;text-align:center;color:var(--muted)">No match</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="db-bar">
+      <div class="db-bar-info" id="dBarInfo"></div>
+      <button class="btn btn-green" id="dGo" onclick="askDisburse()">
+        <svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/></svg>
+        Disburse selected
+      </button>
+    </div>`;
+  syncAllChk();
+  updateBar();
+}
+
+function serialNo(id) { const p = String(id || '').split('-'); return parseInt(p[p.length - 1], 10) || 0; }
+
+function toggleRow(id, on) {
+  if (on) picked.add(id); else picked.delete(id);
+  const row = document.getElementById('row-' + id);
+  if (row) row.classList.toggle('picked', on);
+  syncAllChk();
+  updateBar();
+}
+
+function setAmt(id, el) {
+  fmtMoney(el);
+  const v = digits(el.value);
+  if (v > 0) { amounts[id] = v; picked.add(id); }
+  else { delete amounts[id]; }
+  const row = document.getElementById('row-' + id);
+  const chk = row ? row.querySelector('.db-chk') : null;
+  if (chk) chk.checked = picked.has(id);
+  if (row) row.classList.toggle('picked', picked.has(id));
+  syncAllChk();
+  updateBar();
+}
+
+// Apply the "set amount for all" value to every pending member in the district.
+function applyAll() {
+  const code = district();
+  if (!code) { showToast('Choose a district first', 'error'); return; }
+  const v = digits(document.getElementById('dAll').value);
+  if (!v) { showToast('Enter an amount to apply', 'error'); return; }
+  pendingFor(code).forEach(m => { amounts[m.id] = v; picked.add(m.id); });
+  render();
+}
+
+// Check/uncheck every row currently shown (respects the search filter).
+function toggleAllShown(on) {
+  const code = district();
+  const q = document.getElementById('dSearch').value.trim().toLowerCase();
+  let list = pendingFor(code);
+  if (q) list = list.filter(m =>
+    (m.name || '').toLowerCase().includes(q) ||
+    (m.id || '').toLowerCase().includes(q) ||
+    (m.depot || '').toLowerCase().includes(q));
+  list.forEach(m => { if (on) picked.add(m.id); else picked.delete(m.id); });
+  render();
+}
+
+function syncAllChk() {
+  const el = document.getElementById('dAllChk');
+  if (!el) return;
+  const shown = [...document.querySelectorAll('.db-table tbody .db-chk')];
+  el.checked = shown.length > 0 && shown.every(c => c.checked);
+}
+
+function selectedItems() {
+  return [...picked].map(id => ({ id, amount: amounts[id] || 0 })).filter(x => x.amount > 0);
+}
+
+function updateBar() {
+  const items = selectedItems();
+  const total = items.reduce((s, x) => s + x.amount, 0);
+  const info = document.getElementById('dBarInfo');
+  const go = document.getElementById('dGo');
+  if (info) info.innerHTML = `<b>${items.length}</b> selected &middot; <b>UGX ${fmt(total)}</b>`;
+  if (go) go.disabled = items.length === 0;
+}
+
+function askDisburse() {
+  const items = selectedItems();
+  if (!items.length) { showToast('Tick members and set their amounts first', 'error'); return; }
+  const total = items.reduce((s, x) => s + x.amount, 0);
+  const dn = (DISTRICTS.find(d => d.code === district()) || {}).name || district();
+  const date = document.getElementById('dDate').value;
+  const dateStr = date ? new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : 'today';
+  document.getElementById('confirmMsg').innerHTML =
+    `Disburse <b>UGX ${fmt(total)}</b> to <b>${items.length} beneficiar${items.length === 1 ? 'y' : 'ies'}</b> in <b>${dn}</b>, dated <b>${dateStr}</b>?<br><br>This records the money on each profile and marks them as disbursed.`;
+  openModal('confirmModal');
+}
+
+async function doDisburse() {
+  const items = selectedItems();
+  const date = document.getElementById('dDate').value || null;
+  const btn = document.getElementById('confirmBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Disbursing...';
+  try {
+    const r = await apiFetch('/api/members/disburse-bulk', { method: 'POST', body: { date, items } });
+    closeModal('confirmModal');
+    showToast(`Disbursed UGX ${fmt(r.total)} to ${r.disbursed} beneficiar${r.disbursed === 1 ? 'y' : 'ies'}`);
+    picked.clear();
+    Object.keys(amounts).forEach(k => delete amounts[k]);
+    document.getElementById('dAll').value = '';
+    all = await loadAllMembers();
+    render();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Disburse';
+  }
+}
+</script>
+</body>
+</html>

@@ -198,6 +198,13 @@ const NAV_ITEMS = [
     icon: '<svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg>',
   },
   {
+    id: "disburse",
+    label: "Disbursement",
+    href: "disburse.html",
+    roles: ["admin"],
+    icon: '<svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/><path d="M4 6.2v3.6M12 6.2v3.6"/></svg>',
+  },
+  {
     id: "repayments",
     label: "Repayments",
     href: "repayments.html",
