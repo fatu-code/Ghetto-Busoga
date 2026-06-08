@@ -100,6 +100,10 @@
           <option value="cards">Card view</option>
           <option value="table">Table view</option>
         </select>
+        <button class="btn btn-sm" onclick="printBeneficiaries()" style="margin-left:auto">
+          <svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="6" width="10" height="6" rx="1"/><path d="M4.5 6V2.5h7V6M5 9.5h6"/></svg>
+          <span class="mob-hide">Print list</span>
+        </button>
       </div>
 
       <div id="membersContainer">
@@ -455,6 +459,76 @@ function renderMembers() {
   document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
   document.getElementById('prevBtn').disabled = currentPage <= 1;
   document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+}
+
+// Print the current beneficiary list (respects the district + search filter),
+// with the amount each person got and a disbursed total at the bottom.
+function printBeneficiaries() {
+  const sn = id => { const p = String(id || '').split('-'); return parseInt(p[p.length - 1], 10) || 0; };
+  const list = (allMembers || []).slice().sort((a, b) => sn(a.id) - sn(b.id));
+  if (!list.length) { showToast('Nothing to print', 'error'); return; }
+  const dsel = document.getElementById('filterDistrict').value;
+  const q = document.getElementById('searchInput').value.trim();
+  const scope = dsel ? ((DISTRICTS.find(d => d.code === dsel) || {}).name || dsel) : 'All Districts';
+  const emblem = location.origin + '/images/coat-of-arms.png';
+  const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const disbCount = list.filter(isDisbursed).length;
+  const totalAmt = list.reduce((s, m) => s + (isDisbursed(m) ? Number(m.amount) : 0), 0);
+  const rows = list.map((m, i) => `<tr>
+      <td class="c">${i + 1}</td>
+      <td class="s">${m.id}</td>
+      <td class="nm">${m.name}</td>
+      <td>${m.district_name || ''}</td>
+      <td>${titleCase(m.depot)}</td>
+      <td class="r">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : '<span class="pend">Pending</span>'}</td>
+      <td>${m.disbursement_date ? formatDate(m.disbursement_date) : '-'}</td>
+    </tr>`).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Beneficiary List - ${scope}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    @page{size:A4;margin:13mm}
+    body{font-family:'Nunito',sans-serif;color:#1c3326;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .hd{background:linear-gradient(125deg,#16271d,#0c4a2b 55%,#0a7a3a);color:#fff;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:14px;overflow:hidden}
+    .hd img{width:44px;height:44px;object-fit:contain;flex-shrink:0}
+    .hd .prog{font-family:'Varela Round',sans-serif;font-size:17px;line-height:1.15}
+    .hd .sub{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:rgba(255,255,255,.66);margin-top:6px}
+    .meta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:11px}
+    .meta .t{font-family:'Varela Round',sans-serif;font-size:15px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.08em}
+    .meta .t span{color:#7a8e83;font-size:11px;letter-spacing:.02em;margin-left:8px}
+    .meta .d{font-size:10px;font-weight:700;color:#7a8e83;text-align:right}
+    table{width:100%;border-collapse:collapse;font-size:9.5px}
+    thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:7px 8px;border-bottom:1.5px solid #d8ece1}
+    th.c,td.c{text-align:center}th.r,td.r{text-align:right;white-space:nowrap}
+    tbody td{padding:6px 8px;border-bottom:1px solid #eef2f0}
+    tbody tr:nth-child(even){background:#fbfdfc}
+    .s{font-family:'Varela Round',sans-serif;color:#0a7a3a;white-space:nowrap}
+    .nm{font-weight:800;text-transform:uppercase}
+    .r{font-weight:800}.pend{color:#b06a00;font-weight:800}
+    tfoot td{padding:9px 8px;border-top:2px solid #0a7a3a;font-weight:900;background:#f4f9f6}
+    tfoot .r{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
+    .foot{margin-top:14px;border-top:1.5px solid #eef2f0;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#9aa8a0;font-weight:700}
+    .foot .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
+  </style></head><body>
+    <div class="hd">
+      <img src="${emblem}" alt="" onerror="this.style.display='none'">
+      <div><div class="prog">Busoga Ghetto Presidential Empowerment Fund</div><div class="sub">Office of the President, State House Uganda</div></div>
+    </div>
+    <div class="meta">
+      <div class="t">Beneficiary List<span>${scope} &middot; ${list.length} listed &middot; ${disbCount} disbursed${q ? ' &middot; "' + q + '"' : ''}</span></div>
+      <div class="d">Generated ${issued}</div>
+    </div>
+    <table>
+      <thead><tr><th class="c">#</th><th>Serial</th><th>Name</th><th>District</th><th>Depot</th><th class="r">Amount</th><th>Date</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td colspan="5">TOTAL DISBURSED (${disbCount} beneficiar${disbCount === 1 ? 'y' : 'ies'})</td><td class="r">UGX ${fmt(totalAmt)}</td><td></td></tr></tfoot>
+    </table>
+    <div class="foot"><span class="bar">Together We Can</span><span>Busoga Ghetto Presidential Empowerment Fund (Busoga Pilot)</span></div>
+  ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},400)}</scr' + 'ipt>'}
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 function changePage(delta) {
