@@ -55,6 +55,22 @@
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
 .depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
 .depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
+/* District drill: By Depot / All Members toggle */
+.view-toggle{display:inline-flex;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:3px;gap:3px}
+.vt-btn{font-family:var(--font2);font-size:.74rem;font-weight:800;color:var(--muted);background:none;border:none;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.vt-btn:hover{color:var(--text)}
+.vt-btn.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 6px rgba(0,0,0,.08)}
+/* District-wide member list */
+.dm-wrap{overflow-x:auto}
+.dm-table{width:100%;border-collapse:collapse;min-width:520px}
+.dm-table th{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:12px 16px;border-bottom:1.5px solid var(--border);background:var(--bg)}
+.dm-table td{padding:12px 16px;border-bottom:1px solid var(--border);font-family:var(--font2);font-size:.82rem;color:var(--text)}
+.dm-table tbody tr{cursor:pointer;transition:background .12s}
+.dm-table tbody tr:last-child td{border-bottom:none}
+.dm-table tbody tr:hover{background:var(--green-pale)}
+.dm-serial{font-family:var(--font);color:var(--green);font-size:.8rem;white-space:nowrap}
+.dm-name{font-weight:800;text-transform:uppercase}
+.dm-muted{color:var(--muted)}
 .dp-edit,.dp-del{position:absolute;top:10px;width:27px;height:27px;border-radius:8px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .dp-edit svg,.dp-del svg{width:12px;height:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dp-edit{right:43px}
@@ -173,6 +189,8 @@ Auth.require();
 buildSidebar('depots');
 
 let allMembers = [], counts = {}, selected = null, dpIntro = false;
+// District drill view: 'depots' (cards) or 'members' (one flat list by serial).
+let depotView = 'depots';
 
 // One consistent brand green across every district (no rainbow).
 const GREEN = '#009c41';
@@ -216,8 +234,40 @@ function membersIn(code) { return allMembers.filter(m => m.district === code).le
 
 function select(code) {
   selected = code;
+  depotView = 'depots'; // always open a district on the depot view
   render();
   window.scrollTo(0, 0);
+}
+
+// Toggle the district drill between the depot cards and the flat member list.
+function setDepotView(v) {
+  depotView = v;
+  render();
+}
+
+// Serial number from a member id like BGS-KLR-0015 -> 15 (for sorting).
+function serialNo(id) {
+  const p = String(id || '').split('-');
+  return parseInt(p[p.length - 1], 10) || 0;
+}
+
+// One flat, serial-ordered list of every member in a district (all depots).
+function districtMembersTable(code) {
+  const list = allMembers.filter(m => m.district === code).sort((a, b) => serialNo(a.id) - serialNo(b.id));
+  if (!list.length)
+    return '<div class="card"><div class="empty-state"><div class="empty-title">No members in this district yet</div></div></div>';
+  const rows = list.map(m => `
+    <tr onclick="location.href='member.html?id=${m.id}'">
+      <td class="dm-serial">${m.id}</td>
+      <td class="dm-name">${m.name}</td>
+      <td class="dm-muted">${titleCase(m.depot)}</td>
+      <td class="dm-muted">${m.depot_role || '-'}</td>
+    </tr>`).join('');
+  return `<div class="card" style="padding:0;overflow:hidden"><div class="dm-wrap">
+    <table class="dm-table">
+      <thead><tr><th>Serial</th><th>Name</th><th>Depot</th><th>Role</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div></div>`;
 }
 
 function render() {
@@ -300,40 +350,55 @@ function renderDistricts() {
 }
 
 function renderDepots(code) {
-  // Inside a district: admins can add a depot here.
+  // "Add depot" only makes sense in the depot view.
   const nb = document.getElementById('newDepotBtn');
-  if (nb) nb.style.display = _acc.isAdmin ? '' : 'none';
+  if (nb) nb.style.display = (_acc.isAdmin && depotView === 'depots') ? '' : 'none';
   const d   = DISTRICTS.find(x => x.code === code);
   const col = GREEN;
   const depots = depotsForDistrict(code);
   const mc = membersIn(code);
 
-  const cards = depots.map(dep => {
-    const cnt = counts[code + '||' + dep] || 0;
-    const rec = depotRecord(code, dep);
-    const loc = (rec && rec.sub_county) ? rec.sub_county : d.name;
-    return `
-      <div class="depot-card" style="border-top:3px solid ${col}" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
-        <div class="depot-top">
-          <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
-          <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
-        </div>
-        <div class="depot-count"><span class="num cup-d" data-to="${cnt}" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
-      </div>`;
-  }).join('');
+  const toggle = `
+    <div class="view-toggle">
+      <button class="vt-btn ${depotView === 'depots' ? 'active' : ''}" onclick="setDepotView('depots')">By Depot</button>
+      <button class="vt-btn ${depotView === 'members' ? 'active' : ''}" onclick="setDepotView('members')">All Members</button>
+    </div>`;
 
-  document.getElementById('depotsContainer').innerHTML = `
+  const header = `
     <div class="back-row">
       <button class="btn btn-sm" onclick="select(null)"><svg viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></svg> All districts</button>
       <div class="sel-title">${d.name}<span>${depots.length} depots · ${mc} members</span></div>
-    </div>
-    <div class="depot-grid">${cards || '<div class="card"><div class="empty-state"><div class="empty-title">No depots</div></div></div>'}</div>`;
+      <div style="margin-left:auto">${toggle}</div>
+    </div>`;
+
+  let body;
+  if (depotView === 'members') {
+    body = districtMembersTable(code);
+  } else {
+    const cards = depots.map(dep => {
+      const cnt = counts[code + '||' + dep] || 0;
+      const rec = depotRecord(code, dep);
+      const loc = (rec && rec.sub_county) ? rec.sub_county : d.name;
+      return `
+        <div class="depot-card" style="border-top:3px solid ${col}" onclick="location.href='members.html?district=${code}&depot=${encodeURIComponent(dep)}'">
+          <div class="depot-top">
+            <div class="depot-ic" style="background:${col}"><svg viewBox="0 0 16 16"><path d="M1.5 6.5L8 2l6.5 4.5V14h-13z"/><path d="M5.5 14V9h5v5"/></svg></div>
+            <div><div class="depot-name">${titleCase(dep)}</div><div class="depot-dist">${loc}</div></div>
+          </div>
+          <div class="depot-count"><span class="num cup-d" data-to="${cnt}" style="color:${col}">${cnt}</span><span class="lbl">member${cnt === 1 ? '' : 's'} profiled</span></div>
+        </div>`;
+    }).join('');
+    body = `<div class="depot-grid">${cards || '<div class="card"><div class="empty-state"><div class="empty-title">No depots</div></div></div>'}</div>`;
+  }
+
+  document.getElementById('depotsContainer').innerHTML = header + body;
 
   document.getElementById('countLabel').textContent =
     `${d.name} · ${depots.length} depots · ${fmt(mc)} members`;
 
-  // Count the depot member numbers up each time you drill into a district.
-  requestAnimationFrame(() => document.querySelectorAll('.cup-d').forEach(animateUp));
+  // Count the depot member numbers up when showing the depot cards.
+  if (depotView === 'depots')
+    requestAnimationFrame(() => document.querySelectorAll('.cup-d').forEach(animateUp));
 }
 
 // ── DEPOT MANAGEMENT (admin) ───────────────────────────────────────
