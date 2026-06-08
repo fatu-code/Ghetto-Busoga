@@ -264,19 +264,26 @@ function filterDistrictMembers() {
   if (list) list.innerHTML = districtMembersTable(selected);
 }
 
-// One flat, serial-ordered list of every member in a district (all depots),
-// filtered by the search box (name, serial or depot).
-function districtMembersTable(code) {
+// The filtered, serial-ordered member list for a district (used by the table,
+// print and CSV export so they always match what's on screen).
+function getDistrictMembers(code) {
   const q = dmQuery.trim().toLowerCase();
-  const total = allMembers.filter(m => m.district === code).length;
   let list = allMembers.filter(m => m.district === code);
   if (q) list = list.filter(m =>
     (m.name || '').toLowerCase().includes(q) ||
     (m.id || '').toLowerCase().includes(q) ||
     (m.depot || '').toLowerCase().includes(q));
-  list.sort((a, b) => serialNo(a.id) - serialNo(b.id));
+  return list.sort((a, b) => serialNo(a.id) - serialNo(b.id));
+}
 
-  const count = `<div class="dm-count">${list.length} of ${total} member${total === 1 ? '' : 's'}${q ? ` matching "${dmQuery.trim()}"` : ''}</div>`;
+// One flat, serial-ordered list of every member in a district (all depots),
+// filtered by the search box (name, serial or depot).
+function districtMembersTable(code) {
+  const q = dmQuery.trim();
+  const total = allMembers.filter(m => m.district === code).length;
+  const list = getDistrictMembers(code);
+
+  const count = `<div class="dm-count">${list.length} of ${total} member${total === 1 ? '' : 's'}${q ? ` matching "${q}"` : ''}</div>`;
   if (!list.length)
     return count + `<div class="card"><div class="empty-state"><div class="empty-title">${total ? 'No match' : 'No members in this district yet'}</div></div></div>`;
   const rows = list.map(m => `
@@ -291,6 +298,83 @@ function districtMembersTable(code) {
       <thead><tr><th>Serial</th><th>Name</th><th>Depot</th><th>Role</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div></div>`;
+}
+
+// Export the current district roll (what's on screen, search applied) to CSV.
+function exportDistrictCSV() {
+  const d = DISTRICTS.find(x => x.code === selected);
+  const list = getDistrictMembers(selected);
+  if (!list.length) { showToast('Nothing to export', 'error'); return; }
+  const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+  const head = ['Serial', 'Name', 'Gender', 'Phone', 'NIN', 'Sub-County', 'Parish', 'Village', 'Depot', 'Role', 'Status'];
+  const lines = list.map(m => [m.id, m.name, m.gender, m.phone, m.nin, m.sub_county, m.parish, m.village, m.depot, m.depot_role, m.status].map(esc).join(','));
+  const csv = '﻿' + head.map(esc).join(',') + '\r\n' + lines.join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = `${(d ? d.name : 'district').replace(/\s+/g, '-')}-members.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+// Print the current district roll as a clean, branded A4 document.
+function printDistrictRoll() {
+  const d = DISTRICTS.find(x => x.code === selected);
+  const list = getDistrictMembers(selected);
+  if (!list.length) { showToast('Nothing to print', 'error'); return; }
+  const emblem = location.origin + '/images/coat-of-arms.png';
+  const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const q = dmQuery.trim();
+  const rows = list.map((m, i) => `<tr>
+      <td class="c">${i + 1}</td>
+      <td class="s">${m.id}</td>
+      <td class="nm">${m.name}</td>
+      <td>${titleCase(m.depot)}</td>
+      <td>${m.depot_role || '-'}</td>
+      <td>${m.sub_county || '-'}</td>
+      <td>${m.phone || '-'}</td>
+    </tr>`).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${d ? d.name : 'District'} Member Roll</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    @page{size:A4;margin:13mm}
+    body{font-family:'Nunito',sans-serif;color:#1c3326;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .hd{background:linear-gradient(125deg,#16271d,#0c4a2b 55%,#0a7a3a);color:#fff;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:14px;overflow:hidden}
+    .hd img{width:44px;height:44px;object-fit:contain;flex-shrink:0}
+    .hd .prog{font-family:'Varela Round',sans-serif;font-size:17px;line-height:1.15}
+    .hd .sub{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:rgba(255,255,255,.66);margin-top:6px}
+    .meta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:11px}
+    .meta .t{font-family:'Varela Round',sans-serif;font-size:15px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.08em}
+    .meta .t span{color:#7a8e83;font-size:11px;letter-spacing:.02em;margin-left:8px}
+    .meta .d{font-size:10px;font-weight:700;color:#7a8e83;text-align:right}
+    table{width:100%;border-collapse:collapse;font-size:9.5px}
+    thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:7px 8px;border-bottom:1.5px solid #d8ece1}
+    th.c,td.c{text-align:center}
+    tbody td{padding:6px 8px;border-bottom:1px solid #eef2f0}
+    tbody tr:nth-child(even){background:#fbfdfc}
+    .s{font-family:'Varela Round',sans-serif;color:#0a7a3a;white-space:nowrap}
+    .nm{font-weight:800;text-transform:uppercase}
+    .foot{margin-top:14px;border-top:1.5px solid #eef2f0;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#9aa8a0;font-weight:700}
+    .foot .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
+  </style></head><body>
+    <div class="hd">
+      <img src="${emblem}" alt="" onerror="this.style.display='none'">
+      <div><div class="prog">Busoga Ghetto Presidential Empowerment Fund</div><div class="sub">Office of the President, State House Uganda</div></div>
+    </div>
+    <div class="meta">
+      <div class="t">${d ? d.name : 'District'} Member Roll<span>${list.length} member${list.length === 1 ? '' : 's'}${q ? ' matching "' + q + '"' : ''}</span></div>
+      <div class="d">Generated ${issued}</div>
+    </div>
+    <table>
+      <thead><tr><th class="c">#</th><th>Serial</th><th>Name</th><th>Depot</th><th>Role</th><th>Sub-County</th><th>Phone</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="foot"><span class="bar">Together We Can</span><span>Busoga Ghetto Presidential Empowerment Fund (Busoga Pilot)</span></div>
+  ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},400)}</scr' + 'ipt>'}
+  </body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 function render() {
@@ -397,9 +481,15 @@ function renderDepots(code) {
   let body;
   if (depotView === 'members') {
     body = `
-      <div class="search-wrap" style="margin-bottom:12px;max-width:420px">
-        <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
-        <input class="search-input" id="dmSearch" type="text" placeholder="Search this district by name, serial or depot..." oninput="filterDistrictMembers()" value="${dmQuery.replace(/"/g, '&quot;')}">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <div class="search-wrap" style="flex:1;min-width:220px;max-width:420px;margin:0">
+          <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
+          <input class="search-input" id="dmSearch" type="text" placeholder="Search this district by name, serial or depot..." oninput="filterDistrictMembers()" value="${dmQuery.replace(/"/g, '&quot;')}">
+        </div>
+        <div style="display:flex;gap:8px;margin-left:auto">
+          <button class="btn btn-sm" onclick="exportDistrictCSV()"><svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M8 1.5v8M5 7l3 2.5L11 7M3 12.5h10"/></svg> <span class="mob-hide">Export CSV</span></button>
+          <button class="btn btn-sm" onclick="printDistrictRoll()"><svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="6" width="10" height="6" rx="1"/><path d="M4.5 6V2.5h7V6M5 9.5h6"/></svg> <span class="mob-hide">Print</span></button>
+        </div>
       </div>
       <div id="dmList">${districtMembersTable(code)}</div>`;
   } else {
