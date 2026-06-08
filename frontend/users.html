@@ -208,7 +208,7 @@ function render() {
     <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Added</th><th></th></tr></thead>
     <tbody>${users.map(u => `
       <tr>
-        <td><div style="display:flex;align-items:center;gap:10px"><div class="u-av">${initials(u.name)}</div><div style="font-weight:800">${u.name}${u.id === me.id ? ' <span style="color:var(--muted);font-weight:600">(you)</span>' : ''}</div></div></td>
+        <td><div style="display:flex;align-items:center;gap:10px"><div class="u-av">${initials(u.name)}</div><div style="font-weight:800">${titleCase(u.name)}${u.id === me.id ? ' <span style="color:var(--muted);font-weight:600">(you)</span>' : ''}</div></div></td>
         <td style="color:var(--muted)">@${u.username}</td>
         <td>
           <span class="pill ${u.role === 'admin' ? 'pill-green' : u.role === 'rdc' ? 'pill-amber' : 'pill-gray'}">${displayRole(u)}</span>
