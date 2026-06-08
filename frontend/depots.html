@@ -71,6 +71,7 @@
 .dm-serial{font-family:var(--font);color:var(--green);font-size:.8rem;white-space:nowrap}
 .dm-name{font-weight:800;text-transform:uppercase}
 .dm-muted{color:var(--muted)}
+.dm-count{font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:9px}
 .dp-edit,.dp-del{position:absolute;top:10px;width:27px;height:27px;border-radius:8px;border:1.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2}
 .dp-edit svg,.dp-del svg{width:12px;height:12px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .dp-edit{right:43px}
@@ -191,6 +192,7 @@ buildSidebar('depots');
 let allMembers = [], counts = {}, selected = null, dpIntro = false;
 // District drill view: 'depots' (cards) or 'members' (one flat list by serial).
 let depotView = 'depots';
+let dmQuery = ''; // search text for the All Members list
 
 // One consistent brand green across every district (no rainbow).
 const GREEN = '#009c41';
@@ -235,6 +237,7 @@ function membersIn(code) { return allMembers.filter(m => m.district === code).le
 function select(code) {
   selected = code;
   depotView = 'depots'; // always open a district on the depot view
+  dmQuery = '';
   render();
   window.scrollTo(0, 0);
 }
@@ -242,6 +245,7 @@ function select(code) {
 // Toggle the district drill between the depot cards and the flat member list.
 function setDepotView(v) {
   depotView = v;
+  dmQuery = '';
   render();
 }
 
@@ -251,11 +255,30 @@ function serialNo(id) {
   return parseInt(p[p.length - 1], 10) || 0;
 }
 
-// One flat, serial-ordered list of every member in a district (all depots).
+// Re-filter the All Members list as the user types, without re-rendering the
+// search box (so focus and the cursor stay put). Handles 1000s of names fine.
+function filterDistrictMembers() {
+  const el = document.getElementById('dmSearch');
+  dmQuery = el ? el.value : '';
+  const list = document.getElementById('dmList');
+  if (list) list.innerHTML = districtMembersTable(selected);
+}
+
+// One flat, serial-ordered list of every member in a district (all depots),
+// filtered by the search box (name, serial or depot).
 function districtMembersTable(code) {
-  const list = allMembers.filter(m => m.district === code).sort((a, b) => serialNo(a.id) - serialNo(b.id));
+  const q = dmQuery.trim().toLowerCase();
+  const total = allMembers.filter(m => m.district === code).length;
+  let list = allMembers.filter(m => m.district === code);
+  if (q) list = list.filter(m =>
+    (m.name || '').toLowerCase().includes(q) ||
+    (m.id || '').toLowerCase().includes(q) ||
+    (m.depot || '').toLowerCase().includes(q));
+  list.sort((a, b) => serialNo(a.id) - serialNo(b.id));
+
+  const count = `<div class="dm-count">${list.length} of ${total} member${total === 1 ? '' : 's'}${q ? ` matching "${dmQuery.trim()}"` : ''}</div>`;
   if (!list.length)
-    return '<div class="card"><div class="empty-state"><div class="empty-title">No members in this district yet</div></div></div>';
+    return count + `<div class="card"><div class="empty-state"><div class="empty-title">${total ? 'No match' : 'No members in this district yet'}</div></div></div>`;
   const rows = list.map(m => `
     <tr onclick="location.href='member.html?id=${m.id}'">
       <td class="dm-serial">${m.id}</td>
@@ -263,7 +286,7 @@ function districtMembersTable(code) {
       <td class="dm-muted">${titleCase(m.depot)}</td>
       <td class="dm-muted">${m.depot_role || '-'}</td>
     </tr>`).join('');
-  return `<div class="card" style="padding:0;overflow:hidden"><div class="dm-wrap">
+  return count + `<div class="card" style="padding:0;overflow:hidden"><div class="dm-wrap">
     <table class="dm-table">
       <thead><tr><th>Serial</th><th>Name</th><th>Depot</th><th>Role</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -373,7 +396,12 @@ function renderDepots(code) {
 
   let body;
   if (depotView === 'members') {
-    body = districtMembersTable(code);
+    body = `
+      <div class="search-wrap" style="margin-bottom:12px;max-width:420px">
+        <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><path d="M10 10l3 3"/></svg>
+        <input class="search-input" id="dmSearch" type="text" placeholder="Search this district by name, serial or depot..." oninput="filterDistrictMembers()" value="${dmQuery.replace(/"/g, '&quot;')}">
+      </div>
+      <div id="dmList">${districtMembersTable(code)}</div>`;
   } else {
     const cards = depots.map(dep => {
       const cnt = counts[code + '||' + dep] || 0;
