@@ -446,19 +446,21 @@
           const data = await apiFetch('/api/stats');
           const t = data.totals || {};
           const total     = Number(t.total_members     || 0);
-          const active    = Number(t.active_members    || 0);
           const depots    = Number(t.total_depots      || 0);
           const districts = Number(t.districts_covered || 0);
           const disbursed = Number(t.total_disbursed   || 0);
+          // A "beneficiary" is a member who has been disbursed. Profilers can't see
+          // money, so disbursed_count is null for them - fall back to the profiled total.
+          const beneficiaries = t.disbursed_count != null ? Number(t.disbursed_count) : total;
 
-          animateCount(document.getElementById('mtBeneficiaries'), total, fmt);
-          document.getElementById('mtBeneficiariesSub').textContent = `${fmt(active)} active`;
+          animateCount(document.getElementById('mtBeneficiaries'), beneficiaries, fmt);
+          document.getElementById('mtBeneficiariesSub').textContent = `of ${fmt(total)} profiled`;
           animateCount(document.getElementById('mtDepots'), depots, fmt);
           document.getElementById('mtDepotsSub').textContent        = `across ${districts} district${districts === 1 ? '' : 's'}`;
           animateCount(document.getElementById('mtDistricts'), districts, String);
           document.getElementById('mtDistrictsSub').textContent     = 'of 12 covered';
           animateCount(document.getElementById('mtDisbursed'), disbursed, compact);
-          document.getElementById('mtDisbursedSub').textContent     = `to ${fmt(total)} beneficiar${total === 1 ? 'y' : 'ies'}`;
+          document.getElementById('mtDisbursedSub').textContent     = `to ${fmt(beneficiaries)} beneficiar${beneficiaries === 1 ? 'y' : 'ies'}`;
 
           const repaid      = Number(t.total_repaid || 0);
           const totalDue    = Math.round(disbursed * 1.06);
@@ -488,9 +490,10 @@
           if (!byD.length) {
             dl.innerHTML = `<div style="${muted}">No beneficiaries yet</div>`;
           } else {
-            const max = Math.max(...byD.map(d => Number(d.member_count) || 0), 1);
+            const beneOf = d => (d.disbursed_count != null ? Number(d.disbursed_count) : Number(d.member_count)) || 0;
+            const max = Math.max(...byD.map(beneOf), 1);
             dl.innerHTML = byD.map((d, i) => {
-              const cnt = Number(d.member_count) || 0;
+              const cnt = beneOf(d);
               const pct = Math.max(4, Math.round((cnt / max) * 100));
               const col = BAR_COLORS[i % BAR_COLORS.length];
               return `<div class="dcov-row">
