@@ -35,6 +35,37 @@
 .db-empty{padding:40px;text-align:center}
 .del-warn{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--green-pale);border:1.5px solid var(--green-mid)}
 .del-warn svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+/* Hero band */
+.db-hero{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);border-radius:18px;padding:22px 26px;margin-bottom:16px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;overflow:hidden;flex-wrap:wrap}
+.db-hero::after{content:"";position:absolute;right:-50px;top:-70px;width:230px;height:230px;border-radius:50%;background:rgba(255,255,255,.05)}
+.db-hero::before{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.08),transparent);transform:skewX(-18deg);animation:dbShine 6.5s ease-in-out infinite;pointer-events:none}
+@keyframes dbShine{0%{left:-60%}60%{left:135%}100%{left:135%}}
+.db-hero-l{display:flex;align-items:center;gap:15px;position:relative;min-width:0}
+.db-hero-ic{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.db-hero-ic svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.db-hero-t{font-family:var(--font);font-size:1.4rem;line-height:1.1}
+.db-hero-s{font-family:var(--font2);font-size:.78rem;font-weight:600;color:rgba(255,255,255,.62);margin-top:4px}
+.db-hero-r{position:relative;text-align:right;flex-shrink:0}
+.db-hero-r .n{font-family:var(--font);font-size:1.7rem;line-height:1}
+.db-hero-r .l{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5);margin-top:4px}
+/* Stat tiles */
+.db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.db-tile{background:#fff;border:1.5px solid var(--border);border-radius:16px;padding:15px 17px;display:flex;align-items:center;gap:13px;position:relative;overflow:hidden}
+.db-tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
+.db-tile.amber::before{background:var(--amber)}
+.db-tile-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--green-pale);border:1.5px solid var(--green-mid)}
+.db-tile.amber .db-tile-ic{background:var(--amber-pale);border-color:var(--amber-mid)}
+.db-tile-ic svg{width:19px;height:19px;fill:none;stroke:var(--green-dark);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.db-tile.amber .db-tile-ic svg{stroke:var(--amber-text)}
+.db-tile-v{font-family:var(--font);font-size:1.45rem;color:var(--text);line-height:1}
+.db-tile-l{font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:4px}
+/* Entrance */
+@keyframes dbRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.db-hero,.db-tile,.db-ctrl{animation:dbRise .5s var(--ease) backwards}
+.db-tile:nth-child(1){animation-delay:.05s}.db-tile:nth-child(2){animation-delay:.1s}.db-tile:nth-child(3){animation-delay:.15s}.db-tile:nth-child(4){animation-delay:.2s}
+.db-ctrl{animation-delay:.24s}
+@media(prefers-reduced-motion:reduce){.db-hero,.db-tile,.db-ctrl{animation:none}.db-hero::before{animation:none}}
+@media(max-width:860px){.db-stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -55,7 +86,22 @@
     </div>
 
     <div class="content">
-      <div class="card" style="margin-bottom:16px">
+      <div class="db-hero">
+        <div class="db-hero-l">
+          <div class="db-hero-ic"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/><path d="M4 6.2v3.6M12 6.2v3.6"/></svg></div>
+          <div><div class="db-hero-t">Disbursement</div><div class="db-hero-s">Pay a whole district in one go</div></div>
+        </div>
+        <div class="db-hero-r"><div class="n" id="heroNum">0</div><div class="l" id="heroLbl">pick a district</div></div>
+      </div>
+
+      <div class="db-stats">
+        <div class="db-tile amber"><div class="db-tile-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="db-tile-v" id="stPending">0</div><div class="db-tile-l">Pending</div></div></div>
+        <div class="db-tile"><div class="db-tile-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M5 8l2 2 4-4"/></svg></div><div><div class="db-tile-v" id="stDisbursed">0</div><div class="db-tile-l">Disbursed</div></div></div>
+        <div class="db-tile"><div class="db-tile-ic"><svg viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="2.5"/><path d="M5.5 8l1.8 1.8L11 6"/></svg></div><div><div class="db-tile-v" id="stSelected">0</div><div class="db-tile-l">Selected</div></div></div>
+        <div class="db-tile"><div class="db-tile-ic"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/></svg></div><div><div class="db-tile-v" id="stTotal">UGX 0</div><div class="db-tile-l">To Disburse</div></div></div>
+      </div>
+
+      <div class="card db-ctrl" style="margin-bottom:16px">
         <div class="db-controls">
           <div class="db-field">
             <label>District</label>
@@ -150,6 +196,7 @@ function render() {
   const body = document.getElementById('dBody');
   if (!code) {
     body.innerHTML = '<div class="card"><div class="db-empty"><div class="empty-title">Choose a district to begin</div></div></div>';
+    updateStats();
     return;
   }
   const q = document.getElementById('dSearch').value.trim().toLowerCase();
@@ -260,6 +307,32 @@ function updateBar() {
   const go = document.getElementById('dGo');
   if (info) info.innerHTML = `<b>${items.length}</b> selected &middot; <b>UGX ${fmt(total)}</b>`;
   if (go) go.disabled = items.length === 0;
+  updateStats();
+}
+
+function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+function compact(n) {
+  n = Number(n) || 0;
+  if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'K';
+  return String(n);
+}
+
+// Keep the hero figure and the four stat tiles in sync with the selection.
+function updateStats() {
+  const code = district();
+  const pend = code ? pendingFor(code).length : 0;
+  const disb = code ? all.filter(m => m.district === code && isDisbursed(m)).length : 0;
+  const items = selectedItems();
+  const total = items.reduce((s, x) => s + x.amount, 0);
+  setText('stPending', fmt(pend));
+  setText('stDisbursed', fmt(disb));
+  setText('stSelected', fmt(items.length));
+  setText('stTotal', 'UGX ' + compact(total));
+  const dn = code ? ((DISTRICTS.find(d => d.code === code) || {}).name || code) : '';
+  setText('heroNum', code ? fmt(pend) : '0');
+  setText('heroLbl', code ? dn + ' · pending' : 'pick a district');
 }
 
 function askDisburse() {
