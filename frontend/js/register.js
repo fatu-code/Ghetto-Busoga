@@ -56,7 +56,7 @@
         <div class="form-group"><label class="form-label">Gender</label><select class="form-select" id="rgGender"><option value="">Select</option><option>Male</option><option>Female</option></select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Depot Role</label><select class="form-select" id="rgRole"><option value="">Member (no position)</option><optgroup label="District committee"><option value="District Commander">District Commander</option><option value="District Deputy Commander">District Deputy Commander</option><option value="District Secretary">District Secretary</option><option value="District Publicity">District Publicity</option></optgroup><optgroup label="Depot committee"><option>Depot Commander</option><option>Deputy Commander</option><option>Secretary</option><option>Publicity</option></optgroup></select></div>
+        <div class="form-group"><label class="form-label">Depot Role</label><select class="form-select" id="rgRole"><option value="">Member (no position)</option><option>Depot Commander</option><option>Deputy Commander</option><option>Secretary</option><option>Publicity</option></select></div>
         <div class="form-group"></div>
       </div>
       <div class="form-group" style="background:var(--green-pale);border:1px solid var(--green-mid);border-radius:var(--radius-sm);padding:11px 14px;font-family:var(--font2);font-size:.74rem;font-weight:600;color:var(--green-dark);line-height:1.5">

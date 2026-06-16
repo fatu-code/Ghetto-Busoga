@@ -282,7 +282,7 @@ function districtLeadershipPanel(code) {
   const dn = d ? d.name : code;
   const crown = '<svg viewBox="0 0 16 16"><path d="M2 12.5h12M3 12.5l-1-6.5 3.6 3.2L8 4l2.4 5.2L14 6l-1 6.5"/></svg>';
   const cards = DISTRICT_ROLES.map((role, i) => {
-    const L = allMembers.find(m => m.district === code && m.depot_role === role);
+    const L = allMembers.find(m => m.district === code && m.district_role === role);
     const label = roleDisplay(role, dn); // e.g. "Luuka Commander"
     const av = L ? initials(L.name) : (i === 0 ? crown : '?');
     return `<div class="dl-card${L ? ' filled' : ''}${i === 0 ? ' lead' : ''}" ${L ? `onclick="location.href='member.html?id=${L.id}'"` : ''}>
@@ -330,7 +330,7 @@ function districtMembersTable(code) {
       <td class="dm-serial">${m.id}</td>
       <td class="dm-name">${m.name}</td>
       <td class="dm-muted">${titleCase(m.depot)}</td>
-      <td class="dm-muted">${m.depot_role ? roleDisplay(m.depot_role, m.district_name) : '-'}</td>
+      <td class="dm-muted">${[m.depot_role, m.district_role].filter(Boolean).map(r => roleDisplay(r, m.district_name)).join(' · ') || '-'}</td>
     </tr>`).join('');
   return count + `<div class="card" style="padding:0;overflow:hidden"><div class="dm-wrap">
     <table class="dm-table">

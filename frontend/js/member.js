@@ -67,6 +67,7 @@ function renderProfile() {
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
             ${statusPill(m.status)}
             ${disbursementPill(m)}
+            ${m.district_role ? `<span class="pill" style="background:#eaf7f0;color:#0a7a3a;border-color:#b3e6c8">${roleDisplay(m.district_role, m.district_name)}</span>` : ''}
             ${m.depot_role ? `<span class="pill" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe">${roleDisplay(m.depot_role, m.district_name)}</span>` : ''}
             ${m.gender ? `<span class="pill pill-gray">${m.gender}</span>` : ''}
           </div>
@@ -993,6 +994,8 @@ function openEditModal() {
   document.getElementById('eGender').value  = m.gender || '';
   document.getElementById('eStatus').value  = m.status;
   document.getElementById('eRole').value    = m.depot_role || '';
+  document.getElementById('eDistrictRole').value = m.district_role || '';
+  syncDistrictRole();
   document.getElementById('eDistrict').value= m.district;
   updateEditDepots(m.depot || '');
   // Cascading location selects, pre-filled with the stored values
@@ -1008,6 +1011,16 @@ function openEditModal() {
     ? `<img src="${m.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:11px">`
     : initials(m.name);
   openModal('editModal');
+}
+
+// A district role is only allowed for a Depot Commander. Disable it otherwise.
+function syncDistrictRole() {
+  const isCmd = document.getElementById('eRole').value === 'Depot Commander';
+  const ds = document.getElementById('eDistrictRole');
+  const hint = document.getElementById('eDistrictHint');
+  ds.disabled = !isCmd;
+  if (!isCmd) ds.value = '';
+  if (hint) hint.style.color = isCmd ? 'var(--muted)' : '#b06a00';
 }
 
 function previewEditPhoto(input) {
@@ -1041,6 +1054,7 @@ async function saveEdit() {
   fd.append('disbursement_date', document.getElementById('eDate').value);
   fd.append('status',            document.getElementById('eStatus').value);
   fd.append('depot_role',        document.getElementById('eRole').value);
+  fd.append('district_role',     document.getElementById('eDistrictRole').value);
   fd.append('notes',             document.getElementById('eNotes').value.trim());
   const photo = document.getElementById('editPhotoInput').files[0];
   if (photo) fd.append('photo', photo);
