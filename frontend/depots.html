@@ -209,7 +209,7 @@
     </div>
     <div class="modal-body">
       <div id="asgHint" style="font-family:var(--font2);font-size:.78rem;color:var(--muted);line-height:1.55;margin-bottom:14px"></div>
-      <div class="form-group"><label class="form-label">Choose a Depot Commander</label>
+      <div class="form-group"><label class="form-label">Choose a person</label>
         <select class="form-select" id="asgMember"></select></div>
     </div>
     <div class="modal-foot">
@@ -318,31 +318,31 @@ function districtLeadershipPanel(code) {
     <div class="dlead">${cards}</div>`;
 }
 
-// Admin: pick / change who holds a district role. Eligible people are this
-// district's Depot Commanders (you lead a depot before a district).
+// Admin: pick / change who holds a district committee seat. Anyone in the
+// district is eligible (a district seat is separate from any depot role).
 let asgRole = null;
 function openAssign(role) {
   asgRole = role;
   const dn = (DISTRICTS.find(d => d.code === selected) || {}).name || selected;
   document.getElementById('asgTitle').textContent = 'Assign ' + roleDisplay(role, dn);
   const eligible = allMembers
-    .filter(m => m.district === selected && m.depot_role === 'Depot Commander')
+    .filter(m => m.district === selected)
     .sort((a, b) => a.name.localeCompare(b.name));
   const current = allMembers.find(m => m.district === selected && m.district_role === role);
   const hint = document.getElementById('asgHint');
   const sel = document.getElementById('asgMember');
   const btn = document.getElementById('asgBtn');
   if (!eligible.length) {
-    hint.innerHTML = 'No Depot Commanders in this district yet. Open a person\'s profile and set their <b>Depot Role</b> to <b>Depot Commander</b> first, then they can take a district role.';
-    sel.innerHTML = '<option value="">No eligible commanders</option>';
+    hint.innerHTML = 'No members in this district yet. Register people first, then assign the committee.';
+    sel.innerHTML = '<option value="">No members</option>';
     sel.disabled = true; btn.disabled = true;
     openModal('assignModal');
     return;
   }
-  hint.innerHTML = 'District roles are held by Depot Commanders.' + (current ? ` Currently held by <b>${current.name}</b>.` : '');
+  hint.innerHTML = 'Choose anyone in this district for this seat.' + (current ? ` Currently held by <b>${current.name}</b>.` : '');
   sel.disabled = false; btn.disabled = false;
   sel.innerHTML =
-    '<option value="">Select a Depot Commander</option>' +
+    '<option value="">Select a person</option>' +
     (current ? '<option value="__clear__">Remove (leave vacant)</option>' : '') +
     eligible.map(m => `<option value="${m.id}">${m.name} - ${titleCase(m.depot)}</option>`).join('');
   openModal('assignModal');

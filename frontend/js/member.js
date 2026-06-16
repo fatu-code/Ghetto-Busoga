@@ -995,7 +995,6 @@ function openEditModal() {
   document.getElementById('eStatus').value  = m.status;
   document.getElementById('eRole').value    = m.depot_role || '';
   document.getElementById('eDistrictRole').value = m.district_role || '';
-  syncDistrictRole();
   document.getElementById('eDistrict').value= m.district;
   updateEditDepots(m.depot || '');
   // Cascading location selects, pre-filled with the stored values
@@ -1011,16 +1010,6 @@ function openEditModal() {
     ? `<img src="${m.photo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:11px">`
     : initials(m.name);
   openModal('editModal');
-}
-
-// A district role is only allowed for a Depot Commander. Disable it otherwise.
-function syncDistrictRole() {
-  const isCmd = document.getElementById('eRole').value === 'Depot Commander';
-  const ds = document.getElementById('eDistrictRole');
-  const hint = document.getElementById('eDistrictHint');
-  ds.disabled = !isCmd;
-  if (!isCmd) ds.value = '';
-  if (hint) hint.style.color = isCmd ? 'var(--muted)' : '#b06a00';
 }
 
 function previewEditPhoto(input) {
