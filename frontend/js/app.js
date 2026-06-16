@@ -23,7 +23,12 @@ const DISTRICTS = [
 ];
 
 // Depot leadership positions. A leader is a member who holds one of these roles.
-const DEPOT_ROLES = ["Chairperson", "Vice Chairperson", "Treasurer", "Secretary", "Publicity"];
+// The depot (ghetto) committee positions. Everyone else is an ordinary Member.
+const DEPOT_ROLES = ["Depot Commander", "Deputy", "Secretary", "Publicity"];
+// District Commander leads a whole district (one per district), shown at district level.
+const DISTRICT_ROLE = "District Commander";
+// Full list offered in the role dropdowns (district role first).
+const ROLE_OPTIONS = [DISTRICT_ROLE, ...DEPOT_ROLES];
 
 // ── AUTH ─────────────────────────────────────────────────────────────
 const Auth = {

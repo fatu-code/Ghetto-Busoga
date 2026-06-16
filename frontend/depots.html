@@ -55,6 +55,18 @@
 .depot-count{display:flex;align-items:baseline;gap:8px;border-top:1px solid var(--border);padding-top:13px}
 .depot-count .num{font-family:var(--font);font-size:1.8rem;color:var(--green);line-height:1}
 .depot-count .lbl{font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted)}
+/* District Commander banner */
+.dc-banner{display:flex;align-items:center;gap:13px;background:linear-gradient(120deg,#0c4a2b,#0a7a3a);color:#fff;border-radius:14px;padding:13px 18px;margin-bottom:16px;cursor:pointer;position:relative;overflow:hidden}
+.dc-banner.empty{background:var(--bg);color:var(--muted);border:1.5px dashed var(--border);cursor:default}
+.dc-ic{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc-banner.empty .dc-ic{background:#fff;border-color:var(--border)}
+.dc-ic svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dc-banner.empty .dc-ic svg{stroke:var(--muted)}
+.dc-l{font-family:var(--font2);font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.82}
+.dc-n{font-family:var(--font);font-size:1.05rem;margin-top:2px;text-transform:uppercase;line-height:1.1}
+.dc-banner.empty .dc-n{text-transform:none;font-size:.88rem}
+.dc-go{margin-left:auto;flex-shrink:0;display:flex}
+.dc-go svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* District drill: By Depot / All Members toggle */
 .view-toggle{display:inline-flex;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:3px;gap:3px}
 .vt-btn{font-family:var(--font2);font-size:.74rem;font-weight:800;color:var(--muted);background:none;border:none;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -253,6 +265,20 @@ function setDepotView(v) {
 function serialNo(id) {
   const p = String(id || '').split('-');
   return parseInt(p[p.length - 1], 10) || 0;
+}
+
+// District Commander banner (one leader per district, above the depots).
+function districtCommanderBanner(code) {
+  const dc = allMembers.find(m => m.district === code && m.depot_role === 'District Commander');
+  const crown = '<svg viewBox="0 0 16 16"><path d="M2 12.5h12M3 12.5l-1-6.5 3.6 3.2L8 4l2.4 5.2L14 6l-1 6.5"/></svg>';
+  if (!dc) {
+    return `<div class="dc-banner empty"><div class="dc-ic">${crown}</div><div><div class="dc-l">District Commander</div><div class="dc-n">Not yet assigned</div></div></div>`;
+  }
+  return `<div class="dc-banner" onclick="location.href='member.html?id=${dc.id}'">
+      <div class="dc-ic">${crown}</div>
+      <div><div class="dc-l">District Commander</div><div class="dc-n">${dc.name} &middot; ${titleCase(dc.depot)}</div></div>
+      <div class="dc-go"><svg viewBox="0 0 16 16"><path d="M6 4l4 4-4 4"/></svg></div>
+    </div>`;
 }
 
 // Re-filter the All Members list as the user types, without re-rendering the
@@ -476,7 +502,8 @@ function renderDepots(code) {
       <button class="btn btn-sm" onclick="select(null)"><svg viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></svg> All districts</button>
       <div class="sel-title">${d.name}<span>${depots.length} depots · ${mc} members</span></div>
       <div style="margin-left:auto">${toggle}</div>
-    </div>`;
+    </div>
+    ${districtCommanderBanner(code)}`;
 
   let body;
   if (depotView === 'members') {
