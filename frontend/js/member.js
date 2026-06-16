@@ -67,7 +67,7 @@ function renderProfile() {
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
             ${statusPill(m.status)}
             ${disbursementPill(m)}
-            ${m.depot_role ? `<span class="pill" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe">${m.depot_role}</span>` : ''}
+            ${m.depot_role ? `<span class="pill" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe">${roleDisplay(m.depot_role, m.district_name)}</span>` : ''}
             ${m.gender ? `<span class="pill pill-gray">${m.gender}</span>` : ''}
           </div>
           <div class="member-name">${m.name}</div>

@@ -24,11 +24,16 @@ const DISTRICTS = [
 
 // Depot leadership positions. A leader is a member who holds one of these roles.
 // The depot (ghetto) committee positions. Everyone else is an ordinary Member.
-const DEPOT_ROLES = ["Depot Commander", "Deputy", "Secretary", "Publicity"];
-// District Commander leads a whole district (one per district), shown at district level.
-const DISTRICT_ROLE = "District Commander";
-// Full list offered in the role dropdowns (district role first).
-const ROLE_OPTIONS = [DISTRICT_ROLE, ...DEPOT_ROLES];
+const DEPOT_ROLES = ["Depot Commander", "Deputy Commander", "Secretary", "Publicity"];
+// The district committee: same four positions, but for the whole district.
+const DISTRICT_ROLES = ["District Commander", "District Deputy Commander", "District Secretary", "District Publicity"];
+// Show a stored role nicely. District roles carry the district's name, e.g.
+// "District Commander" -> "Luuka Commander", "District Publicity" -> "Luuka Publicity".
+function roleDisplay(role, districtName) {
+  if (!role) return "";
+  if (role.indexOf("District ") === 0) return (districtName || "District") + role.slice(8);
+  return role;
+}
 
 // ── AUTH ─────────────────────────────────────────────────────────────
 const Auth = {
