@@ -54,6 +54,11 @@
 .del-warn svg{width:19px;height:19px;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .del-warn.red{background:#fdecec;border:1.5px solid #f5b7b1}.del-warn.red svg{stroke:#c0392b}
 .del-warn.amber{background:#fff4e0;border:1.5px solid #f3d28a}.del-warn.amber svg{stroke:#b9770e}
+/* Members / Leadership sub-toggle on a depot roster */
+.view-toggle{display:inline-flex;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:3px;gap:3px}
+.vt-btn{font-family:var(--font2);font-size:.74rem;font-weight:800;color:var(--muted);background:none;border:none;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.vt-btn:hover{color:var(--text)}
+.vt-btn.active{background:#fff;color:var(--green-dark);box-shadow:0 2px 6px rgba(0,0,0,.08)}
 .depot-menu svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 /* Gentle one-time entrance for the beneficiary cards */
 @keyframes bRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -313,6 +318,8 @@ const _acc = accessOf(Auth.get());
 if (!_acc.canWrite) { const rb = document.getElementById('registerBtn'); if (rb) rb.style.display = 'none'; }
 
 let allMembers = [], currentPage = 1, totalPages = 1, totalCount = 0;
+let rosterView = 'members'; // depot roster sub-view: 'members' or 'leadership'
+function setRosterView(v) { rosterView = v; renderMembers(); }
 let introDone = false;
 // Show every beneficiary on one page - no pagination, just scroll.
 const LIMIT = 100000;
@@ -399,10 +406,20 @@ function renderMembers() {
   document.getElementById('countLabel').textContent =
     fmt(totalCount) + ' beneficiar' + (totalCount !== 1 ? 'ies' : 'y') + (depotFilter ? ' in ' + depotFilter : '');
 
-  const lead = depotFilter ? leadershipPanel() : '';
+  const toggleHtml = depotFilter ? `<div class="view-toggle" style="margin-bottom:14px">
+      <button class="vt-btn ${rosterView === 'members' ? 'active' : ''}" onclick="setRosterView('members')">Members</button>
+      <button class="vt-btn ${rosterView === 'leadership' ? 'active' : ''}" onclick="setRosterView('leadership')">Leadership</button>
+    </div>` : '';
+
+  // Depot leadership lives in its own tab so it never crowds the roster (esp. on mobile).
+  if (depotFilter && rosterView === 'leadership') {
+    container.innerHTML = toggleHtml + leadershipPanel();
+    document.getElementById('pagination').style.display = 'none';
+    return;
+  }
 
   if (!allMembers.length) {
-    container.innerHTML = lead + `<div class="card"><div class="empty-state">
+    container.innerHTML = toggleHtml + `<div class="card"><div class="empty-state">
       <div class="empty-icon"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div>
       <div class="empty-title">No beneficiaries found</div>
       <div class="empty-sub">Try adjusting your search or register a new beneficiary.</div>
@@ -413,7 +430,7 @@ function renderMembers() {
   }
 
   if (view === 'table') {
-    container.innerHTML = lead + `<div class="card"><div class="table-wrap"><table>
+    container.innerHTML = toggleHtml + `<div class="card"><div class="table-wrap"><table>
       <thead><tr>
         <th>Photo</th><th>Name</th><th>Serial No.</th><th>District</th><th>Depot</th><th>Amount</th><th>Date</th><th>Status</th>
       </tr></thead>
@@ -438,7 +455,7 @@ function renderMembers() {
   } else {
     const introClass = introDone ? '' : ' bgrid-intro';
     introDone = true;
-    container.innerHTML = lead + `<div class="members-grid${introClass}">${allMembers.map(m => `
+    container.innerHTML = toggleHtml + `<div class="members-grid${introClass}">${allMembers.map(m => `
       <div class="member-card" onclick="location.href='member.html?id=${m.id}'">
         <div class="member-card-photo">
           ${m.photo_url
