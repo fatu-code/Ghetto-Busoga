@@ -1,143 +1,700 @@
 <!doctype html>
 <html lang="en">
   <head>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://backend-ghetto-busoga-production.up.railway.app" crossorigin>
-<link rel="preconnect" href="https://res.cloudinary.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preconnect"
+      href="https://backend-ghetto-busoga-production.up.railway.app"
+      crossorigin
+    />
+    <link rel="preconnect" href="https://res.cloudinary.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap"
+      rel="stylesheet"
+    />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Dashboard - BGS</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="images/favicon-32.png">
-<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-<meta name="theme-color" content="#0a7a3a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Busoga Ghetto">
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="images/favicon-32.png" />
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0a7a3a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Busoga Ghetto" />
     <link rel="stylesheet" href="css/style.css" />
     <style>
-      .btn-outline{border-color:var(--border);background:var(--white);color:var(--text);box-shadow:none}
+      .btn-outline {
+        border-color: var(--border);
+        background: var(--white);
+        color: var(--text);
+        box-shadow: none;
+      }
       /* HERO greeting band */
-      .hero{background:linear-gradient(125deg,#16271d 0%,#0c4a2b 55%,#0a7a3a 100%);border-radius:18px;padding:24px 26px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;position:relative;overflow:hidden}
-      .hero::after{content:"";position:absolute;right:-40px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.05)}
-      .hero-greet{font-family:var(--font);font-size:1.55rem;color:#fff;letter-spacing:-.01em;line-height:1.1;margin-bottom:5px;position:relative}
-      .hero-sub{font-family:var(--font2);font-size:.78rem;font-weight:600;color:rgba(255,255,255,.62);position:relative}
-      .hero-btn{position:relative;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border-radius:11px;background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.22);color:#fff;font-family:var(--font2);font-size:.8rem;font-weight:800;text-decoration:none;transition:all .15s}
-      .hero-btn:hover{background:rgba(255,255,255,.22)}
-      .hero-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .hero {
+        background: linear-gradient(
+          125deg,
+          #16271d 0%,
+          #0c4a2b 55%,
+          #0a7a3a 100%
+        );
+        border-radius: 18px;
+        padding: 24px 26px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        right: -40px;
+        top: -60px;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+        pointer-events: none;
+      }
+      .hero-greet {
+        font-family: var(--font);
+        font-size: 1.55rem;
+        color: #fff;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+        margin-bottom: 5px;
+        position: relative;
+      }
+      .hero-sub {
+        font-family: var(--font2);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.62);
+        position: relative;
+      }
+      .hero-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 40px;
+        padding: 0 18px;
+        border-radius: 11px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1.5px solid rgba(255, 255, 255, 0.22);
+        color: #fff;
+        font-family: var(--font2);
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.15s;
+      }
+      .hero-btn:hover {
+        background: rgba(255, 255, 255, 0.22);
+      }
+
+      .hero-btn svg {
+        width: 15px;
+        height: 15px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
 
       /* METRIC cards - icon left, number as hero, no dead space */
-      .metrics-section{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:18px}
-      .metric-tile{position:relative;overflow:hidden;background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:18px 20px 18px 22px;transition:all .18s;display:flex;align-items:center;gap:15px}
+      .metrics-section {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+      .metric-tile {
+        position: relative;
+        overflow: hidden;
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: 16px;
+        padding: 18px 20px 18px 22px;
+        transition: all 0.18s;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
       /* Coloured accent bar so each tile has its own identity */
-      .metric-tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green)}
-      .metric-tile:has(.metric-icon.blue)::before{background:var(--blue)}
-      .metric-tile:has(.metric-icon.amber)::before{background:var(--amber)}
-      .metric-tile:hover{border-color:var(--green-mid);box-shadow:0 12px 28px rgba(0,0,0,.08);transform:translateY(-3px)}
+      .metric-tile::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--green);
+      }
+      .metric-tile:has(.metric-icon.blue)::before {
+        background: var(--blue);
+      }
+      .metric-tile:has(.metric-icon.amber)::before {
+        background: var(--amber);
+      }
+      .metric-tile:hover {
+        border-color: var(--green-mid);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+      }
       /* Entrance life: tiles rise in with a quick stagger */
-      @keyframes riseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-      .hero{animation:riseIn .5s var(--ease) backwards}
-      .metric-tile{animation:riseIn .5s var(--ease) backwards}
-      .metric-tile:nth-child(1){animation-delay:.05s}
-      .metric-tile:nth-child(2){animation-delay:.1s}
-      .metric-tile:nth-child(3){animation-delay:.15s}
-      .metric-tile:nth-child(4){animation-delay:.2s}
-      .metric-tile:nth-child(5){animation-delay:.25s}
-      .metric-tile:nth-child(6){animation-delay:.3s}
-      @media (prefers-reduced-motion:reduce){.hero,.metric-tile{animation:none}}
-      .metric-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-      .metric-icon.green{background:var(--green-pale);border:1.5px solid var(--green-mid)}
-      .metric-icon.blue{background:var(--blue-pale);border:1.5px solid var(--blue-mid)}
-      .metric-icon.amber{background:var(--amber-pale);border:1.5px solid var(--amber-mid)}
-      .metric-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-      .metric-icon.green svg{stroke:var(--green-dark)}
-      .metric-icon.blue svg{stroke:var(--blue)}
-      .metric-icon.amber svg{stroke:var(--amber)}
-      .metric-body{min-width:0;flex:1}
-      .metric-value{font-family:var(--font);font-size:1.85rem;font-weight:900;color:var(--text);line-height:1.02;letter-spacing:-.01em}
-      .metric-label{font-family:var(--font2);font-size:.7rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
-      .metric-sub{font-family:var(--font2);font-size:.67rem;font-weight:700;color:var(--green-dark);margin-top:4px}
-      .grid-main{display:grid;grid-template-columns:1.7fr 1fr;gap:18px;align-items:start}
-      .dcov-list{display:grid;gap:12px}
-      .dcov-row{display:grid;grid-template-columns:100px 1fr 84px;align-items:center;gap:12px}
-      .dcov-name{font-family:var(--font2);font-size:.78rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .dcov-track{height:9px;background:var(--bg);border:1px solid var(--border);border-radius:100px;overflow:hidden}
-      .dcov-fill{height:100%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:100px;transition:width .8s var(--ease)}
-      .dcov-val{font-family:var(--font);font-size:.78rem;font-weight:800;color:var(--text);text-align:right;white-space:nowrap}
-      .dcov-val span{font-size:.62rem;color:var(--muted);font-weight:700;margin-left:2px}
-      .alerts-section{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px}
-      .alerts-title{font-family:var(--font2);font-size:.88rem;font-weight:900;color:var(--text);margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;justify-content:space-between}
-      .alerts-status{font-family:var(--font2);font-size:.72rem;font-weight:800;color:var(--green);border:1px solid var(--green-mid);border-radius:999px;padding:7px 12px;letter-spacing:.02em}
-      .alert-list{display:grid;gap:10px}
-      .alert-item{padding:12px 14px;border-radius:var(--radius-sm);background:var(--green-pale);border:1px solid var(--green-mid);display:flex;align-items:flex-start;gap:10px}
-      .alert-icon{width:18px;height:18px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:2px}
-      .alert-text{font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--text);line-height:1.5}
-      .quick-actions{display:grid;gap:12px}
-      .action-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .18s;text-decoration:none;color:inherit}
-      .action-btn:hover{border-color:var(--green-mid);background:var(--green-pale)}
-      .action-icon{width:36px;height:36px;border-radius:10px;background:var(--green-pale);border:1.5px solid var(--green-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-      .action-icon svg{width:16px;height:16px;stroke:var(--green-dark);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-      .action-content{flex:1}
-      .action-title{font-family:var(--font2);font-size:.82rem;font-weight:800;color:var(--text);margin-bottom:2px}
-      .action-sub{font-family:var(--font2);font-size:.68rem;font-weight:600;color:var(--muted)}
-      .action-arrow{font-size:1.1rem;color:var(--muted);opacity:.5}
-      .card-head-alt{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-      .card-title-alt{font-family:var(--font2);font-size:.88rem;font-weight:900;color:var(--text);text-transform:uppercase;letter-spacing:.08em}
-      .recent-grid{display:grid;gap:10px}
-      .recent-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-      .recent-item:last-child{border-bottom:none}
-      .recent-avatar{width:36px;height:36px;border-radius:9px;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--font);font-size:.8rem;font-weight:900;color:var(--white);flex-shrink:0}
-      .recent-content{flex:1;min-width:0}
-      .recent-name{font-family:var(--font2);font-size:.78rem;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .recent-detail{font-family:var(--font2);font-size:.65rem;color:var(--muted)}
-      .recent-amount{font-family:var(--font);font-size:.78rem;font-weight:800;color:var(--green);text-align:right;flex-shrink:0}
+      @keyframes riseIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .hero {
+        animation: riseIn 0.5s var(--ease) backwards;
+      }
+      .metric-tile {
+        animation: riseIn 0.5s var(--ease) backwards;
+      }
+      .metric-tile:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .metric-tile:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .metric-tile:nth-child(3) {
+        animation-delay: 0.15s;
+      }
+      .metric-tile:nth-child(4) {
+        animation-delay: 0.2s;
+      }
+      .metric-tile:nth-child(5) {
+        animation-delay: 0.25s;
+      }
+      .metric-tile:nth-child(6) {
+        animation-delay: 0.3s;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .hero,
+        .metric-tile {
+          animation: none;
+        }
+      }
+      .metric-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .metric-icon.green {
+        background: var(--green-pale);
+        border: 1.5px solid var(--green-mid);
+      }
+      .metric-icon.blue {
+        background: var(--blue-pale);
+        border: 1.5px solid var(--blue-mid);
+      }
+      .metric-icon.amber {
+        background: var(--amber-pale);
+        border: 1.5px solid var(--amber-mid);
+      }
+      .metric-icon svg {
+        width: 21px;
+        height: 21px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .metric-icon.green svg {
+        stroke: var(--green-dark);
+      }
+      .metric-icon.blue svg {
+        stroke: var(--blue);
+      }
+      .metric-icon.amber svg {
+        stroke: var(--amber);
+      }
+      .metric-body {
+        min-width: 0;
+        flex: 1;
+      }
+      .metric-value {
+        font-family: var(--font);
+        font-size: 1.85rem;
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1.02;
+        letter-spacing: -0.01em;
+      }
+      .metric-label {
+        font-family: var(--font2);
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 3px;
+      }
+      .metric-sub {
+        font-family: var(--font2);
+        font-size: 0.67rem;
+        font-weight: 700;
+        color: var(--green-dark);
+        margin-top: 4px;
+      }
+      .grid-main {
+        display: grid;
+        grid-template-columns: 1.7fr 1fr;
+        gap: 18px;
+        align-items: start;
+      }
+      .dcov-list {
+        display: grid;
+        gap: 12px;
+      }
+      .dcov-row {
+        display: grid;
+        grid-template-columns: 100px 1fr 84px;
+        align-items: center;
+        gap: 12px;
+      }
+      .dcov-name {
+        font-family: var(--font2);
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .dcov-track {
+        height: 9px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        overflow: hidden;
+      }
+      .dcov-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--green-dark), var(--green));
+        border-radius: 100px;
+        transition: width 0.8s var(--ease);
+      }
+      .dcov-val {
+        font-family: var(--font);
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--text);
+        text-align: right;
+        white-space: nowrap;
+      }
+      .dcov-val span {
+        font-size: 0.62rem;
+        color: var(--muted);
+        font-weight: 700;
+        margin-left: 2px;
+      }
+      .alerts-section {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px;
+        margin-bottom: 18px;
+      }
+      .alerts-title {
+        font-family: var(--font2);
+        font-size: 0.88rem;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .alerts-status {
+        font-family: var(--font2);
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: var(--green);
+        border: 1px solid var(--green-mid);
+        border-radius: 999px;
+        padding: 7px 12px;
+        letter-spacing: 0.02em;
+      }
+      .alert-list {
+        display: grid;
+        gap: 10px;
+      }
+      .alert-item {
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        background: var(--green-pale);
+        border: 1px solid var(--green-mid);
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .alert-icon {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--green);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .alert-text {
+        font-family: var(--font2);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.5;
+      }
+      .quick-actions {
+        display: grid;
+        gap: 12px;
+      }
+      .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        transition: all 0.18s;
+        text-decoration: none;
+        color: inherit;
+      }
+      .action-btn:hover {
+        border-color: var(--green-mid);
+        background: var(--green-pale);
+      }
+      .action-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--green-pale);
+        border: 1.5px solid var(--green-mid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .action-icon svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--green-dark);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .action-content {
+        flex: 1;
+      }
+      .action-title {
+        font-family: var(--font2);
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 2px;
+      }
+      .action-sub {
+        font-family: var(--font2);
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .action-arrow {
+        font-size: 1.1rem;
+        color: var(--muted);
+        opacity: 0.5;
+      }
+      .card-head-alt {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+      .card-title-alt {
+        font-family: var(--font2);
+        font-size: 0.88rem;
+        font-weight: 900;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .recent-grid {
+        display: grid;
+        gap: 10px;
+      }
+      .recent-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .recent-item:last-child {
+        border-bottom: none;
+      }
+      .recent-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        background: var(--green);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--font);
+        font-size: 0.8rem;
+        font-weight: 900;
+        color: var(--white);
+        flex-shrink: 0;
+      }
+      .recent-content {
+        flex: 1;
+        min-width: 0;
+      }
+      .recent-name {
+        font-family: var(--font2);
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .recent-detail {
+        font-family: var(--font2);
+        font-size: 0.65rem;
+        color: var(--muted);
+      }
+      .recent-amount {
+        font-family: var(--font);
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: var(--green);
+        text-align: right;
+        flex-shrink: 0;
+      }
 
-      .content{padding:18px}
-      .right-stack{display:grid;gap:18px}
+      .content {
+        padding: 18px;
+      }
+      .right-stack {
+        display: grid;
+        gap: 18px;
+      }
 
       /* Repayment donut ring */
-      .ring-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px}
-      .ring-wrap{position:relative;width:168px;height:168px;margin:10px auto 2px}
-      .ring-svg{width:168px;height:168px;transform:rotate(-90deg)}
-      .ring-bg{fill:none;stroke:var(--bg);stroke-width:12}
-      .ring-fg{fill:none;stroke:var(--green);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1.2s var(--ease)}
-      .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-      .ring-pct{font-family:var(--font);font-size:2.05rem;color:var(--text);line-height:1}
-      .ring-lbl{font-family:var(--font2);font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-top:3px}
-      .ring-foot{display:flex;justify-content:space-around;margin-top:14px;font-family:var(--font2);font-size:.72rem;font-weight:700;color:var(--muted)}
-      .ring-foot b{color:var(--text);margin-left:5px;font-weight:900}
-      .ring-foot .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
-      .ring-foot .dot.green{background:var(--green)}
-      .ring-foot .dot.grey{background:var(--border)}
+      .ring-card {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 18px;
+      }
+      .ring-wrap {
+        position: relative;
+        width: 168px;
+        height: 168px;
+        margin: 10px auto 2px;
+      }
+      .ring-svg {
+        width: 168px;
+        height: 168px;
+        transform: rotate(-90deg);
+      }
+      .ring-bg {
+        fill: none;
+        stroke: var(--bg);
+        stroke-width: 12;
+      }
+      .ring-fg {
+        fill: none;
+        stroke: var(--green);
+        stroke-width: 12;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1.2s var(--ease);
+      }
+      .ring-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .ring-pct {
+        font-family: var(--font);
+        font-size: 2.05rem;
+        color: var(--text);
+        line-height: 1;
+      }
+      .ring-lbl {
+        font-family: var(--font2);
+        font-size: 0.64rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .ring-foot {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 14px;
+        font-family: var(--font2);
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--muted);
+      }
+      .ring-foot b {
+        color: var(--text);
+        margin-left: 5px;
+        font-weight: 900;
+      }
+      .ring-foot .dot {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+      .ring-foot .dot.green {
+        background: var(--green);
+      }
+      .ring-foot .dot.grey {
+        background: var(--border);
+      }
 
       /* Soft shimmer drifting across the hero band */
-      .hero::before{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);transform:skewX(-18deg);pointer-events:none;animation:heroShimmer 6.5s ease-in-out infinite}
-      @keyframes heroShimmer{0%{left:-60%}60%{left:135%}100%{left:135%}}
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -60%;
+        width: 45%;
+        height: 100%;
+        background: linear-gradient(
+          100deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transform: skewX(-18deg);
+        pointer-events: none;
+        animation: heroShimmer 6.5s ease-in-out infinite;
+      }
+      @keyframes heroShimmer {
+        0% {
+          left: -60%;
+        }
+        60% {
+          left: 135%;
+        }
+        100% {
+          left: 135%;
+        }
+      }
 
       /* Gentle pulse on the 'All clear' status */
-      .alerts-status{display:inline-flex;align-items:center;gap:7px}
-      .pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--green);position:relative;flex-shrink:0}
-      .pulse-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--green);animation:pulseRing 1.9s ease-out infinite}
-      @keyframes pulseRing{0%{transform:scale(1);opacity:.55}100%{transform:scale(2.8);opacity:0}}
-
-      @media (prefers-reduced-motion:reduce){.hero::before,.pulse-dot::after,.ring-fg{animation:none;transition:none}}
-
-      @media (max-width:900px){
-        .grid-main{grid-template-columns:1fr}
-        .metrics-section{grid-template-columns:1fr 1fr}
+      .alerts-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
       }
-      @media (max-width:560px){
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        position: relative;
+        flex-shrink: 0;
+      }
+      .pulse-dot::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--green);
+        animation: pulseRing 1.9s ease-out infinite;
+      }
+      @keyframes pulseRing {
+        0% {
+          transform: scale(1);
+          opacity: 0.55;
+        }
+        100% {
+          transform: scale(2.8);
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .hero::before,
+        .pulse-dot::after,
+        .ring-fg {
+          animation: none;
+          transition: none;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .grid-main {
+          grid-template-columns: 1fr;
+        }
+        .metrics-section {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (max-width: 560px) {
         /* One stat per row so nothing is cramped (less is more) */
-        .metrics-section{grid-template-columns:1fr;gap:11px}
-        .district-grid{grid-template-columns:1fr}
-        .hero{padding:18px 18px}
-        .hero-greet{font-size:1.25rem}
-        .hero-btn{height:36px;padding:0 14px}
-        .metric-tile{padding:16px 18px;gap:16px}
-        .metric-value{font-size:1.75rem}
-        .dcov-row{grid-template-columns:88px 1fr 64px}
+        .metrics-section {
+          grid-template-columns: 1fr;
+          gap: 11px;
+        }
+        .district-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          padding: 18px 18px;
+        }
+        .hero-greet {
+          font-size: 1.25rem;
+        }
+        .hero-btn {
+          height: 36px;
+          padding: 0 14px;
+        }
+        .metric-tile {
+          padding: 16px 18px;
+          gap: 16px;
+        }
+        .metric-value {
+          font-size: 1.75rem;
+        }
+        .dcov-row {
+          grid-template-columns: 88px 1fr 64px;
+        }
       }
     </style>
   </head>
@@ -146,245 +703,364 @@
       <div class="sidebar" id="sidebar"></div>
       <div class="main-area">
         <div class="topbar">
-        <div style="display: flex; align-items: center; gap: 10px; min-width: 0">
-          <button class="mob-sidebar-btn" onclick="toggleSidebar()">
-            <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" /></svg>
-          </button>
-          <div>
-            <div class="topbar-title">Dashboard</div>
-            <div class="topbar-sub">Busoga Ghetto Structure · Overview</div>
+          <div
+            style="display: flex; align-items: center; gap: 10px; min-width: 0"
+          >
+            <button class="mob-sidebar-btn" onclick="toggleSidebar()">
+              <svg viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" /></svg>
+            </button>
+            <div>
+              <div class="topbar-title">Dashboard</div>
+              <div class="topbar-sub">Busoga Ghetto Structure · Overview</div>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <a
+              href="members.html?action=add"
+              class="btn btn-green"
+              id="dashRegBtn"
+              style="display: none"
+            >
+              <svg viewBox="0 0 16 16">
+                <circle cx="6" cy="5" r="2.5" />
+                <path d="M1.5 13c0-2.8 2-5 4.5-5s4.5 2.2 4.5 5" />
+                <path d="M12.5 6v4M10.5 8h4" />
+              </svg>
+              <span class="mob-hide">Register Beneficiary</span>
+            </a>
           </div>
         </div>
-        <div class="topbar-right">
-          <a href="members.html?action=add" class="btn btn-green" id="dashRegBtn" style="display:none">
-            <svg viewBox="0 0 16 16"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.8 2-5 4.5-5s4.5 2.2 4.5 5"/><path d="M12.5 6v4M10.5 8h4"/></svg>
-            <span class="mob-hide">Register Beneficiary</span>
-          </a>
-        </div>
-      </div>
 
-      <div class="content">
-            <!-- HERO -->
-            <div class="hero">
-              <div>
-                <div class="hero-greet" id="greetingText">Good morning</div>
-                <div class="hero-sub" id="greetingDate">Loading…</div>
-              </div>
-              <a href="reports.html" class="hero-btn" id="heroCta">
-                <svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-                Generate Report
-              </a>
+        <div class="content">
+          <!-- HERO -->
+          <div class="hero">
+            <div>
+              <div class="hero-greet" id="greetingText">Good morning</div>
+              <div class="hero-sub" id="greetingDate">Loading…</div>
             </div>
+            <a href="reports.html" class="hero-btn" id="heroCta">
+              <svg viewBox="0 0 16 16">
+                <path d="M8 2v8M5 7l3 3 3-3" />
+                <path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" />
+              </svg>
+              Generate Report
+            </a>
+          </div>
 
-            <!-- METRICS -->
-            <div class="metrics-section">
-              <div class="metric-tile">
-                <div class="metric-icon green">
-                  <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-                </div>
-                <div class="metric-body">
-                  <div class="metric-value" id="mtBeneficiaries">-</div>
-                  <div class="metric-label">Beneficiaries</div>
-                  <div class="metric-sub" id="mtBeneficiariesSub">&nbsp;</div>
-                </div>
+          <!-- METRICS -->
+          <div class="metrics-section">
+            <div class="metric-tile">
+              <div class="metric-icon green">
+                <svg viewBox="0 0 16 16">
+                  <circle cx="8" cy="5" r="2.5" />
+                  <path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5" />
+                </svg>
               </div>
-
-              <div class="metric-tile">
-                <div class="metric-icon green">
-                  <svg viewBox="0 0 16 16"><path d="M1 6l7-5 7 5v8H1z"/><rect x="5" y="9" width="6" height="6"/></svg>
-                </div>
-                <div class="metric-body">
-                  <div class="metric-value" id="mtDepots">-</div>
-                  <div class="metric-label">Active Depots</div>
-                  <div class="metric-sub" id="mtDepotsSub">&nbsp;</div>
-                </div>
-              </div>
-
-              <div class="metric-tile">
-                <div class="metric-icon blue">
-                  <svg viewBox="0 0 16 16"><path d="M2 12V4l6-2 6 2v8l-6 2-6-2z"/></svg>
-                </div>
-                <div class="metric-body">
-                  <div class="metric-value" id="mtDistricts">-</div>
-                  <div class="metric-label">Districts</div>
-                  <div class="metric-sub" id="mtDistrictsSub">&nbsp;</div>
-                </div>
-              </div>
-
-              <div class="metric-tile">
-                <div class="metric-icon amber">
-                  <svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5"/><path d="M1 7h14"/></svg>
-                </div>
-                <div class="metric-body">
-                  <div class="metric-value" id="mtDisbursed">-</div>
-                  <div class="metric-label">Disbursed (UGX)</div>
-                  <div class="metric-sub" id="mtDisbursedSub">&nbsp;</div>
-                </div>
-              </div>
-
-              <div class="metric-tile">
-                <div class="metric-icon green">
-                  <svg viewBox="0 0 16 16"><path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5"/></svg>
-                </div>
-                <div class="metric-body">
-                  <div class="metric-value" id="mtRepaid">-</div>
-                  <div class="metric-label">Repaid (UGX)</div>
-                  <div class="metric-sub" id="mtRepaidSub">&nbsp;</div>
-                </div>
-              </div>
-
-              <div class="metric-tile">
-                <div class="metric-icon blue">
-                  <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg>
-                </div>
-                <div class="metric-body">
-                  <div class="metric-value" id="mtOutstanding">-</div>
-                  <div class="metric-label">Outstanding (UGX)</div>
-                  <div class="metric-sub" id="mtOutstandingSub">&nbsp;</div>
-                </div>
+              <div class="metric-body">
+                <div class="metric-value" id="mtBeneficiaries">-</div>
+                <div class="metric-label">Beneficiaries</div>
+                <div class="metric-sub" id="mtBeneficiariesSub">&nbsp;</div>
               </div>
             </div>
 
-            <!-- MAIN GRID -->
-            <div class="grid-main">
-              <div>
-                <!-- DISTRICT COVERAGE -->
-                <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px">
-                  <div class="card-head-alt">
-                    <div class="card-title-alt">Beneficiaries by district</div>
-                  </div>
-                  <div class="dcov-list" id="districtList">
-                    <div style="font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0">Loading…</div>
-                  </div>
-                </div>
-
-                <!-- RECENT BENEFICIARIES -->
-                <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px">
-                  <div class="card-head-alt">
-                    <div class="card-title-alt">Recently registered</div>
-                    <a href="members.html" style="font-family:var(--font2);font-size:.72rem;font-weight:800;color:var(--green);text-decoration:none;cursor:pointer">View all →</a>
-                  </div>
-                  <div class="recent-grid" id="recentList">
-                    <div style="font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0">Loading…</div>
-                  </div>
-                </div>
+            <div class="metric-tile">
+              <div class="metric-icon green">
+                <svg viewBox="0 0 16 16">
+                  <path d="M1 6l7-5 7 5v8H1z" />
+                  <rect x="5" y="9" width="6" height="6" />
+                </svg>
               </div>
+              <div class="metric-body">
+                <div class="metric-value" id="mtDepots">-</div>
+                <div class="metric-label">Active Depots</div>
+                <div class="metric-sub" id="mtDepotsSub">&nbsp;</div>
+              </div>
+            </div>
 
-              <!-- RIGHT SIDEBAR -->
-              <div class="right-stack">
-                <!-- REPAYMENT RING -->
-                <div class="ring-card" id="repayCard">
-                  <div class="card-head-alt"><div class="card-title-alt">Repayment progress</div></div>
-                  <div class="ring-wrap">
-                    <svg class="ring-svg" viewBox="0 0 168 168">
-                      <circle class="ring-bg" cx="84" cy="84" r="72"></circle>
-                      <circle class="ring-fg" id="repayRing" cx="84" cy="84" r="72"></circle>
-                    </svg>
-                    <div class="ring-center">
-                      <div class="ring-pct" id="repayRingPct">0%</div>
-                      <div class="ring-lbl">repaid</div>
-                    </div>
-                  </div>
-                  <div class="ring-foot">
-                    <div><span class="dot green"></span>Repaid <b id="ringRepaid">-</b></div>
-                    <div><span class="dot grey"></span>Due <b id="ringDue">-</b></div>
-                  </div>
-                </div>
+            <div class="metric-tile">
+              <div class="metric-icon blue">
+                <svg viewBox="0 0 16 16">
+                  <path d="M2 12V4l6-2 6 2v8l-6 2-6-2z" />
+                </svg>
+              </div>
+              <div class="metric-body">
+                <div class="metric-value" id="mtDistricts">-</div>
+                <div class="metric-label">Districts</div>
+                <div class="metric-sub" id="mtDistrictsSub">&nbsp;</div>
+              </div>
+            </div>
 
-                <!-- ALERTS -->
-                <div class="alerts-section" style="margin-bottom:0">
-                  <div class="alerts-title">
-                    <span>Alerts & flags</span>
-                    <span class="alerts-status"><span class="pulse-dot"></span>All clear</span>
-                  </div>
-                  <div class="alert-list">
-                    <div class="alert-item">
-                      <div class="alert-icon"></div>
-                      <div class="alert-text"><strong>All depots operational</strong> - Every depot is actively receiving and processing beneficiaries across all 12 districts.</div>
-                    </div>
-                    <div class="alert-item">
-                      <div class="alert-icon"></div>
-                      <div class="alert-text"><strong>Disbursements on schedule</strong> - All scheduled disbursements have been completed. Next round: 15 June 2026.</div>
-                    </div>
-                  </div>
-                </div>
+            <div class="metric-tile">
+              <div class="metric-icon amber">
+                <svg viewBox="0 0 16 16">
+                  <rect x="1" y="4" width="14" height="10" rx="1.5" />
+                  <path d="M1 7h14" />
+                </svg>
+              </div>
+              <div class="metric-body">
+                <div class="metric-value" id="mtDisbursed">-</div>
+                <div class="metric-label">Disbursed (UGX)</div>
+                <div class="metric-sub" id="mtDisbursedSub">&nbsp;</div>
+              </div>
+            </div>
 
-                <div style="background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:18px">
-                  <div class="card-head-alt">
-                    <div class="card-title-alt">Quick actions</div>
-                  </div>
-                  <div class="quick-actions">
-                    <a href="members.html?action=add" class="action-btn">
-                      <div class="action-icon">
-                        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 5v6M5 8h6"/></svg>
-                      </div>
-                      <div class="action-content">
-                        <div class="action-title">Register Beneficiary</div>
-                        <div class="action-sub">Add new person</div>
-                      </div>
-                      <div class="action-arrow">→</div>
-                    </a>
-                    <a href="leadership.html" class="action-btn">
-                      <div class="action-icon">
-                        <svg viewBox="0 0 16 16"><path d="M8 1.5l2.6 4.8 5.3.8-3.8 3.7.9 5.3L8 13.5 2 16.1l.9-5.3L0 7.1l5.3-.8L8 1.5z"/></svg>
-                      </div>
-                      <div class="action-content">
-                        <div class="action-title">Depot Leadership</div>
-                        <div class="action-sub">View teams</div>
-                      </div>
-                      <div class="action-arrow">→</div>
-                    </a>
-                    <a href="members.html" class="action-btn">
-                      <div class="action-icon">
-                        <svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
-                      </div>
-                      <div class="action-content">
-                        <div class="action-title">All Beneficiaries</div>
-                        <div class="action-sub">View directory</div>
-                      </div>
-                      <div class="action-arrow">→</div>
-                    </a>
-                  </div>
-                </div>
+            <div class="metric-tile">
+              <div class="metric-icon green">
+                <svg viewBox="0 0 16 16">
+                  <path d="M8 1v14M4.5 4.5h5a2.2 2.2 0 010 4.4H5.5" />
+                </svg>
+              </div>
+              <div class="metric-body">
+                <div class="metric-value" id="mtRepaid">-</div>
+                <div class="metric-label">Repaid (UGX)</div>
+                <div class="metric-sub" id="mtRepaidSub">&nbsp;</div>
+              </div>
+            </div>
+
+            <div class="metric-tile">
+              <div class="metric-icon blue">
+                <svg viewBox="0 0 16 16">
+                  <circle cx="8" cy="8" r="6.5" />
+                  <path d="M8 4.5V8l2.5 1.5" />
+                </svg>
+              </div>
+              <div class="metric-body">
+                <div class="metric-value" id="mtOutstanding">-</div>
+                <div class="metric-label">Outstanding (UGX)</div>
+                <div class="metric-sub" id="mtOutstandingSub">&nbsp;</div>
               </div>
             </div>
           </div>
+
+          <!-- MAIN GRID -->
+          <div class="grid-main">
+            <div>
+              <!-- DISTRICT COVERAGE -->
+              <div
+                style="
+                  background: var(--white);
+                  border: 1.5px solid var(--border);
+                  border-radius: var(--radius);
+                  padding: 18px;
+                  margin-bottom: 18px;
+                "
+              >
+                <div class="card-head-alt">
+                  <div class="card-title-alt">Beneficiaries by district</div>
+                </div>
+                <div class="dcov-list" id="districtList">
+                  <div
+                    style="
+                      font-family: var(--font2);
+                      font-size: 0.78rem;
+                      color: var(--muted);
+                      padding: 8px 0;
+                    "
+                  >
+                    Loading…
+                  </div>
+                </div>
+              </div>
+
+              <!-- RECENT BENEFICIARIES -->
+              <div
+                style="
+                  background: var(--white);
+                  border: 1.5px solid var(--border);
+                  border-radius: var(--radius);
+                  padding: 18px;
+                "
+              >
+                <div class="card-head-alt">
+                  <div class="card-title-alt">Recently registered</div>
+                  <a
+                    href="members.html"
+                    style="
+                      font-family: var(--font2);
+                      font-size: 0.72rem;
+                      font-weight: 800;
+                      color: var(--green);
+                      text-decoration: none;
+                      cursor: pointer;
+                    "
+                    >View all →</a
+                  >
+                </div>
+                <div class="recent-grid" id="recentList">
+                  <div
+                    style="
+                      font-family: var(--font2);
+                      font-size: 0.78rem;
+                      color: var(--muted);
+                      padding: 8px 0;
+                    "
+                  >
+                    Loading…
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT SIDEBAR -->
+            <div class="right-stack">
+              <!-- REPAYMENT RING -->
+              <div class="ring-card" id="repayCard">
+                <div class="card-head-alt">
+                  <div class="card-title-alt">Repayment progress</div>
+                </div>
+                <div class="ring-wrap">
+                  <svg class="ring-svg" viewBox="0 0 168 168">
+                    <circle class="ring-bg" cx="84" cy="84" r="72"></circle>
+                    <circle
+                      class="ring-fg"
+                      id="repayRing"
+                      cx="84"
+                      cy="84"
+                      r="72"
+                    ></circle>
+                  </svg>
+                  <div class="ring-center">
+                    <div class="ring-pct" id="repayRingPct">0%</div>
+                    <div class="ring-lbl">repaid</div>
+                  </div>
+                </div>
+                <div class="ring-foot">
+                  <div>
+                    <span class="dot green"></span>Repaid
+                    <b id="ringRepaid">-</b>
+                  </div>
+                  <div>
+                    <span class="dot grey"></span>Due <b id="ringDue">-</b>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ALERTS -->
+              <div class="alerts-section" style="margin-bottom: 0">
+                <div class="alerts-title">
+                  <span>Alerts & flags</span>
+                  <span class="alerts-status"
+                    ><span class="pulse-dot"></span>All clear</span
+                  >
+                </div>
+                <div class="alert-list">
+                  <div class="alert-item">
+                    <div class="alert-icon"></div>
+                    <div class="alert-text">
+                      <strong>All depots operational</strong> - Every depot is
+                      actively receiving and processing beneficiaries across all
+                      12 districts.
+                    </div>
+                  </div>
+                  <div class="alert-item">
+                    <div class="alert-icon"></div>
+                    <div class="alert-text">
+                      <strong>Disbursements on schedule</strong> - All scheduled
+                      disbursements have been completed. Next round: 15 June
+                      2026.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style="
+                  background: var(--white);
+                  border: 1.5px solid var(--border);
+                  border-radius: var(--radius);
+                  padding: 18px;
+                "
+              >
+                <div class="card-head-alt">
+                  <div class="card-title-alt">Quick actions</div>
+                </div>
+                <div class="quick-actions">
+                  <a href="members.html?action=add" class="action-btn">
+                    <div class="action-icon">
+                      <svg viewBox="0 0 16 16">
+                        <circle cx="8" cy="8" r="6" />
+                        <path d="M8 5v6M5 8h6" />
+                      </svg>
+                    </div>
+                    <div class="action-content">
+                      <div class="action-title">Register Beneficiary</div>
+                      <div class="action-sub">Add new person</div>
+                    </div>
+                    <div class="action-arrow">→</div>
+                  </a>
+                  <a href="leadership.html" class="action-btn">
+                    <div class="action-icon">
+                      <svg viewBox="0 0 16 16">
+                        <path
+                          d="M8 1.5l2.6 4.8 5.3.8-3.8 3.7.9 5.3L8 13.5 2 16.1l.9-5.3L0 7.1l5.3-.8L8 1.5z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="action-content">
+                      <div class="action-title">Depot Leadership</div>
+                      <div class="action-sub">View teams</div>
+                    </div>
+                    <div class="action-arrow">→</div>
+                  </a>
+                  <a href="members.html" class="action-btn">
+                    <div class="action-icon">
+                      <svg viewBox="0 0 16 16">
+                        <circle cx="8" cy="5" r="2.5" />
+                        <path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5" />
+                      </svg>
+                    </div>
+                    <div class="action-content">
+                      <div class="action-title">All Beneficiaries</div>
+                      <div class="action-sub">View directory</div>
+                    </div>
+                    <div class="action-arrow">→</div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div
+      class="sidebar-overlay"
+      id="sidebar-overlay"
+      onclick="toggleSidebar()"
+    ></div>
     <div class="toast" id="toast"></div>
 
     <script src="js/app.js"></script>
     <script>
       Auth.require();
-      buildSidebar('dashboard');
+      buildSidebar("dashboard");
 
       // Role-aware dashboard. Profilers never see money; scoped users see one district.
       const _acc = accessOf(Auth.get());
       if (!_acc.canSeeMoney) {
-        ['mtDisbursed', 'mtRepaid', 'mtOutstanding'].forEach(id => {
-          const tile = document.getElementById(id)?.closest('.metric-tile');
-          if (tile) tile.style.display = 'none';
+        ["mtDisbursed", "mtRepaid", "mtOutstanding"].forEach((id) => {
+          const tile = document.getElementById(id)?.closest(".metric-tile");
+          if (tile) tile.style.display = "none";
         });
-        const rc = document.getElementById('repayCard');
-        if (rc) rc.style.display = 'none';
+        const rc = document.getElementById("repayCard");
+        if (rc) rc.style.display = "none";
       }
 
       // Make registering low-friction: a button in the top bar for anyone who
       // can register, and the hero's main button registers for Profilers.
       if (_acc.canWrite) {
-        const reg = document.getElementById('dashRegBtn');
-        if (reg) reg.style.display = '';
+        const reg = document.getElementById("dashRegBtn");
+        if (reg) reg.style.display = "";
       }
       (function () {
-        const cta = document.getElementById('heroCta');
+        const cta = document.getElementById("heroCta");
         if (!cta) return;
         if (_acc.canWrite && !_acc.isAdmin) {
           // Profiler already has the top-bar Register button; no second one.
-          cta.style.display = 'none';
+          cta.style.display = "none";
         } else if (_acc.isRDC) {
-          cta.innerHTML = '<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg> View Reports';
+          cta.innerHTML =
+            '<svg viewBox="0 0 16 16"><path d="M8 2v8M5 7l3 3 3-3"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg> View Reports';
         }
       })();
 
@@ -392,10 +1068,10 @@
       // second word is the given name): "Nankya Viola" -> "Viola".
       // Kirunda Faruk keeps both names.
       function greetingName(name) {
-        const n = String(name || '').trim();
+        const n = String(name || "").trim();
         // Only Al-Hajj Faruk Kirunda carries the honorific and full name.
-        if (!n || /kirunda|faruk/i.test(n)) return 'Al-Hajj Faruk Kirunda';
-        const clean = n.replace(/^al[- ]?hajj\s+/i, '');
+        if (!n || /kirunda|faruk/i.test(n)) return "Al-Hajj Faruk Kirunda";
+        const clean = n.replace(/^al[- ]?hajj\s+/i, "");
         const parts = clean.split(/\s+/);
         return titleCase(parts.length > 1 ? parts[1] : parts[0]);
       }
@@ -404,135 +1080,213 @@
         const user = Auth.get();
         const userName = greetingName(user?.name);
         const now = new Date();
-        const day = now.toLocaleDateString('en-UG', { weekday: 'long' });
-        const date = now.toLocaleDateString('en-UG', { year: 'numeric', month: 'long', day: 'numeric' });
+        const day = now.toLocaleDateString("en-UG", { weekday: "long" });
+        const date = now.toLocaleDateString("en-UG", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
         const hour = now.getHours();
-        let greeting = 'Good morning';
-        if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
-        if (hour >= 18) greeting = 'Good evening';
+        let greeting = "Good morning";
+        if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+        if (hour >= 18) greeting = "Good evening";
 
-        const scope = _acc.scoped
-          ? (DISTRICTS.find(d => d.code === _acc.district)?.name || _acc.district || 'Busoga')
-          : 'Busoga · All 12 Districts';
-        document.getElementById('greetingText').textContent = `${greeting}, ${userName}`;
-        document.getElementById('greetingDate').textContent = `${day}, ${date} · ${scope}`;
+        document.getElementById("greetingText").textContent =
+          `${greeting}, ${userName}`;
+        document.getElementById("greetingDate").textContent =
+          `${day}, ${date}`;
       }
 
       // Compact UGX: 12,400,000 -> "12.4M", 750,000 -> "750K"
       function compact(n) {
         n = Number(n || 0);
-        if (n >= 1e6) return (n / 1e6).toFixed(n % 1e6 === 0 ? 0 : 1).replace(/\.0$/, '') + 'M';
-        if (n >= 1e3) return Math.round(n / 1e3) + 'K';
+        if (n >= 1e6)
+          return (
+            (n / 1e6).toFixed(n % 1e6 === 0 ? 0 : 1).replace(/\.0$/, "") + "M"
+          );
+        if (n >= 1e3) return Math.round(n / 1e3) + "K";
         return String(n);
       }
 
       // A distinct accent colour per district bar, to give the list colour and life.
-      const BAR_COLORS = ['#009c41','#0ea5e9','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#ef4444','#6366f1','#f97316','#06b6d4','#84cc16','#d946ef'];
+      const BAR_COLORS = [
+        "#009c41",
+        "#0ea5e9",
+        "#f59e0b",
+        "#8b5cf6",
+        "#ec4899",
+        "#14b8a6",
+        "#ef4444",
+        "#6366f1",
+        "#f97316",
+        "#06b6d4",
+        "#84cc16",
+        "#d946ef",
+      ];
 
       // Count a number up from zero on load (eased), formatted each frame.
       function animateCount(el, target, fmtFn, dur = 900) {
         if (!el) return;
         target = Number(target) || 0;
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-          el.textContent = fmtFn(target); return;
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+          el.textContent = fmtFn(target);
+          return;
         }
         const start = performance.now();
         function tick(now) {
           const p = Math.min(1, (now - start) / dur);
           const eased = 1 - Math.pow(1 - p, 3);
           el.textContent = fmtFn(Math.round(target * eased));
-          if (p < 1) requestAnimationFrame(tick); else el.textContent = fmtFn(target);
+          if (p < 1) requestAnimationFrame(tick);
+          else el.textContent = fmtFn(target);
         }
         requestAnimationFrame(tick);
       }
 
-      const muted = 'font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0';
+      const muted =
+        "font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0";
 
       async function loadStats() {
         try {
-          const data = await apiFetch('/api/stats');
+          const data = await apiFetch("/api/stats");
           const t = data.totals || {};
-          const total     = Number(t.total_members     || 0);
-          const depots    = Number(t.total_depots      || 0);
+          const total = Number(t.total_members || 0);
+          const depots = Number(t.total_depots || 0);
           const districts = Number(t.districts_covered || 0);
-          const disbursed = Number(t.total_disbursed   || 0);
+          const disbursed = Number(t.total_disbursed || 0);
           // A "beneficiary" is a member who has been disbursed. Profilers can't see
           // money, so disbursed_count is null for them - fall back to the profiled total.
-          const beneficiaries = t.disbursed_count != null ? Number(t.disbursed_count) : total;
+          const beneficiaries =
+            t.disbursed_count != null ? Number(t.disbursed_count) : total;
 
-          animateCount(document.getElementById('mtBeneficiaries'), beneficiaries, fmt);
-          document.getElementById('mtBeneficiariesSub').textContent = `of ${fmt(total)} profiled`;
-          animateCount(document.getElementById('mtDepots'), depots, fmt);
-          document.getElementById('mtDepotsSub').textContent        = `across ${districts} district${districts === 1 ? '' : 's'}`;
-          animateCount(document.getElementById('mtDistricts'), districts, String);
-          document.getElementById('mtDistrictsSub').textContent     = 'of 12 covered';
-          animateCount(document.getElementById('mtDisbursed'), disbursed, compact);
-          document.getElementById('mtDisbursedSub').textContent     = `to ${fmt(beneficiaries)} beneficiar${beneficiaries === 1 ? 'y' : 'ies'}`;
+          animateCount(
+            document.getElementById("mtBeneficiaries"),
+            beneficiaries,
+            fmt,
+          );
+          document.getElementById("mtBeneficiariesSub").textContent =
+            `of ${fmt(total)} profiled`;
+          animateCount(document.getElementById("mtDepots"), depots, fmt);
+          document.getElementById("mtDepotsSub").textContent =
+            `across ${districts} district${districts === 1 ? "" : "s"}`;
+          animateCount(
+            document.getElementById("mtDistricts"),
+            districts,
+            String,
+          );
+          document.getElementById("mtDistrictsSub").textContent =
+            "of 12 covered";
+          animateCount(
+            document.getElementById("mtDisbursed"),
+            disbursed,
+            compact,
+          );
+          document.getElementById("mtDisbursedSub").textContent =
+            `to ${fmt(beneficiaries)} beneficiar${beneficiaries === 1 ? "y" : "ies"}`;
 
-          const repaid      = Number(t.total_repaid || 0);
-          const totalDue    = Math.round(disbursed * 1.06);
+          const repaid = Number(t.total_repaid || 0);
+          const totalDue = Math.round(disbursed * 1.06);
           const outstanding = Math.max(0, totalDue - repaid);
-          const overdue     = Number(t.overdue_count || 0);
-          const repaidPct   = totalDue ? Math.round((repaid / totalDue) * 100) : 0;
-          animateCount(document.getElementById('mtRepaid'), repaid, compact);
-          document.getElementById('mtRepaidSub').textContent        = disbursed ? `${repaidPct}% of UGX ${compact(totalDue)} due` : ' ';
-          animateCount(document.getElementById('mtOutstanding'), outstanding, compact);
-          document.getElementById('mtOutstandingSub').textContent   = overdue ? `${overdue} overdue` : 'on track';
+          const overdue = Number(t.overdue_count || 0);
+          const repaidPct = totalDue
+            ? Math.round((repaid / totalDue) * 100)
+            : 0;
+          animateCount(document.getElementById("mtRepaid"), repaid, compact);
+          document.getElementById("mtRepaidSub").textContent = disbursed
+            ? `${repaidPct}% of UGX ${compact(totalDue)} due`
+            : " ";
+          animateCount(
+            document.getElementById("mtOutstanding"),
+            outstanding,
+            compact,
+          );
+          document.getElementById("mtOutstandingSub").textContent = overdue
+            ? `${overdue} overdue`
+            : "on track";
 
           // Repayment donut ring (repaid vs total due)
-          const ring = document.getElementById('repayRing');
+          const ring = document.getElementById("repayRing");
           if (ring) {
             const C = 2 * Math.PI * 72;
             ring.style.strokeDasharray = C;
             ring.style.strokeDashoffset = C;
-            requestAnimationFrame(() => { ring.style.strokeDashoffset = C * (1 - Math.min(100, repaidPct) / 100); });
-            animateCount(document.getElementById('repayRingPct'), repaidPct, v => v + '%');
-            document.getElementById('ringRepaid').textContent = 'UGX ' + compact(repaid);
-            document.getElementById('ringDue').textContent    = 'UGX ' + compact(totalDue);
+            requestAnimationFrame(() => {
+              ring.style.strokeDashoffset =
+                C * (1 - Math.min(100, repaidPct) / 100);
+            });
+            animateCount(
+              document.getElementById("repayRingPct"),
+              repaidPct,
+              (v) => v + "%",
+            );
+            document.getElementById("ringRepaid").textContent =
+              "UGX " + compact(repaid);
+            document.getElementById("ringDue").textContent =
+              "UGX " + compact(totalDue);
           }
 
           // District bars (by beneficiary count)
-          const dl  = document.getElementById('districtList');
+          const dl = document.getElementById("districtList");
           const byD = data.byDistrict || [];
           if (!byD.length) {
             dl.innerHTML = `<div style="${muted}">No beneficiaries yet</div>`;
           } else {
-            const beneOf = d => (d.disbursed_count != null ? Number(d.disbursed_count) : Number(d.member_count)) || 0;
+            const beneOf = (d) =>
+              (d.disbursed_count != null
+                ? Number(d.disbursed_count)
+                : Number(d.member_count)) || 0;
             const max = Math.max(...byD.map(beneOf), 1);
-            dl.innerHTML = byD.map((d, i) => {
-              const cnt = beneOf(d);
-              const pct = Math.max(4, Math.round((cnt / max) * 100));
-              const col = BAR_COLORS[i % BAR_COLORS.length];
-              return `<div class="dcov-row">
+            dl.innerHTML = byD
+              .map((d, i) => {
+                const cnt = beneOf(d);
+                const pct = Math.max(4, Math.round((cnt / max) * 100));
+                const col = BAR_COLORS[i % BAR_COLORS.length];
+                return `<div class="dcov-row">
                 <div class="dcov-name">${d.district_name}</div>
                 <div class="dcov-track"><div class="dcov-fill" data-w="${pct}" style="width:0;background:${col}"></div></div>
                 <div class="dcov-val">${fmt(cnt)} <span>ppl</span></div>
               </div>`;
-            }).join('');
+              })
+              .join("");
             // Grow the bars into place (the .dcov-fill width transition does the rest).
-            requestAnimationFrame(() => dl.querySelectorAll('.dcov-fill').forEach(f => { f.style.width = f.dataset.w + '%'; }));
+            requestAnimationFrame(() =>
+              dl.querySelectorAll(".dcov-fill").forEach((f) => {
+                f.style.width = f.dataset.w + "%";
+              }),
+            );
           }
 
           // Recently registered
-          const rl  = document.getElementById('recentList');
+          const rl = document.getElementById("recentList");
           const rec = data.recent || [];
           if (!rec.length) {
             rl.innerHTML = `<div style="${muted}">No registrations yet</div>`;
           } else {
-            rl.innerHTML = rec.map(m => `
+            rl.innerHTML = rec
+              .map(
+                (m) => `
               <a class="recent-item" href="member.html?id=${m.id}" style="text-decoration:none;color:inherit">
-                <div class="recent-avatar">${m.photo_url
-                  ? `<img src="${imgThumb(m.photo_url, 96)}" alt="${m.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`
-                  : initials(m.name)}</div>
+                <div class="recent-avatar">${
+                  m.photo_url
+                    ? `<img src="${imgThumb(m.photo_url, 96)}" alt="${m.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`
+                    : initials(m.name)
+                }</div>
                 <div class="recent-content">
                   <div class="recent-name">${titleCase(m.name)}</div>
                   <div class="recent-detail">${m.depot} • ${m.district_name}</div>
                 </div>
-              </a>`).join('');
+              </a>`,
+              )
+              .join("");
           }
         } catch {
-          document.getElementById('districtList').innerHTML = `<div style="${muted}">Couldn't load stats - check the connection.</div>`;
-          document.getElementById('recentList').innerHTML   = `<div style="${muted}">-</div>`;
+          document.getElementById("districtList").innerHTML =
+            `<div style="${muted}">Couldn't load stats - check the connection.</div>`;
+          document.getElementById("recentList").innerHTML =
+            `<div style="${muted}">-</div>`;
         }
       }
 
