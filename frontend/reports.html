@@ -419,9 +419,9 @@ function render() {
 
     <div class="sum-grid">
       <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.5"/><path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg></div><div><div class="sum-l">Members Profiled</div><div class="sum-v cup" data-to="${fund.count}">${fmt(fund.count)}</div></div></div>
-      <div class="sum-card blue"><div class="sum-ic"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.8"/></svg></div><div><div class="sum-l">Disbursed (UGX)</div><div class="sum-v cup" data-to="${fund.disbursed}">${fmt(fund.disbursed)}</div></div></div>
-      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid (UGX)</div><div class="sum-v green cup" data-to="${fund.repaid}">${fmt(fund.repaid)}</div></div></div>
-      <div class="sum-card red"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding (UGX)</div><div class="sum-v red cup" data-to="${fund.outstanding}">${fmt(fund.outstanding)}</div></div></div>
+      <div class="sum-card blue"><div class="sum-ic"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.8"/></svg></div><div><div class="sum-l">Disbursed (UGX)</div><div class="sum-v cup" data-to="${fund.disbursed}" data-fmt="k">${compact(fund.disbursed)}</div></div></div>
+      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid (UGX)</div><div class="sum-v green cup" data-to="${fund.repaid}" data-fmt="k">${compact(fund.repaid)}</div></div></div>
+      <div class="sum-card red"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding (UGX)</div><div class="sum-v red cup" data-to="${fund.outstanding}" data-fmt="k">${compact(fund.outstanding)}</div></div></div>
       <div class="sum-card amb"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.7l6.3 11.1a.6.6 0 01-.5.9H2.2a.6.6 0 01-.5-.9z"/><path d="M8 6.3v3.1M8 11.4v.2"/></svg></div><div><div class="sum-l">Overdue Loans</div><div class="sum-v amber cup" data-to="${fund.overdue}">${fmt(fund.overdue)}</div></div></div>
     </div>
 
@@ -476,18 +476,27 @@ function render() {
 }
 
 // Count a number up from zero, formatted, honouring reduced-motion.
+// Compact money: 160,540,000 -> "160.5M", 4,578,000 -> "4.6M", 15,300 -> "15.3K".
+function compact(n) {
+  n = Number(n) || 0;
+  if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'K';
+  return String(Math.round(n));
+}
 function animateUp(el) {
   const to  = Number(el.dataset.to) || 0;
   const pre = el.dataset.pre || '';
   const suf = el.dataset.suf || '';
+  const f   = el.dataset.fmt === 'k' ? compact : fmt; // compact for big money tiles
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    el.textContent = pre + fmt(to) + suf; return;
+    el.textContent = pre + f(to) + suf; return;
   }
   const dur = 900, start = performance.now();
   function tick(now) {
     const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
-    el.textContent = pre + fmt(Math.round(to * e)) + suf;
-    if (p < 1) requestAnimationFrame(tick); else el.textContent = pre + fmt(to) + suf;
+    el.textContent = pre + f(Math.round(to * e)) + suf;
+    if (p < 1) requestAnimationFrame(tick); else el.textContent = pre + f(to) + suf;
   }
   requestAnimationFrame(tick);
 }
