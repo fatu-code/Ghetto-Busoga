@@ -29,6 +29,8 @@
 .db-table th{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:12px 14px;border-bottom:1.5px solid var(--border);background:var(--bg);white-space:nowrap}
 .db-table td{padding:9px 14px;border-bottom:1px solid var(--border);font-family:var(--font2);font-size:.82rem;color:var(--text)}
 .db-table tbody tr:last-child td{border-bottom:none}
+.db-table tbody tr{cursor:pointer}
+.db-table tbody tr:hover{background:var(--green-pale)}
 .db-table tbody tr.picked{background:var(--green-pale)}
 .db-chk{width:17px;height:17px;accent-color:var(--green);cursor:pointer}
 .db-serial{font-family:var(--font);color:var(--green);font-size:.8rem;white-space:nowrap}
@@ -221,12 +223,12 @@ function render() {
   }
 
   const rows = list.map(m => `
-    <tr class="${picked.has(m.id) ? 'picked' : ''}" id="row-${m.id}">
-      <td><input type="checkbox" class="db-chk" ${picked.has(m.id) ? 'checked' : ''} onchange="toggleRow('${m.id}', this.checked)"></td>
+    <tr class="${picked.has(m.id) ? 'picked' : ''}" id="row-${m.id}" onclick="rowClick(event, '${m.id}')">
+      <td><input type="checkbox" class="db-chk" ${picked.has(m.id) ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleRow('${m.id}', this.checked)"></td>
       <td class="db-serial">${m.id}</td>
       <td class="db-name">${m.name}</td>
       <td class="db-muted">${titleCase(m.depot)}</td>
-      <td><input class="db-amt" inputmode="numeric" placeholder="0" value="${amounts[m.id] ? Number(amounts[m.id]).toLocaleString('en-US') : ''}" oninput="setAmt('${m.id}', this)"></td>
+      <td><input class="db-amt" inputmode="numeric" placeholder="0" onclick="event.stopPropagation()" value="${amounts[m.id] ? Number(amounts[m.id]).toLocaleString('en-US') : ''}" oninput="setAmt('${m.id}', this)"></td>
     </tr>`).join('');
 
   body.innerHTML = `
@@ -264,6 +266,17 @@ function toggleRow(id, on) {
   if (row) row.classList.toggle('picked', on);
   syncAllChk();
   updateBar();
+}
+
+// Click anywhere on a row to toggle it (except on the amount box or the checkbox,
+// which handle their own clicks). Makes the whole row a big, easy target.
+function rowClick(e, id) {
+  if (e.target.closest('.db-amt') || e.target.closest('.db-chk')) return;
+  const on = !picked.has(id);
+  const row = document.getElementById('row-' + id);
+  const chk = row && row.querySelector('.db-chk');
+  if (chk) chk.checked = on;
+  toggleRow(id, on);
 }
 
 function setAmt(id, el) {
