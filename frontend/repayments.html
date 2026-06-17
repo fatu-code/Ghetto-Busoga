@@ -241,8 +241,8 @@ function render() {
           <div class="rp-hero-next"><svg viewBox="0 0 16 16"><path d="M8 1.5l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.7 3.9 13l.7-4.3-3.1-3 4.3-.6z"/></svg>${toNext}</div>
         </div>
         <div class="rp-hero-fig">
-          <div><span>Repaid</span><b class="cup" data-to="${sumRep}" data-pre="UGX " style="color:#b3e6c8">UGX ${fmt(sumRep)}</b></div>
-          <div><span>Outstanding</span><b class="cup" data-to="${sumOut}" data-pre="UGX ">UGX ${fmt(sumOut)}</b></div>
+          <div><span>Repaid</span><b class="cup" data-to="${sumRep}" data-pre="UGX " data-fmt="k" style="color:#b3e6c8">UGX ${compact(sumRep)}</b></div>
+          <div><span>Outstanding</span><b class="cup" data-to="${sumOut}" data-pre="UGX " data-fmt="k">UGX ${compact(sumOut)}</b></div>
         </div>
       </div>
       <div class="rp-hero-bar">
@@ -253,9 +253,9 @@ function render() {
       </div>
     </div>
     <div class="sum-grid">
-      <div class="sum-card due"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg></div><div><div class="sum-l">Total Due</div><div class="sum-v cup" data-to="${sumDue}" data-pre="UGX ">UGX ${fmt(sumDue)}</div></div></div>
-      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid</div><div class="sum-v green cup" data-to="${sumRep}" data-pre="UGX ">UGX ${fmt(sumRep)}</div></div></div>
-      <div class="sum-card out"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding</div><div class="sum-v red cup" data-to="${sumOut}" data-pre="UGX ">UGX ${fmt(sumOut)}</div></div></div>
+      <div class="sum-card due"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.5v13M4.5 5h5a2.2 2.2 0 010 4.4H5.5"/></svg></div><div><div class="sum-l">Total Due</div><div class="sum-v cup" data-to="${sumDue}" data-pre="UGX " data-fmt="k">UGX ${compact(sumDue)}</div></div></div>
+      <div class="sum-card"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg></div><div><div class="sum-l">Repaid</div><div class="sum-v green cup" data-to="${sumRep}" data-pre="UGX " data-fmt="k">UGX ${compact(sumRep)}</div></div></div>
+      <div class="sum-card out"><div class="sum-ic"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2.5 1.5"/></svg></div><div><div class="sum-l">Outstanding</div><div class="sum-v red cup" data-to="${sumOut}" data-pre="UGX " data-fmt="k">UGX ${compact(sumOut)}</div></div></div>
       <div class="sum-card ovd"><div class="sum-ic"><svg viewBox="0 0 16 16"><path d="M8 1.7l6.3 11.1a.6.6 0 01-.5.9H2.2a.6.6 0 01-.5-.9z"/><path d="M8 6.3v3.1M8 11.4v.2"/></svg></div><div><div class="sum-l">Overdue</div><div class="sum-v amber cup" data-to="${overdue}">${fmt(overdue)}</div></div></div>
     </div>`;
 
@@ -330,18 +330,26 @@ function render() {
 }
 
 // Count a number up from zero, formatted, honouring reduced-motion.
+function compact(n) {
+  n = Number(n) || 0;
+  if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'K';
+  return String(Math.round(n));
+}
 function animateUp(el) {
   const to  = Number(el.dataset.to) || 0;
   const pre = el.dataset.pre || '';
   const suf = el.dataset.suf || '';
+  const f   = el.dataset.fmt === 'k' ? compact : fmt;
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    el.textContent = pre + fmt(to) + suf; return;
+    el.textContent = pre + f(to) + suf; return;
   }
   const dur = 900, start = performance.now();
   function tick(now) {
     const p = Math.min(1, (now - start) / dur), e = 1 - Math.pow(1 - p, 3);
-    el.textContent = pre + fmt(Math.round(to * e)) + suf;
-    if (p < 1) requestAnimationFrame(tick); else el.textContent = pre + fmt(to) + suf;
+    el.textContent = pre + f(Math.round(to * e)) + suf;
+    if (p < 1) requestAnimationFrame(tick); else el.textContent = pre + f(to) + suf;
   }
   requestAnimationFrame(tick);
 }
