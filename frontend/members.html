@@ -35,7 +35,8 @@
 .lead-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
 .lead-card{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg)}
 .lead-card.filled{cursor:pointer;background:#fff}
-.lead-card.filled:hover{border-color:var(--green-mid);box-shadow:0 6px 16px rgba(0,0,0,.07)}
+.lead-card.clickable{cursor:pointer}
+.lead-card.clickable:hover,.lead-card.filled:hover{border-color:var(--green-mid);box-shadow:0 6px 16px rgba(0,0,0,.07)}
 .lead-av{width:38px;height:38px;border-radius:10px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:.82rem;flex-shrink:0;overflow:hidden}
 .lead-av img{width:100%;height:100%;object-fit:cover}
 .lead-card:not(.filled) .lead-av{background:var(--border);color:var(--muted)}
@@ -311,6 +312,26 @@
     <div class="modal-foot">
       <button class="btn" onclick="closeModal('delDepotModal')">Cancel</button>
       <button class="btn" id="delDepotActBtn"></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="depotAssignModal">
+  <div class="modal-card" style="max-width:450px">
+    <div class="modal-head">
+      <div class="modal-title" id="daTitle">Assign Role</div>
+      <button class="modal-close" onclick="closeModal('depotAssignModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="daHint" style="font-family:var(--font2);font-size:.78rem;color:var(--muted);line-height:1.55;margin-bottom:14px"></div>
+      <div class="form-group"><label class="form-label">Choose a member</label>
+        <select class="form-select" id="daMember"></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="closeModal('depotAssignModal')">Cancel</button>
+      <button class="btn btn-green" id="daBtn" onclick="doDepotAssign()">
+        <svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Assign
+      </button>
     </div>
   </div>
 </div>
@@ -622,7 +643,9 @@ function leadershipPanel() {
   const slots = DEPOT_ROLES.map(role => {
     const L  = allMembers.find(m => m.depot_role === role);
     const av = L ? (L.photo_url ? `<img src="${imgThumb(L.photo_url, 120)}" alt="" loading="lazy">` : initials(L.name)) : '?';
-    return `<div class="lead-card${L ? ' filled' : ''}" ${L ? `onclick="location.href='member.html?id=${L.id}'"` : ''}>
+    // Admins click any slot to assign/change; others just open a filled leader.
+    const onclick = _acc.isAdmin ? `onclick="openDepotAssign('${role}')"` : (L ? `onclick="location.href='member.html?id=${L.id}'"` : '');
+    return `<div class="lead-card${L ? ' filled' : ''}${_acc.isAdmin ? ' clickable' : ''}" ${onclick}>
         <div class="lead-av">${av}</div>
         <div class="lead-info"><div class="lead-name">${L ? L.name : 'Vacant'}</div><div class="lead-role">${role}</div></div>
       </div>`;
@@ -631,6 +654,60 @@ function leadershipPanel() {
     <div class="lp-head"><svg viewBox="0 0 16 16"><path d="M8 1.2l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.7 3.9 13l.7-4.3-3.1-3 4.3-.6z"/></svg> Depot Leadership</div>
     <div class="lead-grid">${slots}</div>
   </div>`;
+}
+
+// Admin: pick / change who holds a depot committee position. Anyone in this depot
+// is eligible. (Mirrors the district leadership assignment.)
+let daRole = null, daDepotMembers = [];
+async function openDepotAssign(role) {
+  daRole = role;
+  const full = await loadAllMembers();
+  daDepotMembers = full
+    .filter(m => m.district === districtParam && m.depot === depotFilter)
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const current = daDepotMembers.find(m => m.depot_role === role);
+  document.getElementById('daTitle').textContent = 'Assign ' + role;
+  const hint = document.getElementById('daHint');
+  const sel = document.getElementById('daMember');
+  const btn = document.getElementById('daBtn');
+  if (!daDepotMembers.length) {
+    hint.innerHTML = 'No members in this depot yet. Register some first, then assign the committee.';
+    sel.innerHTML = '<option value="">No members</option>';
+    sel.disabled = true; btn.disabled = true;
+    openModal('depotAssignModal');
+    return;
+  }
+  hint.innerHTML = 'Choose anyone in this depot for this position.' + (current ? ` Currently held by <b>${current.name}</b>.` : '');
+  sel.disabled = false; btn.disabled = false;
+  sel.innerHTML =
+    '<option value="">Select a member</option>' +
+    (current ? '<option value="__clear__">Remove (leave vacant)</option>' : '') +
+    daDepotMembers.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  openModal('depotAssignModal');
+}
+
+async function doDepotAssign() {
+  const val = document.getElementById('daMember').value;
+  if (!val) { showToast('Choose a member', 'error'); return; }
+  const btn = document.getElementById('daBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    const current = daDepotMembers.find(m => m.depot_role === daRole);
+    if (val === '__clear__') {
+      if (current) await apiFetch(`/api/members/${current.id}`, { method: 'PUT', body: { depot_role: '' } });
+    } else {
+      if (current && current.id !== val) await apiFetch(`/api/members/${current.id}`, { method: 'PUT', body: { depot_role: '' } });
+      await apiFetch(`/api/members/${val}`, { method: 'PUT', body: { depot_role: daRole } });
+    }
+    closeModal('depotAssignModal');
+    showToast('Depot leadership updated');
+    await loadMembers();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 16 16"><path d="M2 8l4 4 8-8"/></svg> Assign';
+  }
 }
 
 // Photo preview
