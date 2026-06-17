@@ -521,12 +521,11 @@ function printBeneficiaries() {
   list.forEach(m => { (groups[m.district] = groups[m.district] || []).push(m); });
   const order = DISTRICTS.map(d => d.code).filter(c => groups[c]);
   Object.keys(groups).forEach(c => { if (!order.includes(c)) order.push(c); });
-  const rows = order.map(code => {
+  const sections = order.map((code, gi) => {
     const arr = groups[code];
     const dn = (arr[0] && arr[0].district_name) || ((DISTRICTS.find(d => d.code === code) || {}).name) || code;
     const gd = arr.filter(isDisbursed).length;
     const gt = arr.reduce((s, m) => s + (isDisbursed(m) ? Number(m.amount) : 0), 0);
-    const head = `<tr class="grp"><td colspan="6">${dn} <span>${arr.length} listed &middot; ${gd} disbursed &middot; UGX ${fmt(gt)}</span></td></tr>`;
     const body = arr.map((m, i) => `<tr>
         <td class="c">${i + 1}</td>
         <td class="s">${m.id}</td>
@@ -535,7 +534,16 @@ function printBeneficiaries() {
         <td class="r">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : '<span class="pend">Pending</span>'}</td>
         <td>${m.disbursement_date ? formatDate(m.disbursement_date) : '-'}</td>
       </tr>`).join('');
-    return head + body;
+    return `<section class="dgroup">
+      <div class="dgroup-head">
+        <div class="dg-l"><span class="dg-no">${gi + 1}</span><span class="dg-name">${dn}</span></div>
+        <div class="dg-meta"><b>${arr.length}</b> beneficiaries &middot; <b>${gd}</b> disbursed &middot; <b>UGX ${fmt(gt)}</b></div>
+      </div>
+      <table>
+        <thead><tr><th class="c">#</th><th>Serial</th><th>Name</th><th>Depot</th><th class="r">Amount</th><th>Date</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+    </section>`;
   }).join('');
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Beneficiary List - ${scope}</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
@@ -547,21 +555,36 @@ function printBeneficiaries() {
     .hd img{width:44px;height:44px;object-fit:contain;flex-shrink:0}
     .hd .prog{font-family:'Varela Round',sans-serif;font-size:17px;line-height:1.15}
     .hd .sub{font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:rgba(255,255,255,.66);margin-top:6px}
-    .meta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:11px}
+    .meta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
     .meta .t{font-family:'Varela Round',sans-serif;font-size:15px;color:#0a7a3a;text-transform:uppercase;letter-spacing:.08em}
     .meta .t span{color:#7a8e83;font-size:11px;letter-spacing:.02em;margin-left:8px}
     .meta .d{font-size:10px;font-weight:700;color:#7a8e83;text-align:right}
+    /* Summary strip */
+    .summary{display:flex;gap:10px;margin-bottom:16px}
+    .sc{flex:1;border:1.5px solid #d8ece1;border-radius:12px;padding:11px 15px;background:#f9fcfb}
+    .sc-v{font-family:'Varela Round',sans-serif;font-size:18px;color:#0a7a3a;line-height:1}
+    .sc-l{font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#7a8e83;margin-top:4px}
+    /* District section block */
+    .dgroup{margin-bottom:13px;border:1px solid #d8ece1;border-radius:12px;overflow:hidden}
+    .dgroup-head{background:linear-gradient(120deg,#0c4a2b,#0a7a3a);color:#fff;padding:9px 15px;display:flex;justify-content:space-between;align-items:center;gap:12px;break-after:avoid}
+    .dg-l{display:flex;align-items:center;gap:10px}
+    .dg-no{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);display:inline-flex;align-items:center;justify-content:center;font-family:'Varela Round',sans-serif;font-size:10px;flex-shrink:0}
+    .dg-name{font-family:'Varela Round',sans-serif;font-size:14px;letter-spacing:.02em}
+    .dg-meta{font-size:9px;font-weight:700;color:rgba(255,255,255,.78);text-align:right}
+    .dg-meta b{color:#fff;font-weight:900}
     table{width:100%;border-collapse:collapse;font-size:9.5px}
-    thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:7px 8px;border-bottom:1.5px solid #d8ece1}
+    thead th{background:#f4f9f6;text-align:left;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:6px 10px;border-bottom:1.5px solid #d8ece1}
     th.c,td.c{text-align:center}th.r,td.r{text-align:right;white-space:nowrap}
-    tbody td{padding:6px 8px;border-bottom:1px solid #eef2f0}
-    tbody tr.grp td{background:#eaf7f0;border-top:1.5px solid #b3e6c8;border-bottom:1px solid #b3e6c8;font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:11px;padding:8px;text-transform:uppercase;letter-spacing:.04em}
-    tbody tr.grp td span{font-family:'Nunito',sans-serif;font-weight:700;font-size:8.5px;color:#5b6b62;letter-spacing:0;text-transform:none;margin-left:8px}
+    tbody td{padding:6px 10px;border-bottom:1px solid #eef2f0}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr:nth-child(even){background:#fbfdfc}
+    tbody tr{break-inside:avoid}
     .s{font-family:'Varela Round',sans-serif;color:#0a7a3a;white-space:nowrap}
     .nm{font-weight:800;text-transform:uppercase}
     .r{font-weight:800}.pend{color:#b06a00;font-weight:800}
-    tfoot td{padding:9px 8px;border-top:2px solid #0a7a3a;font-weight:900;background:#f4f9f6}
-    tfoot .r{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
+    .grand{display:flex;justify-content:space-between;align-items:center;background:#f4f9f6;border:1.5px solid #b3e6c8;border-radius:12px;padding:12px 18px;margin-top:2px}
+    .grand .l{font-family:'Varela Round',sans-serif;font-size:12px;color:#142a1d;text-transform:uppercase;letter-spacing:.04em}
+    .grand .v{font-family:'Varela Round',sans-serif;font-size:17px;color:#0a7a3a}
     .foot{margin-top:14px;border-top:1.5px solid #eef2f0;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#9aa8a0;font-weight:700}
     .foot .bar{font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:12px}
   </style></head><body>
@@ -570,14 +593,16 @@ function printBeneficiaries() {
       <div><div class="prog">Busoga Ghetto Presidential Empowerment Fund</div><div class="sub">Office of the Special Presidential Assistant, State House Uganda</div></div>
     </div>
     <div class="meta">
-      <div class="t">Beneficiary List<span>${scope} &middot; ${list.length} listed &middot; ${disbCount} disbursed${q ? ' &middot; "' + q + '"' : ''}</span></div>
+      <div class="t">Beneficiary List<span>${scope}${q ? ' &middot; "' + q + '"' : ''}</span></div>
       <div class="d">Generated ${issued}</div>
     </div>
-    <table>
-      <thead><tr><th class="c">#</th><th>Serial</th><th>Name</th><th>Depot</th><th class="r">Amount</th><th>Date</th></tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="4">TOTAL DISBURSED (${disbCount} beneficiar${disbCount === 1 ? 'y' : 'ies'})</td><td class="r">UGX ${fmt(totalAmt)}</td><td></td></tr></tfoot>
-    </table>
+    <div class="summary">
+      <div class="sc"><div class="sc-v">${fmt(disbCount)}</div><div class="sc-l">Beneficiaries paid</div></div>
+      <div class="sc"><div class="sc-v">UGX ${fmt(totalAmt)}</div><div class="sc-l">Total disbursed</div></div>
+      <div class="sc"><div class="sc-v">${order.length}</div><div class="sc-l">District${order.length === 1 ? '' : 's'}</div></div>
+    </div>
+    ${sections}
+    <div class="grand"><span class="l">Total disbursed (${disbCount} beneficiar${disbCount === 1 ? 'y' : 'ies'})</span><span class="v">UGX ${fmt(totalAmt)}</span></div>
     <div class="foot"><span class="bar">Together We Can</span><span>Busoga Ghetto Presidential Empowerment Fund (Busoga Pilot)</span></div>
   ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},400)}</scr' + 'ipt>'}
   </body></html>`;
