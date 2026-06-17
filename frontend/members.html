@@ -516,15 +516,27 @@ function printBeneficiaries() {
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const disbCount = list.filter(isDisbursed).length;
   const totalAmt = list.reduce((s, m) => s + (isDisbursed(m) ? Number(m.amount) : 0), 0);
-  const rows = list.map((m, i) => `<tr>
-      <td class="c">${i + 1}</td>
-      <td class="s">${m.id}</td>
-      <td class="nm">${m.name}</td>
-      <td>${m.district_name || ''}</td>
-      <td>${titleCase(m.depot)}</td>
-      <td class="r">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : '<span class="pend">Pending</span>'}</td>
-      <td>${m.disbursement_date ? formatDate(m.disbursement_date) : '-'}</td>
-    </tr>`).join('');
+  // Group by district (canonical order), each district already serial-ordered.
+  const groups = {};
+  list.forEach(m => { (groups[m.district] = groups[m.district] || []).push(m); });
+  const order = DISTRICTS.map(d => d.code).filter(c => groups[c]);
+  Object.keys(groups).forEach(c => { if (!order.includes(c)) order.push(c); });
+  const rows = order.map(code => {
+    const arr = groups[code];
+    const dn = (arr[0] && arr[0].district_name) || ((DISTRICTS.find(d => d.code === code) || {}).name) || code;
+    const gd = arr.filter(isDisbursed).length;
+    const gt = arr.reduce((s, m) => s + (isDisbursed(m) ? Number(m.amount) : 0), 0);
+    const head = `<tr class="grp"><td colspan="6">${dn} <span>${arr.length} listed &middot; ${gd} disbursed &middot; UGX ${fmt(gt)}</span></td></tr>`;
+    const body = arr.map((m, i) => `<tr>
+        <td class="c">${i + 1}</td>
+        <td class="s">${m.id}</td>
+        <td class="nm">${m.name}</td>
+        <td>${titleCase(m.depot)}</td>
+        <td class="r">${isDisbursed(m) ? 'UGX ' + fmt(m.amount) : '<span class="pend">Pending</span>'}</td>
+        <td>${m.disbursement_date ? formatDate(m.disbursement_date) : '-'}</td>
+      </tr>`).join('');
+    return head + body;
+  }).join('');
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Beneficiary List - ${scope}</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
   <style>
@@ -543,7 +555,8 @@ function printBeneficiaries() {
     thead th{background:#f4f9f6;text-align:left;font-size:8.5px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:#5b6b62;padding:7px 8px;border-bottom:1.5px solid #d8ece1}
     th.c,td.c{text-align:center}th.r,td.r{text-align:right;white-space:nowrap}
     tbody td{padding:6px 8px;border-bottom:1px solid #eef2f0}
-    tbody tr:nth-child(even){background:#fbfdfc}
+    tbody tr.grp td{background:#eaf7f0;border-top:1.5px solid #b3e6c8;border-bottom:1px solid #b3e6c8;font-family:'Varela Round',sans-serif;color:#0a7a3a;font-size:11px;padding:8px;text-transform:uppercase;letter-spacing:.04em}
+    tbody tr.grp td span{font-family:'Nunito',sans-serif;font-weight:700;font-size:8.5px;color:#5b6b62;letter-spacing:0;text-transform:none;margin-left:8px}
     .s{font-family:'Varela Round',sans-serif;color:#0a7a3a;white-space:nowrap}
     .nm{font-weight:800;text-transform:uppercase}
     .r{font-weight:800}.pend{color:#b06a00;font-weight:800}
@@ -561,9 +574,9 @@ function printBeneficiaries() {
       <div class="d">Generated ${issued}</div>
     </div>
     <table>
-      <thead><tr><th class="c">#</th><th>Serial</th><th>Name</th><th>District</th><th>Depot</th><th class="r">Amount</th><th>Date</th></tr></thead>
+      <thead><tr><th class="c">#</th><th>Serial</th><th>Name</th><th>Depot</th><th class="r">Amount</th><th>Date</th></tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td colspan="5">TOTAL DISBURSED (${disbCount} beneficiar${disbCount === 1 ? 'y' : 'ies'})</td><td class="r">UGX ${fmt(totalAmt)}</td><td></td></tr></tfoot>
+      <tfoot><tr><td colspan="4">TOTAL DISBURSED (${disbCount} beneficiar${disbCount === 1 ? 'y' : 'ies'})</td><td class="r">UGX ${fmt(totalAmt)}</td><td></td></tr></tfoot>
     </table>
     <div class="foot"><span class="bar">Together We Can</span><span>Busoga Ghetto Presidential Empowerment Fund (Busoga Pilot)</span></div>
   ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},400)}</scr' + 'ipt>'}
