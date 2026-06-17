@@ -379,7 +379,7 @@ function loanAgreementTab() {
               <div class="pname">The Fund</div>
               <div class="pmeta">
                 Busoga Ghetto Presidential Empowerment Fund<br>
-                Office of the President,<br>State House Uganda<br>
+                Office of the Special Presidential Assistant,<br>State House Uganda<br>
                 SACCO facility at 6% per annum<br>
                 <em>hereinafter the "Lender"</em>
               </div>
@@ -601,7 +601,7 @@ function exportCard() {
       <img class="emblem" src="${emblem}" alt="" onerror="this.style.display='none'">
       <div class="ht">
         <div class="prog">Busoga Ghetto Presidential Empowerment Fund</div>
-        <div class="off">Office of the President, State House Uganda</div>
+        <div class="off">Office of the Special Presidential Assistant, State House Uganda</div>
       </div>
     </div>
 
@@ -671,7 +671,7 @@ function exportCard() {
       <div class="note">
         This document confirms that the above named person is a registered beneficiary of the
         <b>Busoga Ghetto Presidential Empowerment Fund</b>, a Presidential initiative coordinated under the
-        Office of the President. The funds are a SACCO loan facility advanced at <b>6% interest per annum</b>,
+        Office of the Special Presidential Assistant. The funds are a SACCO loan facility advanced at <b>6% interest per annum</b>,
         repayable within <b>twelve (12) months</b>. Scan the QR code above, or visit the verification link below,
         to confirm this record online at any time.
       </div>
@@ -898,7 +898,7 @@ function printAgreement() {
           <div class="pname">The Fund</div>
           <div class="pmeta">
             Busoga Ghetto Presidential Empowerment Fund<br>
-            Office of the President,<br>State House Uganda<br>
+            Office of the Special Presidential Assistant,<br>State House Uganda<br>
             SACCO facility at 6% per annum<br>
             <em>hereinafter the "Lender"</em>
           </div>
