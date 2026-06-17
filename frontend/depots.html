@@ -595,6 +595,7 @@ function renderDepots(code) {
     <div class="view-toggle">
       <button class="vt-btn ${depotView === 'depots' ? 'active' : ''}" onclick="setDepotView('depots')">By Depot</button>
       <button class="vt-btn ${depotView === 'members' ? 'active' : ''}" onclick="setDepotView('members')">All Members</button>
+      <button class="vt-btn ${depotView === 'leadership' ? 'active' : ''}" onclick="setDepotView('leadership')">Leadership</button>
     </div>`;
 
   const header = `
@@ -602,11 +603,12 @@ function renderDepots(code) {
       <button class="btn btn-sm" onclick="select(null)"><svg viewBox="0 0 16 16"><path d="M10 3L5 8l5 5"/></svg> All districts</button>
       <div class="sel-title">${d.name}<span>${depots.length} depots · ${mc} members</span></div>
       <div style="margin-left:auto">${toggle}</div>
-    </div>
-    ${districtLeadershipPanel(code)}`;
+    </div>`;
 
   let body;
-  if (depotView === 'members') {
+  if (depotView === 'leadership') {
+    body = districtLeadershipPanel(code);
+  } else if (depotView === 'members') {
     body = `
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
         <div class="search-wrap" style="flex:1;min-width:220px;max-width:420px;margin:0">
