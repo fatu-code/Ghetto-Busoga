@@ -125,6 +125,7 @@
   .sum-grid{gap:10px}
   .sum-v{font-size:1.2rem}
   .share{display:none}
+  .rep-hint{display:none}
   /* Flatten the section card; render each row as its own clean card (no big outline) */
   .rep-card{background:transparent;border:none;box-shadow:none;border-radius:0;overflow:visible;margin-bottom:8px}
   .rep-head{padding:2px 2px 10px;border-bottom:none}
@@ -186,7 +187,7 @@
 
     <div class="content">
       <div class="filter-bar no-print">
-        <div style="flex:1;font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);min-width:200px">
+        <div class="rep-hint" style="flex:1;font-family:var(--font2);font-size:.78rem;font-weight:600;color:var(--muted);min-width:200px">
           Fund summary across all districts and depots. Use Print / PDF or CSV to export for records and audit.
         </div>
         <select class="filter-select" id="filterDistrict" onchange="render()"><option value="">All districts (depot table)</option></select>
