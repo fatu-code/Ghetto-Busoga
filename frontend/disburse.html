@@ -241,10 +241,16 @@ function render() {
     </div>
     <div class="db-bar">
       <div class="db-bar-info" id="dBarInfo"></div>
-      <button class="btn btn-green" id="dGo" onclick="askDisburse()">
-        <svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/></svg>
-        Disburse selected
-      </button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="dClear" onclick="clearDisburse()">
+          <svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          Clear
+        </button>
+        <button class="btn btn-green" id="dGo" onclick="askDisburse()">
+          <svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8" rx="1.5"/><circle cx="8" cy="8" r="1.9"/></svg>
+          Disburse selected
+        </button>
+      </div>
     </div>`;
   syncAllChk();
   updateBar();
@@ -312,9 +318,21 @@ function updateBar() {
   const total = items.reduce((s, x) => s + x.amount, 0);
   const info = document.getElementById('dBarInfo');
   const go = document.getElementById('dGo');
+  const clr = document.getElementById('dClear');
+  const anyPicked = picked.size > 0 || items.length > 0;
   if (info) info.innerHTML = `<b>${items.length}</b> selected &middot; <b>UGX ${fmt(total)}</b>`;
   if (go) go.disabled = items.length === 0;
+  if (clr) clr.disabled = !anyPicked;
   updateStats();
+}
+
+// Unselect everyone and wipe entered amounts.
+function clearDisburse() {
+  picked.clear();
+  Object.keys(amounts).forEach(k => delete amounts[k]);
+  const all = document.getElementById('dAll');
+  if (all) all.value = '';
+  render();
 }
 
 function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
