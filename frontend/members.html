@@ -54,6 +54,20 @@
 .del-warn svg{width:19px;height:19px;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .del-warn.red{background:#fdecec;border:1.5px solid #f5b7b1}.del-warn.red svg{stroke:#c0392b}
 .del-warn.amber{background:#fff4e0;border:1.5px solid #f3d28a}.del-warn.amber svg{stroke:#b9770e}
+/* Depot roster banner */
+.roster-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:15px 18px}
+.rb-info{min-width:0;flex:1}
+.rb-label{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.rb-name{font-family:var(--font);font-size:1.2rem;color:var(--green);line-height:1.12;margin:3px 0 4px;word-break:break-word}
+.rb-sub{font-family:var(--font2);font-size:.72rem;font-weight:600;color:var(--muted);line-height:1.4}
+.rb-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.rb-more{position:relative}
+@media(max-width:560px){
+  .roster-banner{flex-direction:column;align-items:stretch}
+  .rb-actions{width:100%}
+  .rb-actions > *{flex:1}
+  .rb-actions .btn{width:100%;justify-content:center}
+}
 /* Members / Leadership sub-toggle on a depot roster */
 .view-toggle{display:inline-flex;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:3px;gap:3px}
 .vt-btn{font-family:var(--font2);font-size:.74rem;font-weight:800;color:var(--muted);background:none;border:none;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .15s;white-space:nowrap}
@@ -353,10 +367,9 @@ function prefillDepot() {
 prefillDepot();
 if (depotFilter) {
   const banner = document.createElement('div');
-  banner.className = 'card';
-  banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:13px 16px';
+  banner.className = 'card roster-banner';
   const moreActions = _acc.isAdmin ? `
-    <div style="position:relative">
+    <div class="rb-more">
       <button class="btn btn-sm" onclick="toggleDepotMenu(event)">More actions
         <svg viewBox="0 0 16 16" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 6l4 4 4-4"/></svg>
       </button>
@@ -366,7 +379,13 @@ if (depotFilter) {
         <button class="danger" onclick="deleteDepotRoster()"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot</button>
       </div>
     </div>` : '';
-  banner.innerHTML = `<div><div style="font-weight:800;color:var(--text)">Depot roster: <span style="color:var(--green)">${titleCase(depotFilter)}</span></div><div style="font-weight:600;color:var(--muted);font-size:.76rem;margin-top:2px">Members profiled under this depot. New registrations are added here.</div></div><div style="display:flex;align-items:center;gap:8px">${moreActions}<a href="members.html" class="btn btn-sm">View all</a></div>`;
+  banner.innerHTML = `
+    <div class="rb-info">
+      <div class="rb-label">Depot Roster</div>
+      <div class="rb-name">${titleCase(depotFilter)}</div>
+      <div class="rb-sub">New registrations are added here.</div>
+    </div>
+    <div class="rb-actions">${moreActions}<a href="members.html" class="btn btn-sm">View all</a></div>`;
   const c = document.getElementById('membersContainer');
   c.parentNode.insertBefore(banner, c);
 }
