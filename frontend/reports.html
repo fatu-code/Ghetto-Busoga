@@ -442,7 +442,7 @@ function render() {
       <div class="table-wrap"><table>
         <thead><tr><th>Depot</th><th>District</th><th class="num">Members</th><th class="num">Disbursed</th><th class="num">Amount (UGX)</th><th class="num">Repaid (UGX)</th><th class="num">Outstanding (UGX)</th></tr></thead>
         <tbody>${depotRows.map(r => `<tr>
-            <td style="font-weight:800">${r.depot}</td>
+            <td style="font-weight:800">${titleCase(r.depot)}</td>
             <td data-label="District" style="color:var(--muted)">${r.dn}</td>
             <td class="num" data-label="Members">${fmt(r.a.count)}</td>
             <td class="num" data-label="Disbursed">${fmt(r.a.disbursedCount)}</td>
@@ -588,7 +588,7 @@ function printReport() {
   </tr>`;
   const districtHtml = districtRows.map(r => dRow(r.d.name, r.a)).join('') + dRow('TOTAL', fund, true);
   const depotHtml = depotRows.map(r => `<tr>
-    <td>${r.depot}</td>
+    <td>${titleCase(r.depot)}</td>
     <td>${r.dn}</td>
     <td class="c">${fmt(r.a.count)}</td>
     <td class="c">${fmt(r.a.disbursedCount)}</td>
