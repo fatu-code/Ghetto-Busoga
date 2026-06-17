@@ -66,7 +66,7 @@
 .dlead-head{font-family:var(--font);font-size:.95rem;color:var(--text);margin-bottom:11px;display:flex;align-items:center;gap:9px}
 .dlead-head svg{width:16px;height:16px;fill:var(--green)}
 .dlead{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px}
-.dl-card{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg)}
+.dl-card{display:flex;align-items:center;gap:11px;padding:12px 14px;border:1.5px solid var(--border);border-radius:14px;background:var(--bg);min-width:0}
 .dl-card.lead{background:linear-gradient(120deg,#0c4a2b,#0a7a3a);border-color:transparent}
 .dl-card.filled{background:#fff}
 .dl-card.clickable{cursor:pointer}
@@ -84,6 +84,7 @@
 .dl-role{font-family:var(--font2);font-size:.6rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dl-card.lead .dl-role{color:rgba(255,255,255,.7)}
 @media(max-width:760px){.dlead{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.dlead{grid-template-columns:1fr}}
 /* District drill: By Depot / All Members toggle */
 .view-toggle{display:inline-flex;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:3px;gap:3px}
 .vt-btn{font-family:var(--font2);font-size:.74rem;font-weight:800;color:var(--muted);background:none;border:none;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .15s;white-space:nowrap}
