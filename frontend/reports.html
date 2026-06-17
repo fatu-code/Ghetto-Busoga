@@ -269,18 +269,19 @@ function moneyRow(label, a, bar) {
 }
 
 function render() {
-  const fund = agg(members);
+  // When a district is chosen, the WHOLE report scopes to it (hero, tiles, charts, tables).
+  const dsel = document.getElementById('filterDistrict').value;
+  const scope = dsel ? members.filter(m => m.district === dsel) : members;
+  const fund = agg(scope);
 
   // by district
-  districtRows = DISTRICTS.map(d => ({ d, a: agg(members.filter(m => m.district === d.code)) }))
+  districtRows = DISTRICTS.map(d => ({ d, a: agg(scope.filter(m => m.district === d.code)) }))
     .filter(r => r.a.count > 0)
     .sort((x, y) => y.a.disbursed - x.a.disbursed || y.a.count - x.a.count);
 
-  // by depot (optionally narrowed to a district)
-  const dsel = document.getElementById('filterDistrict').value;
+  // by depot (scoped to the selected district when one is chosen)
   const depotKeys = {};
-  members.forEach(m => {
-    if (dsel && m.district !== dsel) return;
+  scope.forEach(m => {
     const k = m.district + '||' + m.depot;
     (depotKeys[k] = depotKeys[k] || []).push(m);
   });
@@ -293,7 +294,7 @@ function render() {
   const issued = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const totalDue = Math.round(fund.disbursed * 1.06);
   const cpct = totalDue ? Math.round((fund.repaid / totalDue) * 100) : 0;
-  const cleared = members.filter(m => Number(m.amount) > 0 && (Number(m.repaid) || 0) >= Math.round(Number(m.amount) * 1.06)).length;
+  const cleared = scope.filter(m => Number(m.amount) > 0 && (Number(m.repaid) || 0) >= Math.round(Number(m.amount) * 1.06)).length;
   lastReport = { fund, districtRows: districtRows.slice(), depotRows, dsel, issued, cpct, cleared };
 
   // Visuals: donut (collection), funnel (pipeline), bar chart (by district)
@@ -310,7 +311,7 @@ function render() {
     const d = new Date(_now.getFullYear(), _now.getMonth() - k, 1);
     tMonths.push({ y: d.getFullYear(), m: d.getMonth(), label: d.toLocaleDateString('en-UG', { month: 'short' }), count: 0 });
   }
-  members.forEach(mem => {
+  scope.forEach(mem => {
     const c = new Date(mem.created_at);
     if (isNaN(c)) return;
     const idx = tMonths.findIndex(x => x.y === c.getFullYear() && x.m === c.getMonth());
@@ -327,7 +328,7 @@ function render() {
 
   // Heatmap: member concentration per district
   const distCount = {};
-  members.forEach(m => { distCount[m.district] = (distCount[m.district] || 0) + 1; });
+  scope.forEach(m => { distCount[m.district] = (distCount[m.district] || 0) + 1; });
   const hMax = Math.max(1, ...Object.values(distCount), 1);
   lastReport.tMonths = tMonths; lastReport.distCount = distCount; lastReport.hMax = hMax;
 
