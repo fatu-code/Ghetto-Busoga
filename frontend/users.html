@@ -172,9 +172,9 @@ DISTRICTS.forEach(d => {
 });
 
 function roleName(r) { return r === 'admin' ? 'Administrator' : r === 'rdc' ? 'RDC' : 'Profiler'; }
-// Al-Hajj Faruk Kirunda shows as Chief Coordinator rather than Administrator.
+// Al-Hajj Faruk Kirunda shows as National Coordinator rather than Administrator.
 function displayRole(u) {
-  if (u.role === 'admin' && /kirunda|faruk/i.test(u.name || '')) return 'Chief Coordinator';
+  if (u.role === 'admin' && /kirunda|faruk/i.test(u.name || '')) return 'National Coordinator';
   return roleName(u.role);
 }
 function districtName(code) { const d = DISTRICTS.find(x => x.code === code); return d ? d.name : (code || ''); }
