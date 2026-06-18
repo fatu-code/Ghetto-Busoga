@@ -799,6 +799,7 @@ async function saveMember() {
 
     closeModal('addModal');
     showToast(`${name} profiled as ${data.member.id}. They list under Beneficiaries once disbursed.`);
+    celebrate();
     // Reset form
     ['mName','mNin','mPhone','mVillage','mNotes'].forEach(i => document.getElementById(i).value = '');
     ['mDistrict','mGender','mRole'].forEach(i => document.getElementById(i).value = '');
