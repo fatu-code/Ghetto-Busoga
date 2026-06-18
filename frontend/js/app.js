@@ -313,9 +313,22 @@ function toggleSidebar() {
 // ── JUICY FEEDBACK: confetti + chime on a win (register / disburse / repay) ──
 function celebrate(opts) {
   opts = opts || {};
-  try { _chime(); } catch (e) {}
+  _playSfx();
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!reduce) _confetti(opts.count || 90);
+}
+// Play the custom sound file (frontend/sounds/celebrate.mp3); if it's missing
+// or blocked, fall back to the built-in synth chime so there's always feedback.
+let _sfx;
+function _playSfx() {
+  try {
+    if (!_sfx) { _sfx = new Audio("sounds/celebrate.mp3"); _sfx.preload = "auto"; _sfx.volume = 0.7; }
+    _sfx.currentTime = 0;
+    const p = _sfx.play();
+    if (p && p.catch) p.catch(() => { try { _chime(); } catch (e) {} });
+  } catch (e) {
+    try { _chime(); } catch (e2) {}
+  }
 }
 let _audioCtx;
 function _chime() {
