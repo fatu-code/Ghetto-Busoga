@@ -432,33 +432,33 @@
         transform: translateX(3px);
         opacity: 1;
       }
-      /* Severity colours */
+      /* Severity, all in the green family - depth of green signals urgency. */
       .sev-crit {
-        border-left-color: #ef4444;
-        background: #fef4f4;
+        border-left-color: #0a4d2a;
+        background: #e7f2ec;
         animation:
           alertIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both,
           critGlow 2.2s ease-in-out infinite;
       }
       .sev-crit .alert-ic,
       .sev-crit .alert-badge {
-        background: #ef4444;
+        background: #0a4d2a;
       }
       .sev-warn {
-        border-left-color: #f59e0b;
-        background: #fffaf0;
+        border-left-color: var(--green-dark);
+        background: #eef8f1;
       }
       .sev-warn .alert-ic,
       .sev-warn .alert-badge {
-        background: #f59e0b;
+        background: var(--green-dark);
       }
       .sev-info {
-        border-left-color: #0ea5e9;
-        background: #f1f9ff;
+        border-left-color: var(--green);
+        background: var(--green-pale);
       }
       .sev-info .alert-ic,
       .sev-info .alert-badge {
-        background: #0ea5e9;
+        background: var(--green);
       }
       .sev-good {
         border-left-color: var(--green);
@@ -483,30 +483,21 @@
       @keyframes critGlow {
         0%,
         100% {
-          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+          box-shadow: 0 0 0 0 rgba(10, 77, 42, 0);
         }
         50% {
-          box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+          box-shadow: 0 0 0 4px rgba(10, 77, 42, 0.14);
         }
       }
-      /* Status pill changes colour with the worst issue */
-      .alerts-status.warn {
-        color: #b45309;
-        border-color: #f4cf8a;
-        background: #fffaf0;
-      }
-      .alerts-status.warn .pulse-dot,
-      .alerts-status.warn .pulse-dot::after {
-        background: #f59e0b;
-      }
+      /* Status pill stays green; a solid fill (not a new colour) flags attention. */
       .alerts-status.crit {
-        color: #b91c1c;
-        border-color: #f3b0b0;
-        background: #fef4f4;
+        color: #fff;
+        background: var(--green-dark);
+        border-color: var(--green-dark);
       }
       .alerts-status.crit .pulse-dot,
       .alerts-status.crit .pulse-dot::after {
-        background: #ef4444;
+        background: #fff;
       }
       .quick-actions {
         display: grid;
