@@ -357,7 +357,9 @@ function _playSfx() {
       const g = _audioCtx.createGain();
       g.gain.value = 0.8;
       src.connect(g); g.connect(_audioCtx.destination);
-      src.start(0);
+      // Skip ~1s of leading silence in the file so the ding starts immediately.
+      const skip = Math.min(1.0, Math.max(0, (_sfxBuffer.duration || 0) - 0.2));
+      src.start(0, skip);
       return;
     }
     _ensureSfx(); // not decoded yet - load for next time; chime now so there's feedback
