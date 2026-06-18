@@ -325,6 +325,29 @@ function imgThumb(url, size) {
   if (!url || url.indexOf("/upload/") === -1) return url;
   return url.replace("/upload/", `/upload/c_fill,g_face,w_${size},h_${size},f_auto,q_auto/`);
 }
+// ── LEADER CROWNS & FRAMES ───────────────────────────────────────────
+// Commanders get a crown, deputies a star; district leaders gold, depot green.
+// District role outranks depot role on the badge/frame.
+const _CROWN_SVG = '<svg viewBox="0 0 24 24"><path d="M4 18.5h16l1.3-9.2-5 3.7L12 5l-4.3 8-5-3.7z"/></svg>';
+const _STAR_SVG = '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.7-5.1 4.6 1.5 6.7L12 17.6 5.9 20.7l1.5-6.7L2.3 9.4l6.8-.7z"/></svg>';
+function leaderRank(m) {
+  const role = (m && (m.district_role || m.depot_role)) || "";
+  if (!role) return null;
+  const icon = /Deputy/.test(role) ? "star" : (/Commander/.test(role) ? "crown" : "ring");
+  return { tier: m.district_role ? "gold" : "green", icon };
+}
+function leaderRingClass(m) { const r = leaderRank(m); return r ? "av-ring-" + r.tier : ""; }
+function leaderBadge(m) {
+  const r = leaderRank(m);
+  if (!r || r.icon === "ring") return "";
+  return `<span class="av-badge av-badge-${r.tier}">${r.icon === "crown" ? _CROWN_SVG : _STAR_SVG}</span>`;
+}
+// When the role/tier is already known (e.g. a leadership panel slot).
+function leaderBadgeFor(role, tier) {
+  const icon = /Deputy/.test(role) ? "star" : (/Commander/.test(role) ? "crown" : "ring");
+  if (icon === "ring") return "";
+  return `<span class="av-badge av-badge-${tier}">${icon === "crown" ? _CROWN_SVG : _STAR_SVG}</span>`;
+}
 function formatDate(d) {
   if (!d) return "-";
   try {

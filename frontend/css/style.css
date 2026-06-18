@@ -5,6 +5,20 @@
 /* Fonts are loaded via <link rel="stylesheet"> in each page <head> (parallel,
    non-blocking). No @import here - @import would re-fetch them and block rendering. */
 
+/* ── LEADER CROWNS & FRAMES ───────────────────────────────────────── */
+.av-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
+.av-ring-gold { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #e0a800; }
+.av-ring-green { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0a7a3a; }
+.av-badge {
+  position: absolute; top: -5px; right: -5px;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .28); z-index: 3;
+}
+.av-badge svg { width: 11px; height: 11px; fill: #fff; }
+.av-badge-gold { background: #e0a800; }
+.av-badge-green { background: #0a7a3a; }
+
 *,
 *::before,
 *::after {

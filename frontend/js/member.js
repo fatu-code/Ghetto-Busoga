@@ -60,8 +60,11 @@ function renderProfile() {
   document.getElementById('profileContent').innerHTML = `
     <div class="member-hero">
       <div class="member-hero-top">
-        <div class="member-photo">
-          ${m.photo_url ? `<img src="${imgThumb(m.photo_url, 320)}" alt="${m.name}">` : initials(m.name)}
+        <div class="av-wrap">
+          <div class="member-photo ${leaderRingClass(m)}">
+            ${m.photo_url ? `<img src="${imgThumb(m.photo_url, 320)}" alt="${m.name}">` : initials(m.name)}
+          </div>
+          ${leaderBadge(m)}
         </div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">

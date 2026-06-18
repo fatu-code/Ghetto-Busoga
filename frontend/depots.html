@@ -318,7 +318,7 @@ function districtLeadershipPanel(code) {
     // Admins click any slot to assign/change; others just open a filled leader.
     const onclick = _acc.isAdmin ? `onclick="openAssign('${role}')"` : (L ? `onclick="location.href='member.html?id=${L.id}'"` : '');
     return `<div class="dl-card${L ? ' filled' : ''}${i === 0 ? ' lead' : ''}${_acc.isAdmin ? ' clickable' : ''}" ${onclick}>
-        <div class="dl-av">${av}</div>
+        <div class="av-wrap"><div class="dl-av${L ? ' av-ring-gold' : ''}">${av}</div>${L ? leaderBadgeFor(role, 'gold') : ''}</div>
         <div class="dl-info"><div class="dl-name">${L ? L.name : 'Vacant'}</div><div class="dl-role">${label}</div></div>
       </div>`;
   }).join('');
