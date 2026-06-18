@@ -355,7 +355,7 @@ function _playSfx() {
       const src = _audioCtx.createBufferSource();
       src.buffer = _sfxBuffer;
       const g = _audioCtx.createGain();
-      g.gain.value = 0.8;
+      g.gain.value = 1.5;
       src.connect(g); g.connect(_audioCtx.destination);
       // Skip ~1s of leading silence in the file so the ding starts immediately.
       const skip = Math.min(1.0, Math.max(0, (_sfxBuffer.duration || 0) - 0.2));
