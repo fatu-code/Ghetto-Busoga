@@ -339,31 +339,174 @@
       }
       .alert-list {
         display: grid;
-        gap: 10px;
+        gap: 9px;
       }
+      /* Each alert is a clickable, severity-tinted card. */
       .alert-item {
-        padding: 12px 14px;
-        border-radius: var(--radius-sm);
-        background: var(--green-pale);
-        border: 1px solid var(--green-mid);
+        position: relative;
         display: flex;
-        align-items: flex-start;
-        gap: 10px;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 13px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--muted);
+        background: var(--white);
+        text-decoration: none;
+        color: inherit;
+        overflow: hidden;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+        animation: alertIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
       }
-      .alert-icon {
+      a.alert-item:hover {
+        transform: translateX(3px);
+        box-shadow: 0 6px 18px rgba(16, 39, 29, 0.1);
+      }
+      .alert-ic {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        background: var(--muted);
+      }
+      .alert-ic svg {
         width: 18px;
         height: 18px;
-        border-radius: 50%;
-        background: var(--green);
-        flex-shrink: 0;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .alert-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .alert-h {
+        font-family: var(--font2);
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--text);
+        line-height: 1.3;
+      }
+      .alert-d {
+        font-family: var(--font2);
+        font-size: 0.69rem;
+        font-weight: 600;
+        color: var(--muted);
+        line-height: 1.4;
         margin-top: 2px;
       }
-      .alert-text {
-        font-family: var(--font2);
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--text);
-        line-height: 1.5;
+      .alert-badge {
+        font-family: var(--font);
+        font-size: 0.92rem;
+        font-weight: 800;
+        min-width: 30px;
+        height: 28px;
+        padding: 0 9px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        background: var(--muted);
+      }
+      .alert-go {
+        color: var(--muted);
+        font-size: 1.05rem;
+        font-weight: 800;
+        flex-shrink: 0;
+        opacity: 0.45;
+        transition:
+          transform 0.15s ease,
+          opacity 0.15s ease;
+      }
+      a.alert-item:hover .alert-go {
+        transform: translateX(3px);
+        opacity: 1;
+      }
+      /* Severity colours */
+      .sev-crit {
+        border-left-color: #ef4444;
+        background: #fef4f4;
+        animation:
+          alertIn 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both,
+          critGlow 2.2s ease-in-out infinite;
+      }
+      .sev-crit .alert-ic,
+      .sev-crit .alert-badge {
+        background: #ef4444;
+      }
+      .sev-warn {
+        border-left-color: #f59e0b;
+        background: #fffaf0;
+      }
+      .sev-warn .alert-ic,
+      .sev-warn .alert-badge {
+        background: #f59e0b;
+      }
+      .sev-info {
+        border-left-color: #0ea5e9;
+        background: #f1f9ff;
+      }
+      .sev-info .alert-ic,
+      .sev-info .alert-badge {
+        background: #0ea5e9;
+      }
+      .sev-good {
+        border-left-color: var(--green);
+        background: var(--green-pale);
+      }
+      .sev-good .alert-ic {
+        background: var(--green);
+      }
+      .sev-good .alert-badge {
+        display: none;
+      }
+      @keyframes alertIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes critGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+        }
+        50% {
+          box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+        }
+      }
+      /* Status pill changes colour with the worst issue */
+      .alerts-status.warn {
+        color: #b45309;
+        border-color: #f4cf8a;
+        background: #fffaf0;
+      }
+      .alerts-status.warn .pulse-dot,
+      .alerts-status.warn .pulse-dot::after {
+        background: #f59e0b;
+      }
+      .alerts-status.crit {
+        color: #b91c1c;
+        border-color: #f3b0b0;
+        background: #fef4f4;
+      }
+      .alerts-status.crit .pulse-dot,
+      .alerts-status.crit .pulse-dot::after {
+        background: #ef4444;
       }
       .quick-actions {
         display: grid;
@@ -652,7 +795,9 @@
       @media (prefers-reduced-motion: reduce) {
         .hero::before,
         .pulse-dot::after,
-        .ring-fg {
+        .ring-fg,
+        .alert-item,
+        .sev-crit {
           animation: none;
           transition: none;
         }
@@ -939,26 +1084,20 @@
               <div class="alerts-section" style="margin-bottom: 0">
                 <div class="alerts-title">
                   <span>Alerts & flags</span>
-                  <span class="alerts-status"
-                    ><span class="pulse-dot"></span>All clear</span
+                  <span class="alerts-status" id="alertStatus"
+                    ><span class="pulse-dot"></span>Checking…</span
                   >
                 </div>
-                <div class="alert-list">
-                  <div class="alert-item">
-                    <div class="alert-icon"></div>
-                    <div class="alert-text">
-                      <strong>All depots operational</strong> - Every depot is
-                      actively receiving and processing beneficiaries across all
-                      12 districts.
-                    </div>
-                  </div>
-                  <div class="alert-item">
-                    <div class="alert-icon"></div>
-                    <div class="alert-text">
-                      <strong>Disbursements on schedule</strong> - All scheduled
-                      disbursements have been completed. Next round: 15 June
-                      2026.
-                    </div>
+                <div class="alert-list" id="alertList">
+                  <div
+                    style="
+                      font-family: var(--font2);
+                      font-size: 0.76rem;
+                      color: var(--muted);
+                      padding: 6px 2px;
+                    "
+                  >
+                    Scanning records…
                   </div>
                 </div>
               </div>
@@ -1093,8 +1232,7 @@
 
         document.getElementById("greetingText").textContent =
           `${greeting}, ${userName}`;
-        document.getElementById("greetingDate").textContent =
-          `${day}, ${date}`;
+        document.getElementById("greetingDate").textContent = `${day}, ${date}`;
       }
 
       // Compact UGX: 12,400,000 -> "12.4M", 750,000 -> "750K"
@@ -1149,9 +1287,12 @@
       const muted =
         "font-family:var(--font2);font-size:.78rem;color:var(--muted);padding:8px 0";
 
+      // Fetch stats once, shared by the metric tiles and the alert engine.
+      const statsP = apiFetch("/api/stats");
+
       async function loadStats() {
         try {
-          const data = await apiFetch("/api/stats");
+          const data = await statsP;
           const t = data.totals || {};
           const total = Number(t.total_members || 0);
           const depots = Number(t.total_depots || 0);
@@ -1290,8 +1431,196 @@
         }
       }
 
+      // ── LIVE ALERTS & FLAGS ──────────────────────────────────────────
+      // Real, computed signals from the actual records (not static text),
+      // colour-coded by severity and each one click-through to the fix.
+      const ALERT_ICONS = {
+        dup: '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+        clock:
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+        star: '<svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19l1-5.8L3.5 9.2l5.9-.9z"/></svg>',
+        photo:
+          '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 17l-5-5L5 20"/></svg>',
+        map: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+        money:
+          '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></svg>',
+        check:
+          '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>',
+      };
+
+      async function loadAlerts() {
+        const list = document.getElementById("alertList");
+        const pill = document.getElementById("alertStatus");
+        if (!list) return;
+
+        let members = [],
+          totals = {};
+        try {
+          members = await loadAllMembers();
+        } catch {}
+        try {
+          totals = (await statsP).totals || {};
+        } catch {}
+
+        const flags = [];
+
+        // CRITICAL: duplicate National IDs (double-registration / funding risk).
+        const byNin = {};
+        members.forEach((m) => {
+          const k = (m.nin || "").trim().toUpperCase();
+          if (k) (byNin[k] = byNin[k] || []).push(m);
+        });
+        const dupPeople = Object.values(byNin)
+          .filter((g) => g.length > 1)
+          .reduce((s, g) => s + g.length, 0);
+        if (dupPeople)
+          flags.push({
+            sev: "crit",
+            icon: ALERT_ICONS.dup,
+            count: dupPeople,
+            h: "Possible duplicate profiles",
+            d: "Share a National ID. Review to avoid double funding.",
+            href: "members.html",
+          });
+
+        // CRITICAL: overdue repayments (money roles only).
+        const overdue = Number(totals.overdue_count || 0);
+        if (_acc.canSeeMoney && overdue)
+          flags.push({
+            sev: "crit",
+            icon: ALERT_ICONS.clock,
+            count: overdue,
+            h: overdue === 1 ? "Loan overdue" : "Loans overdue",
+            d: "Past the repayment date. Follow up for collection.",
+            href: "repayments.html",
+          });
+
+        // WARN: depots that have members but no Depot Commander.
+        const depots = {};
+        members.forEach((m) => {
+          if (!m.depot) return;
+          const k = (m.district_name || "") + " / " + m.depot;
+          (depots[k] = depots[k] || []).push(m);
+        });
+        const noCmd = Object.values(depots).filter(
+          (g) => !g.some((m) => m.depot_role === "Depot Commander"),
+        ).length;
+        if (noCmd)
+          flags.push({
+            sev: "warn",
+            icon: ALERT_ICONS.star,
+            count: noCmd,
+            h:
+              noCmd === 1
+                ? "Depot has no commander"
+                : "Depots have no commander",
+            d: "Assign a Depot Commander to complete the committee.",
+            href: "members.html",
+          });
+
+        // WARN: profiles without a photo (weakens verification).
+        const noPhoto = members.filter((m) => !m.photo_url).length;
+        if (noPhoto)
+          flags.push({
+            sev: "warn",
+            icon: ALERT_ICONS.photo,
+            count: noPhoto,
+            h:
+              noPhoto === 1
+                ? "Profile missing a photo"
+                : "Profiles missing a photo",
+            d: "Add photos to strengthen verification.",
+            href: "members.html",
+          });
+
+        // WARN: districts not yet reached (national view only).
+        if (!_acc.scoped) {
+          const covered = new Set(
+            members.map((m) => m.district_name).filter(Boolean),
+          ).size;
+          const missing = 12 - covered;
+          if (missing > 0)
+            flags.push({
+              sev: "warn",
+              icon: ALERT_ICONS.map,
+              count: missing,
+              h:
+                missing === 1
+                  ? "District not yet reached"
+                  : "Districts not yet reached",
+              d: "No beneficiaries profiled there yet.",
+              href: "depots.html",
+            });
+        }
+
+        // INFO: profiled members still awaiting disbursement (money roles only).
+        if (_acc.canSeeMoney) {
+          const awaiting = members.filter(
+            (m) => !(Number(m.amount) > 0),
+          ).length;
+          if (awaiting)
+            flags.push({
+              sev: "info",
+              icon: ALERT_ICONS.money,
+              count: awaiting,
+              h: "Awaiting disbursement",
+              d: "Profiled members not yet funded.",
+              href: "disburse.html",
+            });
+        }
+
+        // Worst issues first.
+        const W = { crit: 0, warn: 1, info: 2, good: 3 };
+        flags.sort((a, b) => W[a.sev] - W[b.sev]);
+
+        // Header pill reflects the worst severity.
+        const crit = flags.filter((f) => f.sev === "crit").length;
+        const warn = flags.filter((f) => f.sev === "warn").length;
+        if (pill) {
+          if (crit) {
+            pill.className = "alerts-status crit";
+            pill.innerHTML = `<span class="pulse-dot"></span>${crit} need${crit === 1 ? "s" : ""} attention`;
+          } else if (flags.length) {
+            pill.className = "alerts-status warn";
+            pill.innerHTML = `<span class="pulse-dot"></span>${flags.length} to review`;
+          } else {
+            pill.className = "alerts-status";
+            pill.innerHTML = `<span class="pulse-dot"></span>All clear`;
+          }
+        }
+
+        // Nothing flagged: a single celebratory all-clear card.
+        if (!flags.length)
+          flags.push({
+            sev: "good",
+            icon: ALERT_ICONS.check,
+            count: 0,
+            h: "All clear",
+            d: "No data gaps or overdue items. Everything is in order.",
+            href: null,
+          });
+
+        list.innerHTML = flags
+          .map((f, i) => {
+            const tag = f.href ? "a" : "div";
+            const href = f.href ? ` href="${f.href}"` : "";
+            const badge =
+              f.sev !== "good" && f.count
+                ? `<div class="alert-badge">${fmt(f.count)}</div>`
+                : "";
+            const go = f.href ? `<div class="alert-go">→</div>` : "";
+            return `<${tag} class="alert-item sev-${f.sev}" style="animation-delay:${i * 70}ms"${href}>
+              <div class="alert-ic">${f.icon}</div>
+              <div class="alert-body"><div class="alert-h">${f.h}</div><div class="alert-d">${f.d}</div></div>
+              ${badge}${go}
+            </${tag}>`;
+          })
+          .join("");
+      }
+
       updateGreeting();
       loadStats();
+      loadAlerts();
     </script>
   </body>
 </html>
