@@ -181,6 +181,7 @@
       const data = await apiFetch('/api/members', { method: 'POST', body: fd });
       closeModal('rgModal');
       showToast(`${name} registered as ${data.member.id}. They list under Beneficiaries once disbursed.`);
+      celebrate();
       reset();
       if (typeof _onDone === 'function') _onDone(data.member);
     } catch (e) {

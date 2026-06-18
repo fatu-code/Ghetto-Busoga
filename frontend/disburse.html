@@ -394,6 +394,7 @@ async function doDisburse() {
     const r = await apiFetch('/api/members/disburse-bulk', { method: 'POST', body: { date, items } });
     closeModal('confirmModal');
     showToast(`Disbursed UGX ${fmt(r.total)} to ${r.disbursed} beneficiar${r.disbursed === 1 ? 'y' : 'ies'}`);
+    celebrate({ count: 140 });
     picked.clear();
     Object.keys(amounts).forEach(k => delete amounts[k]);
     document.getElementById('dAll').value = '';

@@ -253,6 +253,7 @@ async function saveDisbursement() {
     member = data.member;
     closeModal('disburseModal');
     showToast('Disbursement recorded');
+    celebrate();
     load(); // refresh profile + topbar button state
   } catch (e) {
     showToast(e.message, 'error');
@@ -457,6 +458,7 @@ async function saveRepayment() {
     totalRepaid = data.total_repaid || 0;
     closeModal('repayModal');
     showToast('Repayment recorded');
+    celebrate();
     renderProfile();
   } catch (e) {
     showToast(e.message, 'error');

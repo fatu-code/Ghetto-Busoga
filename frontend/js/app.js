@@ -310,6 +310,58 @@ function toggleSidebar() {
   document.getElementById("sidebar-overlay")?.classList.toggle("show");
 }
 
+// ── JUICY FEEDBACK: confetti + chime on a win (register / disburse / repay) ──
+function celebrate(opts) {
+  opts = opts || {};
+  try { _chime(); } catch (e) {}
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) _confetti(opts.count || 90);
+}
+let _audioCtx;
+function _chime() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  _audioCtx = _audioCtx || new AC();
+  if (_audioCtx.state === "suspended") _audioCtx.resume();
+  const ctx = _audioCtx, now = ctx.currentTime;
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => { // C5 E5 G5 C6 arpeggio
+    const o = ctx.createOscillator(), g = ctx.createGain(), t = now + i * 0.085;
+    o.type = "sine"; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.16, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + 0.38);
+  });
+}
+function _confetti(count) {
+  const cv = document.createElement("canvas");
+  cv.style.cssText = "position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:99999";
+  document.body.appendChild(cv);
+  const ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const colors = ["#0a7a3a", "#13b257", "#b3e6c8", "#e0a800", "#ffffff", "#16271d"];
+  const cx = innerWidth / 2, cy = innerHeight * 0.32, parts = [];
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2, sp = 4 + Math.random() * 7;
+    parts.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 4,
+      g: 0.18 + Math.random() * 0.12, s: 5 + Math.random() * 6, rot: Math.random() * 6,
+      vr: (Math.random() - 0.5) * 0.4, c: colors[i % colors.length] });
+  }
+  const start = performance.now();
+  (function frame(now) {
+    const t = now - start;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.globalAlpha = Math.max(0, 1 - t / 1600);
+    parts.forEach(p => {
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6); ctx.restore();
+    });
+    if (t < 1600) requestAnimationFrame(frame); else cv.remove();
+  })(start);
+}
+
 // ── HELPERS ──────────────────────────────────────────────────────────
 function initials(name) {
   return (name || "?")
