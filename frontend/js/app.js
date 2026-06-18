@@ -317,15 +317,51 @@ function celebrate(opts) {
   const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!reduce) _confetti(opts.count || 90);
 }
-// Play the custom sound file (frontend/sounds/celebrate.mp3); if it's missing
-// or blocked, fall back to the built-in synth chime so there's always feedback.
-let _sfx;
+// Play the custom sound (sounds/celebrate.mp3). It is fetched and decoded once,
+// up front, into a Web Audio buffer so playback is INSTANT (in sync with the
+// confetti) instead of lagging while an <audio> element decodes on first play.
+// Falls back to the synth chime if the file is missing or audio is unavailable.
+let _sfxBuffer = null, _sfxLoading = false;
+function _ensureSfx() {
+  if (_sfxBuffer || _sfxLoading) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  _audioCtx = _audioCtx || new AC();
+  _sfxLoading = true;
+  fetch("sounds/celebrate.mp3")
+    .then(r => r.ok ? r.arrayBuffer() : Promise.reject())
+    .then(b => _audioCtx.decodeAudioData(b))
+    .then(buf => { _sfxBuffer = buf; })
+    .catch(() => {})
+    .finally(() => { _sfxLoading = false; });
+}
+// Warm up audio on the first user gesture (decode the file, unlock the context),
+// so the very first win already has the sound ready with no delay.
+function _warmSfx() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) { _audioCtx = _audioCtx || new AC(); if (_audioCtx.state === "suspended") _audioCtx.resume(); }
+    _ensureSfx();
+  } catch (e) {}
+}
+if (typeof document !== "undefined") {
+  ["pointerdown", "keydown", "touchstart"].forEach(ev =>
+    document.addEventListener(ev, _warmSfx, { once: true, passive: true }));
+}
 function _playSfx() {
   try {
-    if (!_sfx) { _sfx = new Audio("sounds/celebrate.mp3"); _sfx.preload = "auto"; _sfx.volume = 0.7; }
-    _sfx.currentTime = 0;
-    const p = _sfx.play();
-    if (p && p.catch) p.catch(() => { try { _chime(); } catch (e) {} });
+    if (_audioCtx && _sfxBuffer) {
+      if (_audioCtx.state === "suspended") _audioCtx.resume();
+      const src = _audioCtx.createBufferSource();
+      src.buffer = _sfxBuffer;
+      const g = _audioCtx.createGain();
+      g.gain.value = 0.8;
+      src.connect(g); g.connect(_audioCtx.destination);
+      src.start(0);
+      return;
+    }
+    _ensureSfx(); // not decoded yet - load for next time; chime now so there's feedback
+    _chime();
   } catch (e) {
     try { _chime(); } catch (e2) {}
   }
