@@ -316,26 +316,18 @@ function loanCard() {
       <div class="rp-list">${history}</div>
     </div>`;
 }
-// On-screen, pre-filled preview of the loan agreement (the "Loan Agreement" tab).
-// The actual printable 2-page document is produced by printAgreement().
+// On-screen preview of the loan agreement (the "Loan Agreement" tab). It renders
+// the EXACT same document that prints, inside an isolated frame, so what you see
+// is what you print - one source of truth (buildAgreementDoc).
 function loanAgreementTab() {
   const m = member;
-  const emblem = `${window.location.origin}/images/coat-of-arms.png`;
-  const disb = isDisbursed(m);
-  const s = disb ? loanSummary() : null;
-  const made = m.disbursement_date ? new Date(m.disbursement_date) : new Date();
-  const madeStr = made.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  const dueStr = (s && s.due) ? formatDate(s.due) : '-';
-  const monthly = s ? Math.ceil(s.totalDue / 12) : 0;
-  const words = disb ? (numberToWords(m.amount) + ' Shillings Only') : '';
-
-  const dr = (k, v) => `<div class="drow"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-
+  // srcdoc carries the whole document; escape quotes so the attribute stays valid.
+  const doc = buildAgreementDoc(m).replace(/"/g, '&quot;');
   return `
   <div class="agr-wrap">
     <div class="agr-top">
       <div>
-        <div class="agr-top-eyebrow">Document &middot; pre-filled</div>
+        <div class="agr-top-eyebrow">Official document &middot; live preview</div>
         <div class="agr-top-title">Loan Agreement</div>
       </div>
       <button class="btn btn-green agr-print" onclick="printAgreement()">
@@ -343,95 +335,8 @@ function loanAgreementTab() {
         Print Loan Agreement
       </button>
     </div>
-
-    <div class="agr-sheet">
-      <div class="agr-band">
-        <img src="${emblem}" alt="" onerror="this.style.display='none'">
-        <div class="mid">
-          <div class="prog">Busoga Ghetto Presidential Empowerment Fund</div>
-          <div class="doc">Loan Agreement</div>
-        </div>
-        <div class="serial">Serial No.<b>${m.id}</b></div>
-      </div>
-
-      <div class="agr-body">
-        <p class="agr-made">This Loan Agreement is made on <b>${madeStr}</b>, between the Borrower named below and the Busoga Ghetto Presidential Empowerment Fund (the Lender).</p>
-
-        <div class="agr-amount${disb ? '' : ' pending'}">
-          <div class="l">Loan advanced to ${titleCase(m.name)}</div>
-          <div class="v">${disb ? 'UGX ' + fmt(m.amount) : 'Pending disbursement'}</div>
-          ${disb ? `<div class="w">${words}</div>` : ''}
-        </div>
-
-        <div class="agr-twocol">
-          <div class="dcard">
-            <div class="dcard-h"><svg viewBox="0 0 16 16"><circle cx="8" cy="5" r="2.6"/><path d="M3 13.5c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> Borrower</div>
-            <div class="dcard-b">
-              <div class="pname">${m.name}</div>
-              <div class="pmeta">
-                NIN ${m.nin || '-'}${m.phone ? '<br>Tel ' + m.phone : ''}<br>
-                ${m.depot} (Ghetto Cell)<br>
-                ${m.sub_county || '-'} Sub-County, ${m.parish || '-'} Parish<br>
-                ${m.district_name} District<br>
-                <em>hereinafter the "Borrower"</em>
-              </div>
-            </div>
-          </div>
-          <div class="dcard">
-            <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M2.5 14V6l5.5-3.5L13.5 6v8"/><path d="M6 14v-4h4v4"/><path d="M1.5 14h13"/></svg> Lender</div>
-            <div class="dcard-b">
-              <div class="pname">The Fund</div>
-              <div class="pmeta">
-                Busoga Ghetto Presidential Empowerment Fund<br>
-                Office of the Special Presidential Assistant,<br>State House Uganda<br>
-                SACCO facility at 6% per annum<br>
-                <em>hereinafter the "Lender"</em>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="dcard">
-          <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M4 1.5h6l3 3V14a.5.5 0 01-.5.5h-9A.5.5 0 013 14V2a.5.5 0 01.5-.5z"/><path d="M9.5 1.5V5h3.5M5.5 8.5h5M5.5 11h4"/></svg> Loan Particulars</div>
-          <div class="dcard-b">
-            ${dr('Principal', disb ? 'UGX ' + fmt(s.principal) : 'Pending')}
-            ${dr('Interest (6% per annum)', disb ? 'UGX ' + fmt(s.interest) : '-')}
-            ${dr('Repayment period', '12 months')}
-            ${dr('Indicative monthly instalment', disb ? 'UGX ' + fmt(monthly) : '-')}
-            ${dr('Disbursed on', disb ? formatDate(m.disbursement_date) : 'Not yet')}
-            ${dr('Repay in full by', dueStr)}
-            <div class="dtotal"><span class="k">Total repayable</span><span class="v">${disb ? 'UGX ' + fmt(s.totalDue) : '-'}</span></div>
-          </div>
-        </div>
-        ${disb ? '' : '<div class="agr-pending-note">The figures fill in automatically once this member is disbursed. You can still print a blank agreement to complete by hand.</div>'}
-
-        <div class="dcard">
-          <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M5.5 4h8M5.5 8h8M5.5 12h5"/><circle cx="2.6" cy="4" r="1"/><circle cx="2.6" cy="8" r="1"/><circle cx="2.6" cy="12" r="1"/></svg> Terms of the Agreement</div>
-          <div class="dcard-b">
-            <ol class="tlist">
-              <li>The Borrower acknowledges receiving ${disb ? '<b>UGX ' + fmt(m.amount) + '</b> (' + words + ')' : 'the loan amount'} from the Lender, which the Borrower confirms as accurate.</li>
-              <li>The loan accrues interest at six percent (6%) per annum for the entire duration of this Agreement.</li>
-              <li>The funds shall be used strictly for empowerment activities under the Busoga Ghetto Presidential Empowerment Programme.</li>
-              <li>The full amount together with interest is repayable within twelve (12) months from the date of execution.</li>
-              <li>On default, the Borrower shall be liable to legal action in accordance with the laws and directives governing the Fund.</li>
-            </ol>
-          </div>
-        </div>
-
-        <div class="dcard">
-          <div class="dcard-h"><svg viewBox="0 0 16 16"><path d="M2 13.5c2-0.5 3-2 5-2s2 1 4 .5"/><path d="M10.5 3.5l2 2-6 6-2.5.5.5-2.5z"/></svg> Execution &amp; Signatures</div>
-          <div class="dcard-b">
-            <div class="siglines">
-              <div><div class="sigl-line">${titleCase(m.name)}</div><div class="sigl-cap">Borrower</div></div>
-              <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">Chairperson, Ghetto Cell</div></div>
-              <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">District Ghetto President</div></div>
-              <div><div class="sigl-line">&nbsp;</div><div class="sigl-cap">RDC / RCC</div></div>
-            </div>
-            <div class="signote">Signatures are completed on the printed copy. Use <b>Print Loan Agreement</b> above to produce the official document for signing.</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <iframe class="agr-frame" title="Loan Agreement preview" srcdoc="${doc}"
+      onload="try{this.style.height=(this.contentWindow.document.body.scrollHeight+24)+'px'}catch(e){}"></iframe>
   </div>`;
 }
 
@@ -808,8 +713,7 @@ function exportCard() {
 // clauses, and a full execution block (Borrower, Lender's officer, witnesses).
 // "Ghetto Cell" on the form is filled from the depot. Where a value is missing
 // (e.g. not yet disbursed), a ruled blank is left so it can be completed by hand.
-function printAgreement() {
-  const m = member;
+function buildAgreementDoc(m) {
   const origin = window.location.origin;
   const emblem = `${origin}/images/coat-of-arms.png`;
   const disb = isDisbursed(m);
@@ -845,7 +749,9 @@ function printAgreement() {
     :root{--ink:#1c2b22;--soft:#55635b;--line:#c6cec8;--green:#0a7a3a;--green-dk:#102a1c;--serif:'Source Serif 4',Georgia,'Times New Roman',serif;--ui:'Inter',-apple-system,sans-serif}
     @page{size:A4;margin:15mm 15mm}
     body{font-family:var(--serif);color:var(--ink);font-size:11.6px;line-height:1.62;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .sheet{max-width:180mm;margin:0 auto}
+    .sheet{max-width:180mm;margin:0 auto;width:100%}
+    /* On screen (the in-app preview) give the page breathing room; print uses @page margins. */
+    @media screen{body{padding:16px}}
     .blank{letter-spacing:.5px;color:#9aa8a0}
     /* Letterhead */
     .head{display:flex;align-items:center;gap:14px;padding-bottom:11px;border-bottom:2.5px solid var(--green-dk)}
@@ -1026,9 +932,17 @@ function printAgreement() {
 
     <div class="foot"><span class="bar">Together We Can</span><span>Busoga Ghetto Presidential Empowerment Fund &middot; ${m.id}</span></div>
   </div>
-  ${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},400)}</scr' + 'ipt>'}
   </body></html>`;
 
+  return html;
+}
+
+// Open the agreement in a new tab and trigger the print dialog.
+function printAgreement() {
+  const html = buildAgreementDoc(member).replace(
+    '</body></html>',
+    `${'<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},400)}</scr' + 'ipt>'}</body></html>`
+  );
   const w = window.open('', '_blank');
   w.document.write(html);
   w.document.close();
