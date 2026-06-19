@@ -192,13 +192,9 @@
         <label class="form-label">Depot Name (Ghetto Cell) *</label>
         <input class="form-input" id="dpName" placeholder="e.g. Masese">
       </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Sub-County</label>
-          <select class="form-select" id="dpSub" onchange="updateDpParishes()"><option value="">Select district first</option></select></div>
-        <div class="form-group"><label class="form-label">Parish</label>
-          <select class="form-select" id="dpParish"><option value="">Select sub-county first</option></select></div>
-      </div>
-      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Depots you create here appear in the depot dropdown when registering people. The sub-county and parish auto-fill on registration.</div>
+      <div class="form-group"><label class="form-label">Sub-County</label>
+        <select class="form-select" id="dpSub"><option value="">Select district first</option></select></div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Depots you create here appear in the depot dropdown when registering people. A depot is located by its sub-county only.</div>
     </div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal('depotFormModal')">Cancel</button>
@@ -656,22 +652,13 @@ DISTRICTS.forEach(d => {
 });
 // Visibility of the New Depot button is controlled by the view (district only).
 
-// Cascading Sub-County -> Parish from LOCATIONS (the district reference data)
+// Sub-counties for the chosen district (a depot is located by sub-county only).
 function updateDpSubCounties() {
   const code = document.getElementById('dpDistrict').value;
   const subs = (typeof LOCATIONS !== 'undefined' && LOCATIONS[code] && Object.keys(LOCATIONS[code])) || [];
   document.getElementById('dpSub').innerHTML =
     '<option value="">' + (code ? 'Select sub-county' : 'Select district first') + '</option>' +
     subs.map(s => `<option>${s}</option>`).join('');
-  updateDpParishes();
-}
-function updateDpParishes() {
-  const code = document.getElementById('dpDistrict').value;
-  const sub  = document.getElementById('dpSub').value;
-  const parishes = (typeof LOCATIONS !== 'undefined' && LOCATIONS[code] && LOCATIONS[code][sub]) || [];
-  document.getElementById('dpParish').innerHTML =
-    '<option value="">' + (sub ? 'Select parish' : 'Select sub-county first') + '</option>' +
-    parishes.map(p => `<option>${p}</option>`).join('');
 }
 // Set a select to a value, adding the option first if it isn't in the list (legacy entries).
 function dpSetSelect(sel, val) {
@@ -691,11 +678,9 @@ function openDepotForm(id) {
   dd.value = rec ? rec.district : (DISTRICTS.find(x => x.code === selected) ? selected : '');
   dd.disabled = !!rec;
   document.getElementById('dpName').value = rec ? rec.name : '';
-  // Cascade: sub-counties for the district, then parishes for the sub-county
+  // Sub-counties for the district (depot location is sub-county only)
   updateDpSubCounties();
   dpSetSelect(document.getElementById('dpSub'), rec ? rec.sub_county : '');
-  updateDpParishes();
-  dpSetSelect(document.getElementById('dpParish'), rec ? rec.parish : '');
   openModal('depotFormModal');
 }
 
@@ -703,17 +688,16 @@ async function saveDepot() {
   const district   = document.getElementById('dpDistrict').value;
   const name       = document.getElementById('dpName').value.trim();
   const sub_county = document.getElementById('dpSub').value.trim();
-  const parish     = document.getElementById('dpParish').value.trim();
   if (!district || !name) { showToast('District and depot name are required', 'error'); return; }
   const district_name = (DISTRICTS.find(x => x.code === district) || {}).name || district;
   const btn = document.getElementById('dpSaveBtn');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
   try {
     if (editingDepotId) {
-      await apiFetch(`/api/depots/${editingDepotId}`, { method: 'PUT', body: { name, sub_county, parish } });
+      await apiFetch(`/api/depots/${editingDepotId}`, { method: 'PUT', body: { name, sub_county } });
       showToast('Depot updated');
     } else {
-      await apiFetch('/api/depots', { method: 'POST', body: { district, district_name, name, sub_county, parish } });
+      await apiFetch('/api/depots', { method: 'POST', body: { district, district_name, name, sub_county } });
       showToast('Depot created');
     }
     await loadDepotsDB();
