@@ -31,25 +31,37 @@
 .member-card-meta{font-family:var(--font2);font-size:.65rem;font-weight:600;color:var(--muted);margin-bottom:8px}
 .member-card-amount{font-family:var(--font);font-size:1rem;color:var(--text);font-weight:700}
 .member-card-amount span{font-size:.62rem;font-weight:700;color:var(--muted);margin-left:3px}
-.lead-panel{margin-bottom:14px;padding:16px 18px;max-width:600px}
-.lp-head{font-family:'Varela Round',sans-serif;font-weight:800;color:var(--text);font-size:.9rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.lp-head svg{width:15px;height:15px;fill:var(--green)}
-.lead-grid{display:flex;flex-direction:column;gap:8px}
-.lead-group-label{font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:16px 2px 9px}
-.lead-group-label:first-of-type{margin-top:2px}
-.lead-card{display:flex;align-items:center;gap:12px;padding:10px 13px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg)}
-.lead-card.filled{cursor:pointer;background:#fff}
-.lead-card.clickable{cursor:pointer}
-.lead-card.clickable:hover,.lead-card.filled:hover{border-color:var(--green-mid);box-shadow:0 6px 16px rgba(0,0,0,.07)}
-.lead-av{width:38px;height:38px;border-radius:10px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:.82rem;flex-shrink:0;overflow:hidden}
+.lead-panel{margin-bottom:14px;padding:20px 22px}
+.lp-head{font-family:'Varela Round',sans-serif;font-weight:800;color:var(--text);font-size:1rem;margin-bottom:6px;display:flex;align-items:center;gap:9px}
+.lp-head svg{width:16px;height:16px;fill:var(--green)}
+.lead-group-label{font-family:var(--font2);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin:20px 2px 11px;display:flex;align-items:center;gap:10px}
+.lead-group-label::after{content:"";flex:1;height:1.5px;background:var(--border)}
+/* Two-column grid that fills the width; cards wrap to one column on narrow screens */
+.lead-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px}
+.lead-card{display:flex;flex-direction:column;gap:0;border:1.5px solid var(--border);border-radius:15px;background:var(--bg);padding:14px 16px;position:relative;overflow:hidden}
+.lead-card.filled{background:#fff}
+.lead-card.filled::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--green-dark),var(--green))}
+.lead-card.vacant{border-style:dashed}
+.lead-card.clickable{cursor:pointer;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.lead-card.clickable:hover{border-color:var(--green-mid);box-shadow:0 14px 30px -14px rgba(16,40,28,.32);transform:translateY(-2px)}
+.lc-top{display:flex;align-items:center;gap:13px}
+.lead-av{width:48px;height:48px;border-radius:13px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font);font-weight:800;font-size:.98rem;flex-shrink:0;overflow:hidden}
 .lead-av img{width:100%;height:100%;object-fit:cover}
-.lead-card:not(.filled) .lead-av{background:var(--border);color:var(--muted)}
-.lead-info{min-width:0;flex:1}
-.lead-chev{margin-left:auto;flex-shrink:0;font-size:1.25rem;line-height:1;color:var(--muted);opacity:.4;transition:transform .15s ease,opacity .15s ease,color .15s ease}
-.lead-card.clickable:hover .lead-chev,.lead-card.filled:hover .lead-chev{opacity:1;transform:translateX(3px);color:var(--green)}
-.lead-name{font-family:var(--font2);font-weight:800;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lead-card:not(.filled) .lead-name{color:var(--muted);font-weight:700}
-.lead-role{font-family:var(--font2);font-size:.62rem;font-weight:800;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.lead-av.empty{background:var(--green-pale);color:var(--green-mid);border:1.5px dashed var(--green-mid)}
+.lc-id{min-width:0;flex:1}
+.lc-name{font-family:var(--font2);font-weight:800;font-size:.95rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.lc-name.muted{color:var(--muted);font-weight:700}
+.lc-role{display:inline-block;margin-top:6px;font-family:var(--font2);font-size:.57rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--green-dark);background:var(--green-pale);border:1px solid var(--green-mid);padding:3px 9px;border-radius:999px}
+.lc-meta{display:flex;flex-direction:column;gap:7px;margin-top:13px;padding-top:12px;border-top:1px solid var(--border)}
+.lc-row{display:flex;align-items:center;gap:9px;font-family:var(--font2);font-size:.76rem;font-weight:700;color:var(--text);min-width:0}
+.lc-row span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-row svg{width:14px;height:14px;fill:none;stroke:var(--green);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.lc-row .dim{color:var(--muted);font-weight:600}
+.lc-empty{margin-top:13px;padding-top:12px;border-top:1px dashed var(--border);font-family:var(--font2);font-size:.74rem;font-weight:700;color:var(--muted);display:flex;align-items:center;gap:7px}
+.lc-empty svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.lead-chev{position:absolute;top:14px;right:14px;font-size:1.3rem;line-height:1;color:var(--muted);opacity:.35;transition:transform .15s ease,opacity .15s ease,color .15s ease}
+.lead-card.clickable:hover .lead-chev{opacity:1;transform:translateX(3px);color:var(--green)}
+@media(max-width:560px){.lead-grid{grid-template-columns:1fr}}
 /* Depot "More actions" dropdown */
 .depot-menu{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1.5px solid var(--border);border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.14);z-index:60;min-width:172px;overflow:hidden}
 .depot-menu button{display:flex;width:100%;align-items:center;gap:9px;padding:11px 14px;background:none;border:none;font-family:var(--font2);font-size:.8rem;font-weight:700;color:var(--text);cursor:pointer;text-align:left}
@@ -652,16 +664,34 @@ function changePage(delta) {
 // people). A slot card carries the holder's id so each seat is assigned on its own.
 function leadershipPanel() {
   const here = allMembers.filter(m => m.district === districtParam && m.depot === depotFilter);
+  const phoneSvg = '<svg viewBox="0 0 24 24"><path d="M4 4h4l2 5-2.5 1.5a11 11 0 005 5L14 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 011-2z"/></svg>';
+  const idSvg = '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="8.5" cy="11" r="2"/><path d="M14 9.5h4M14 13h4M5 16c.8-1.6 5.2-1.6 6 0"/></svg>';
+  const homeSvg = '<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6M6 10v9h12v-9"/></svg>';
   const slotCard = (role, L) => {
-    const av = L ? (L.photo_url ? `<img src="${imgThumb(L.photo_url, 120)}" alt="" loading="lazy">` : initials(L.name)) : '?';
+    const av = L ? (L.photo_url ? `<img src="${imgThumb(L.photo_url, 120)}" alt="" loading="lazy">` : initials(L.name)) : '';
     const cid = L ? `'${L.id}'` : 'null';
     // Admins click any slot to assign/change; others just open a filled leader.
     const onclick = _acc.isAdmin ? `onclick="openDepotAssign('${role}', ${cid})"` : (L ? `onclick="location.href='member.html?id=${L.id}'"` : '');
     const interactive = _acc.isAdmin || L;
-    return `<div class="lead-card${L ? ' filled' : ''}${_acc.isAdmin ? ' clickable' : ''}" ${onclick}>
-        <div class="av-wrap"><div class="lead-av${L ? ' av-ring-green' : ''}">${av}</div>${L ? leaderBadgeFor(role, 'green') : ''}</div>
-        <div class="lead-info"><div class="lead-name">${L ? L.name : 'Vacant'}</div><div class="lead-role">${role}</div></div>
+    const body = L
+      ? `<div class="lc-meta">
+           <div class="lc-row">${phoneSvg}${L.phone ? `<span>${L.phone}</span>` : '<span class="dim">No phone on file</span>'}</div>
+           <div class="lc-row">${idSvg}<span>${L.id}</span></div>
+           ${(L.village || L.sub_county) ? `<div class="lc-row">${homeSvg}<span class="dim">${[L.village, L.sub_county].filter(Boolean).join(', ')}</span></div>` : ''}
+         </div>`
+      : `<div class="lc-empty">${_acc.isAdmin
+            ? '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Click to assign a member'
+            : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg> Position not yet filled'}</div>`;
+    return `<div class="lead-card${L ? ' filled' : ' vacant'}${interactive ? ' clickable' : ''}" ${onclick}>
         ${interactive ? '<span class="lead-chev">&rsaquo;</span>' : ''}
+        <div class="lc-top">
+          <div class="av-wrap"><div class="lead-av${L ? ' av-ring-green' : ' empty'}">${L ? av : '?'}</div>${L ? leaderBadgeFor(role, 'green') : ''}</div>
+          <div class="lc-id">
+            <div class="lc-name${L ? '' : ' muted'}">${L ? titleCase(L.name) : 'Vacant'}</div>
+            <div class="lc-role">${role}</div>
+          </div>
+        </div>
+        ${body}
       </div>`;
   };
   const officers = DEPOT_ROLES.map(role => slotCard(role, here.find(m => m.depot_role === role))).join('');
