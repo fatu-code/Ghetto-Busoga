@@ -271,6 +271,13 @@
         grid-template-columns: 100px 1fr 84px;
         align-items: center;
         gap: 12px;
+        padding: 7px 8px;
+        margin: 0 -8px;
+        border-radius: 9px;
+        transition: background 0.18s ease;
+      }
+      .dcov-row:hover {
+        background: var(--green-pale);
       }
       .dcov-name {
         font-family: var(--font2);
@@ -280,6 +287,10 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        transition: color 0.18s ease;
+      }
+      .dcov-row:hover .dcov-name {
+        color: var(--green-dark);
       }
       .dcov-track {
         height: 9px;
@@ -287,12 +298,44 @@
         border: 1px solid var(--border);
         border-radius: 100px;
         overflow: hidden;
+        transition: height 0.18s ease;
+      }
+      .dcov-row:hover .dcov-track {
+        height: 12px;
       }
       .dcov-fill {
+        position: relative;
         height: 100%;
         background: linear-gradient(90deg, var(--green-dark), var(--green));
         border-radius: 100px;
-        transition: width 0.8s var(--ease);
+        overflow: hidden;
+        transition:
+          width 0.8s var(--ease),
+          filter 0.18s ease;
+      }
+      .dcov-row:hover .dcov-fill {
+        filter: brightness(1.08);
+      }
+      /* A light sheen sweeps across the bar on hover. */
+      .dcov-fill::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.55),
+          transparent
+        );
+        transform: translateX(-100%);
+      }
+      .dcov-row:hover .dcov-fill::after {
+        animation: dcovSheen 0.9s ease;
+      }
+      @keyframes dcovSheen {
+        to {
+          transform: translateX(100%);
+        }
       }
       .dcov-val {
         font-family: var(--font);
@@ -301,6 +344,32 @@
         color: var(--text);
         text-align: right;
         white-space: nowrap;
+        transform-origin: right center;
+        transition:
+          transform 0.18s ease,
+          color 0.18s ease;
+      }
+      .dcov-row:hover .dcov-val {
+        transform: scale(1.1);
+        color: var(--green-dark);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .dcov-row,
+        .dcov-name,
+        .dcov-track,
+        .dcov-fill,
+        .dcov-val {
+          transition: none;
+        }
+        .dcov-row:hover .dcov-track {
+          height: 9px;
+        }
+        .dcov-row:hover .dcov-val {
+          transform: none;
+        }
+        .dcov-fill::after {
+          display: none;
+        }
       }
       .dcov-val span {
         font-size: 0.62rem;
