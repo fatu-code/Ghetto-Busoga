@@ -669,7 +669,7 @@ function exportCard() {
         <div class="wsec">B. Witnesses</div>
 
         <div class="sig-card w">
-          <div class="sig-role"><span class="tag">1</span>Chairperson, Ghetto Cell</div>
+          <div class="sig-role"><span class="tag">1</span>Depot Commander</div>
           <div class="sig-grid">
             <div class="seg"><div class="ln"></div><div class="cap">Name</div></div>
             <div class="seg"><div class="ln"></div><div class="cap">Signature</div></div>
@@ -917,7 +917,7 @@ function buildAgreementDoc(m) {
       <div class="wsec">Witnesses</div>
 
       <div class="sig-card">
-        <div class="sig-role"><span class="tag">1</span>Chairperson, Ghetto Cell</div>
+        <div class="sig-role"><span class="tag">1</span>Depot Commander</div>
         <div class="sig-grid three">${seg('Name', '')}${seg('Signature', '')}${seg('Date', '')}</div>
       </div>
       <div class="sig-card">
