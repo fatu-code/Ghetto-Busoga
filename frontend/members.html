@@ -264,13 +264,9 @@
     <div class="modal-body">
       <div class="form-group"><label class="form-label">District</label><input class="form-input" id="deDistrict" disabled></div>
       <div class="form-group"><label class="form-label">Depot Name *</label><input class="form-input" id="deName"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Sub-County</label>
-          <select class="form-select" id="deSub" onchange="updateDeParishes()"><option value="">Select</option></select></div>
-        <div class="form-group"><label class="form-label">Parish</label>
-          <select class="form-select" id="deParish"><option value="">Select</option></select></div>
-      </div>
-      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Renaming the depot updates it for everyone already registered in it.</div>
+      <div class="form-group"><label class="form-label">Sub-County</label>
+        <select class="form-select" id="deSub"><option value="">Select</option></select></div>
+      <div style="font-family:var(--font2);font-size:.72rem;color:var(--muted);line-height:1.5">Renaming the depot updates it for everyone already registered in it. A depot is located by its sub-county only.</div>
     </div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal('depotEditModal')">Cancel</button>
@@ -853,13 +849,6 @@ function updateDeSubCounties() {
   const subs = (typeof LOCATIONS !== 'undefined' && LOCATIONS[districtParam] && Object.keys(LOCATIONS[districtParam])) || [];
   document.getElementById('deSub').innerHTML =
     '<option value="">Select sub-county</option>' + subs.map(s => `<option>${s}</option>`).join('');
-  updateDeParishes();
-}
-function updateDeParishes() {
-  const sub = document.getElementById('deSub').value;
-  const parishes = (typeof LOCATIONS !== 'undefined' && LOCATIONS[districtParam] && LOCATIONS[districtParam][sub]) || [];
-  document.getElementById('deParish').innerHTML =
-    '<option value="">Select parish</option>' + parishes.map(p => `<option>${p}</option>`).join('');
 }
 function deSet(sel, val) {
   if (!sel) return;
@@ -876,25 +865,22 @@ function openDepotEdit() {
   document.getElementById('deName').value = depotFilter;
   updateDeSubCounties();
   deSet(document.getElementById('deSub'), rec ? rec.sub_county : '');
-  updateDeParishes();
-  deSet(document.getElementById('deParish'), rec ? rec.parish : '');
   openModal('depotEditModal');
 }
 
 async function saveDepotEdit() {
   const name       = document.getElementById('deName').value.trim();
   const sub_county = document.getElementById('deSub').value.trim();
-  const parish     = document.getElementById('deParish').value.trim();
   if (!name) { showToast('Depot name is required', 'error'); return; }
   const rec = depotRecord(districtParam, depotFilter);
   const btn = document.getElementById('deSaveBtn');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
   try {
     if (rec) {
-      await apiFetch(`/api/depots/${rec.id}`, { method: 'PUT', body: { name, sub_county, parish } });
+      await apiFetch(`/api/depots/${rec.id}`, { method: 'PUT', body: { name, sub_county } });
     } else {
       const dn = (DISTRICTS.find(d => d.code === districtParam) || {}).name || districtParam;
-      await apiFetch('/api/depots', { method: 'POST', body: { district: districtParam, district_name: dn, name, sub_county, parish } });
+      await apiFetch('/api/depots', { method: 'POST', body: { district: districtParam, district_name: dn, name, sub_county } });
     }
     await loadDepotsDB();
     closeModal('depotEditModal');
