@@ -64,7 +64,10 @@
 /* Depot roster banner */
 .roster-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:14px;padding:15px 18px}
 .rb-info{min-width:0;flex:1}
-.rb-label{font-family:var(--font2);font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.rb-back{display:inline-flex;align-items:center;gap:5px;font-family:var(--font2);font-size:.72rem;font-weight:800;color:var(--muted);text-decoration:none;margin-bottom:7px;transition:color .15s ease,transform .15s ease}
+.rb-back svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rb-back:hover{color:var(--green)}
+.rb-back:hover svg{transform:translateX(-2px)}
 .rb-name{font-family:var(--font);font-size:1.2rem;color:var(--green);line-height:1.12;margin:3px 0 4px;word-break:break-word}
 .rb-sub{font-family:var(--font2);font-size:.72rem;font-weight:600;color:var(--muted);line-height:1.4}
 .rb-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
@@ -403,8 +406,10 @@ if (depotFilter) {
         <button class="danger" onclick="deleteDepotRoster()"><svg viewBox="0 0 16 16"><path d="M3 4.5h10M6 4.5V2.5h4v2M4.5 4.5l.6 9h5.8l.6-9"/></svg> Delete depot</button>
       </div>
     </div>` : '';
+  const backHref = `depots.html${districtParam ? '?district=' + districtParam : ''}`;
   banner.innerHTML = `
     <div class="rb-info">
+      <a href="${backHref}" class="rb-back"><svg viewBox="0 0 16 16"><path d="M10 3l-5 5 5 5"/></svg> Back to depots</a>
       <div class="rb-label">Depot Roster</div>
       <div class="rb-name">${titleCase(depotFilter)}</div>
       <div class="rb-sub">New registrations are added here.</div>
