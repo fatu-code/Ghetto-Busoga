@@ -1485,10 +1485,14 @@
               })
               .join("");
             // Grow the bars into place (the .dcov-fill width transition does the rest).
+            // Double rAF: let the width:0 state paint first, THEN set the target width,
+            // so the browser actually animates the fill instead of jumping straight to it.
             requestAnimationFrame(() =>
-              dl.querySelectorAll(".dcov-fill").forEach((f) => {
-                f.style.width = f.dataset.w + "%";
-              }),
+              requestAnimationFrame(() =>
+                dl.querySelectorAll(".dcov-fill").forEach((f) => {
+                  f.style.width = f.dataset.w + "%";
+                }),
+              ),
             );
           }
 
