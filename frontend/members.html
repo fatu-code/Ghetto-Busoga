@@ -230,6 +230,7 @@
             <option>Deputy Commander</option>
             <option>Secretary</option>
             <option>Publicity</option>
+            <option>Committee Member</option>
           </select>
         </div>
         <div class="form-group"></div>
@@ -641,35 +642,43 @@ function changePage(delta) {
   loadMembers(next);
 }
 
-// Depot leadership panel (shown when viewing a single depot)
+// Depot leadership panel (shown when viewing a single depot). The committee is the
+// four named officers plus two general "Committee Member" seats (same role, two
+// people). A slot card carries the holder's id so each seat is assigned on its own.
 function leadershipPanel() {
-  const slots = DEPOT_ROLES.map(role => {
-    const L  = allMembers.find(m => m.depot_role === role);
+  const here = allMembers.filter(m => m.district === districtParam && m.depot === depotFilter);
+  const slotCard = (role, L) => {
     const av = L ? (L.photo_url ? `<img src="${imgThumb(L.photo_url, 120)}" alt="" loading="lazy">` : initials(L.name)) : '?';
+    const cid = L ? `'${L.id}'` : 'null';
     // Admins click any slot to assign/change; others just open a filled leader.
-    const onclick = _acc.isAdmin ? `onclick="openDepotAssign('${role}')"` : (L ? `onclick="location.href='member.html?id=${L.id}'"` : '');
+    const onclick = _acc.isAdmin ? `onclick="openDepotAssign('${role}', ${cid})"` : (L ? `onclick="location.href='member.html?id=${L.id}'"` : '');
     return `<div class="lead-card${L ? ' filled' : ''}${_acc.isAdmin ? ' clickable' : ''}" ${onclick}>
         <div class="av-wrap"><div class="lead-av${L ? ' av-ring-green' : ''}">${av}</div>${L ? leaderBadgeFor(role, 'green') : ''}</div>
         <div class="lead-info"><div class="lead-name">${L ? L.name : 'Vacant'}</div><div class="lead-role">${role}</div></div>
       </div>`;
-  }).join('');
+  };
+  const officers = DEPOT_ROLES.map(role => slotCard(role, here.find(m => m.depot_role === role))).join('');
+  const committee = here.filter(m => m.depot_role === COMMITTEE_MEMBER_ROLE);
+  const memberSlots = Array.from({ length: DEPOT_COMMITTEE_SEATS },
+    (_, i) => slotCard(COMMITTEE_MEMBER_ROLE, committee[i] || null)).join('');
   return `<div class="card lead-panel">
     <div class="lp-head"><svg viewBox="0 0 16 16"><path d="M8 1.2l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.7 3.9 13l.7-4.3-3.1-3 4.3-.6z"/></svg> Depot Leadership</div>
-    <div class="lead-grid">${slots}</div>
+    <div class="lead-grid">${officers}${memberSlots}</div>
   </div>`;
 }
 
 // Admin: pick / change who holds a depot committee position. Anyone in this depot
 // is eligible. (Mirrors the district leadership assignment.)
-let daRole = null, daDepotMembers = [];
-async function openDepotAssign(role) {
+let daRole = null, daCurrentId = null, daDepotMembers = [];
+async function openDepotAssign(role, currentId) {
   daRole = role;
+  daCurrentId = currentId || null;
   const full = await loadAllMembers();
   daDepotMembers = full
     .filter(m => m.district === districtParam && m.depot === depotFilter)
     .sort((a, b) => a.name.localeCompare(b.name));
-  const current = daDepotMembers.find(m => m.depot_role === role);
-  document.getElementById('daTitle').textContent = 'Assign ' + role;
+  const current = daCurrentId ? daDepotMembers.find(m => m.id === daCurrentId) : null;
+  document.getElementById('daTitle').textContent = (current ? 'Change ' : 'Assign ') + role;
   const hint = document.getElementById('daHint');
   const sel = document.getElementById('daMember');
   const btn = document.getElementById('daBtn');
@@ -680,12 +689,17 @@ async function openDepotAssign(role) {
     openModal('depotAssignModal');
     return;
   }
-  hint.innerHTML = 'Choose anyone in this depot for this position.' + (current ? ` Currently held by <b>${current.name}</b>.` : '');
+  // List everyone except people already holding THIS role in another seat (so the two
+  // committee seats - and any officer post - can never go to the same person twice).
+  const eligible = daDepotMembers.filter(m => !(m.depot_role === role && m.id !== daCurrentId));
+  hint.innerHTML = current
+    ? `This seat is held by <b>${current.name}</b>. Pick a replacement, or remove them.`
+    : 'Choose anyone in this depot for this position.';
   sel.disabled = false; btn.disabled = false;
   sel.innerHTML =
     '<option value="">Select a member</option>' +
     (current ? '<option value="__clear__">Remove (leave vacant)</option>' : '') +
-    daDepotMembers.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+    eligible.map(m => `<option value="${m.id}">${m.name}${m.id === daCurrentId ? ' (current)' : ''}</option>`).join('');
   openModal('depotAssignModal');
 }
 
@@ -695,11 +709,11 @@ async function doDepotAssign() {
   const btn = document.getElementById('daBtn');
   btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Saving...';
   try {
-    const current = daDepotMembers.find(m => m.depot_role === daRole);
     if (val === '__clear__') {
-      if (current) await apiFetch(`/api/members/${current.id}`, { method: 'PUT', body: { depot_role: '' } });
+      if (daCurrentId) await apiFetch(`/api/members/${daCurrentId}`, { method: 'PUT', body: { depot_role: '' } });
     } else {
-      if (current && current.id !== val) await apiFetch(`/api/members/${current.id}`, { method: 'PUT', body: { depot_role: '' } });
+      // Free up whoever sat here, then place the chosen member in this seat.
+      if (daCurrentId && daCurrentId !== val) await apiFetch(`/api/members/${daCurrentId}`, { method: 'PUT', body: { depot_role: '' } });
       await apiFetch(`/api/members/${val}`, { method: 'PUT', body: { depot_role: daRole } });
     }
     closeModal('depotAssignModal');

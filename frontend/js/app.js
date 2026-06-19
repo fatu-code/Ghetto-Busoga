@@ -25,6 +25,13 @@ const DISTRICTS = [
 // Depot leadership positions. A leader is a member who holds one of these roles.
 // The depot (ghetto) committee positions. Everyone else is an ordinary Member.
 const DEPOT_ROLES = ["Depot Commander", "Deputy Commander", "Secretary", "Publicity"];
+// The depot committee also has two general "Committee Member" seats: one role value
+// held by up to two people per depot, shown after the four named officers. Carrying
+// this role is what marks them apart from an ordinary (role-less) member.
+const COMMITTEE_MEMBER_ROLE = "Committee Member";
+const DEPOT_COMMITTEE_SEATS = 2;
+// Full role list for the register / edit dropdowns (officers + committee member).
+const DEPOT_ROLE_OPTIONS = DEPOT_ROLES.concat([COMMITTEE_MEMBER_ROLE]);
 // The district committee: same four positions, but for the whole district.
 const DISTRICT_ROLES = ["District Commander", "District Deputy Commander", "District Secretary", "District Publicity"];
 // Show a stored role nicely. District roles carry the district's name, e.g.
@@ -433,23 +440,33 @@ function imgThumb(url, size) {
 // District role outranks depot role on the badge/frame.
 const _CROWN_SVG = '<svg viewBox="0 0 24 24"><path d="M4 18.5h16l1.3-9.2-5 3.7L12 5l-4.3 8-5-3.7z"/></svg>';
 const _STAR_SVG = '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.8.7-5.1 4.6 1.5 6.7L12 17.6 5.9 20.7l1.5-6.7L2.3 9.4l6.8-.7z"/></svg>';
+// A small filled dot marks a committee member - a tier below the crown (commander)
+// and star (deputy), but still clearly a committee position, not an ordinary member.
+const _DOT_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/></svg>';
+function _leaderIcon(role) {
+  return /Deputy/.test(role) ? "star"
+    : /Commander/.test(role) ? "crown"
+    : /Committee/.test(role) ? "dot" : "ring";
+}
+function _badgeSvg(icon) {
+  return icon === "crown" ? _CROWN_SVG : icon === "star" ? _STAR_SVG : _DOT_SVG;
+}
 function leaderRank(m) {
   const role = (m && (m.district_role || m.depot_role)) || "";
   if (!role) return null;
-  const icon = /Deputy/.test(role) ? "star" : (/Commander/.test(role) ? "crown" : "ring");
-  return { tier: m.district_role ? "gold" : "green", icon };
+  return { tier: m.district_role ? "gold" : "green", icon: _leaderIcon(role) };
 }
 function leaderRingClass(m) { const r = leaderRank(m); return r ? "av-ring-" + r.tier : ""; }
 function leaderBadge(m) {
   const r = leaderRank(m);
   if (!r || r.icon === "ring") return "";
-  return `<span class="av-badge av-badge-${r.tier}">${r.icon === "crown" ? _CROWN_SVG : _STAR_SVG}</span>`;
+  return `<span class="av-badge av-badge-${r.tier}">${_badgeSvg(r.icon)}</span>`;
 }
 // When the role/tier is already known (e.g. a leadership panel slot).
 function leaderBadgeFor(role, tier) {
-  const icon = /Deputy/.test(role) ? "star" : (/Commander/.test(role) ? "crown" : "ring");
+  const icon = _leaderIcon(role);
   if (icon === "ring") return "";
-  return `<span class="av-badge av-badge-${tier}">${icon === "crown" ? _CROWN_SVG : _STAR_SVG}</span>`;
+  return `<span class="av-badge av-badge-${tier}">${_badgeSvg(icon)}</span>`;
 }
 function formatDate(d) {
   if (!d) return "-";
