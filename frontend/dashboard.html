@@ -583,11 +583,52 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 10px 0;
+        padding: 10px;
+        margin: 0 -10px;
+        border-radius: 10px;
         border-bottom: 1px solid var(--border);
+        position: relative;
+        transition:
+          background 0.18s ease,
+          transform 0.18s ease;
       }
       .recent-item:last-child {
         border-bottom: none;
+      }
+      .recent-item::after {
+        content: "→";
+        margin-left: auto;
+        color: var(--green);
+        font-weight: 900;
+        opacity: 0;
+        transform: translateX(-6px);
+        transition:
+          opacity 0.18s ease,
+          transform 0.18s ease;
+      }
+      .recent-item:hover {
+        background: var(--green-pale);
+        transform: translateX(4px);
+      }
+      .recent-item:hover::after {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      .recent-item:hover .recent-name {
+        color: var(--green-dark);
+      }
+      .recent-item:hover .recent-avatar {
+        transform: scale(1.07);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .recent-item,
+        .recent-item::after,
+        .recent-item .recent-avatar {
+          transition: none;
+        }
+        .recent-item:hover {
+          transform: none;
+        }
       }
       .recent-avatar {
         width: 36px;
@@ -602,6 +643,7 @@
         font-weight: 900;
         color: var(--white);
         flex-shrink: 0;
+        transition: transform 0.18s ease;
       }
       .recent-content {
         flex: 1;
@@ -615,6 +657,7 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        transition: color 0.18s ease;
       }
       .recent-detail {
         font-family: var(--font2);
